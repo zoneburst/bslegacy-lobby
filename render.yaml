@@ -1,0 +1,12 @@
+# Render Blueprint (0.23.0): New > Blueprint > this repository.
+services:
+  - type: web
+    name: bslegacy-lobby
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      # optional: a Discord webhook address; bug reports are posted there
+      - key: BSL_DISCORD_WEBHOOK
+        sync: false

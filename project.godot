@@ -1,0 +1,66 @@
+; Battle Spirits Saga Simulator
+; Godot Engine 4.5 project configuration file.
+
+config_version=5
+
+[application]
+
+config/name="Battle Spirits Saga Simulator"
+config/version="0.23.0"
+run/main_scene="res://scenes/menu/StartScreen.tscn"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+config/icon="res://icon.png"
+config/windows_native_icon="res://icon.ico"
+run/max_fps=60
+
+[autoload]
+
+Log="*res://scripts/autoload/Log.gd"
+GameConfig="*res://scripts/autoload/GameConfig.gd"
+CardDB="*res://scripts/autoload/CardDB.gd"
+DeckManager="*res://scripts/autoload/DeckManager.gd"
+PlayerProfile="*res://scripts/autoload/PlayerProfile.gd"
+AudioManager="*res://scripts/autoload/AudioManager.gd"
+Net="*res://scripts/autoload/Net.gd"
+MatchService="*res://scripts/autoload/MatchService.gd"
+SceneRouter="*res://scripts/autoload/SceneRouter.gd"
+BugReporter="*res://scripts/autoload/BugReporter.gd"
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/size/resizable=true
+window/size/window_width_override=1280
+window/size/window_height_override=720
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/canvas_textures/default_texture_filter=1
+
+[input]
+
+ui_cancel={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194305,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+
+[file_customization]
+
+folder_colors={
+"res://assets/": "orange",
+"res://data/": "yellow",
+"res://docs/": "gray",
+"res://scripts/rules/": "red"
+}
+
+[importer_defaults]
+
+texture={
+"mipmaps/generate": true
+}
