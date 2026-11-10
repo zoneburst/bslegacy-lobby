@@ -1,0 +1,117 @@
+{
+ "set": "Japanese cards translated for the simulator (0.19.1)",
+ "note": "Unofficial English versions of Japanese Battle Spirits cards that have no English release. The text is our translation of the printed Japanese card, checked against the official card list (battlespirits.com) and the Standard rules manual; the artwork is our own. Not Bandai's wording. Japanese Standard (2026) keywords are mapped onto this simulator's Saga rules; see docs/CODE_ARCHITECTURE.md 'Inherit'.",
+ "cards": [
+  {
+   "id": "26RSD05-X01",
+   "name": "Thunderspout Pale Quar",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "yellow",
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Thunder Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 8000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 10000
+    }
+   ],
+   "text": "Inherit (You may pay this card's reduction with the EX symbols of cards in your trash; those cards are removed from the game.)\n[LV1][LV2] While Attacking: This spirit cannot be blocked by opposing spirits with 4000 BP or less.\n[LV2] At the Start of Your Attack Step: During this turn, all opposing spirits get -2000 BP. Then, destroy those with 0 BP.",
+   "flavor": "",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Inherit",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [],
+     "header": "Inherit",
+     "text": "You may pay this card's reduction with the EX symbols of cards in your trash; those cards are removed from the game.",
+     "source_ja": "継召：トラッシュのEXシンボルを除外し軽減できる。"
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "unblockable_by",
+       "attacker": {
+        "is_source": true
+       },
+       "blocker": {
+        "bp_max": 4000
+       }
+      }
+     ],
+     "header": "While Attacking",
+     "text": "This spirit cannot be blocked by opposing spirits with 4000 BP or less.",
+     "source_ja": "Lv1-2『アタック中』このスピリットはBP4000以下の相手のスピリットからブロックされない。"
+    },
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "attack",
+     "scope": "your_turn",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": -2000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true
+       }
+      }
+     ],
+     "header": "At the Start of Your Attack Step",
+     "text": "During this turn, all opposing spirits get -2000 BP. Then, destroy those with 0 BP.",
+     "source_ja": "Lv2『自分のアタックステップ開始時』このターンの間、相手のスピリットすべてをBP-2000する。その後、それらがBP0なら破壊する。"
+    }
+   ],
+   "set_code": "26RSD05",
+   "rarity": "X",
+   "block": 0,
+   "illustrator": "",
+   "source": {
+    "printed_japanese": "雷噴ペールクアール / 系統: 雷竜 / コスト7 軽減: 黄黄黄 / Lv1 1コア BP8000 / Lv2 3コア BP10000",
+    "set_japanese": "バトスピエントリーデッキ 煌陽ノ雷竜 (26RSD05, 2026-04-11)",
+    "checked_against": [
+     "https://www.battlespirits.com/cardlist/index.php?search=true&prodid=62295",
+     "https://www.battlespirits.com/rule/official-rule-manual-standard/page09.html",
+     "https://www.battlespirits.com/feature/structure/26RSD05/deck_01.php"
+    ],
+    "name_japanese": "雷噴ペールクアール"
+   },
+   "translation": true
+  }
+ ]
+}

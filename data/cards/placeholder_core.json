@@ -1,0 +1,7733 @@
+{
+ "set": "PH",
+ "count": 132,
+ "cards": [
+  {
+   "id": "PH-001",
+   "name": "Pyre Golem",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "",
+   "flavor": "After the Starfall the dragons of the Cinder Reach scattered to the edges of the map. This one stayed.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-002",
+   "name": "Scorch Knight",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV2] When Attacks: This spirit gets +2000 BP during this battle.",
+   "flavor": "Where it passes, the Cinder Reach grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "This spirit gets +2000 BP during this battle.",
+     "levels": [
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-003",
+   "name": "Ember Titan",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Armed Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "",
+   "flavor": "The elders of the Cinder Reach carve its likeness over every gate, though none of them has seen it twice.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-004",
+   "name": "Scorch Herald",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Armed Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Select one of your opponent's spirits with 2000 BP or less and destroy it.",
+   "flavor": "Even its shadow is counted among the defenders of the Cinder Reach.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 2000
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits with 2000 BP or less and destroy it.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-005",
+   "name": "Cinder Wyrm",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] Confront (When this spirit attacks, your opponent must block with a spirit if able.)",
+   "flavor": "Where it passes, the Cinder Reach grows quiet.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Confront",
+     "directives": [],
+     "header": "Confront",
+     "text": "When this spirit attacks, your opponent must block with a spirit if able.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-006",
+   "name": "Blaze Sprite",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV2] When Attacks: Select one of your opponent's spirits with 3000 BP or less and destroy it.",
+   "flavor": "Even its shadow is counted among the defenders of the Cinder Reach.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits with 3000 BP or less and destroy it.",
+     "levels": [
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-007",
+   "name": "Flare Titan",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Armed Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] When Destroyed: Select one of your opponent's spirits with 3000 BP or less and destroy it.",
+   "flavor": "The night the second moon went dark, the armed machines sang. \u2014 Chronicle of the Cinder Reach",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Select one of your opponent's spirits with 3000 BP or less and destroy it.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-008",
+   "name": "Blaze Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Armed Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "text": "",
+   "flavor": "Some say Blaze Guardian was born from a single core left burning in the Cinder Reach for a hundred years.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-009",
+   "name": "Scorch Stalker",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV2][LV3] When Attacks: Your opponent's spirits with 3000 BP or less cannot block this turn.",
+   "flavor": "Where it passes, the Cinder Reach grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "set_flag",
+       "flag": "no_block",
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Your opponent's spirits with 3000 BP or less cannot block this turn.",
+     "levels": [
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-010",
+   "name": "Cinder Drake",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Armed Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Select one of your opponent's spirits with 3000 BP or less and destroy it.",
+   "flavor": "Even its shadow is counted among the defenders of the Cinder Reach.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits with 3000 BP or less and destroy it.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-011",
+   "name": "Pyre Serpent",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 6000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Confront (When this spirit attacks, your opponent must block with a spirit if able.)\n[LV2][LV3] When Attacks: This spirit gets +3000 BP during this battle.",
+   "flavor": "Even its shadow is counted among the defenders of the Cinder Reach.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Confront",
+     "directives": [],
+     "header": "Confront",
+     "text": "When this spirit attacks, your opponent must block with a spirit if able.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "This spirit gets +3000 BP during this battle.",
+     "levels": [
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-012",
+   "name": "Magma Titan",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 8000
+    }
+   ],
+   "text": "",
+   "flavor": "When the Cinder Reach burned beneath twin suns, the dragons rose to guard its last gate. They guard it still.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-013",
+   "name": "Ember Drake",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "symbols": [
+    "red",
+    "red"
+   ],
+   "spirit_types": [
+    "Dragon"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Select one of your opponent's spirits with 3000 BP or less and destroy it.\n[LV2][LV3] When Attacks: Select one of your opponent's spirits with 5000 BP or less and destroy it.",
+   "flavor": "The night the second moon went dark, the dragons sang. \u2014 Chronicle of the Cinder Reach",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits with 3000 BP or less and destroy it.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 5000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits with 5000 BP or less and destroy it.",
+     "levels": [
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-014",
+   "name": "Forge Golem",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "symbols": [
+    "red",
+    "red"
+   ],
+   "spirit_types": [
+    "Armed Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 2,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 8000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Confront (When this spirit attacks, your opponent must block with a spirit if able.)\n[LV2][LV3] When Attacks: Select one of your opponent's spirits with 5000 BP or less and destroy it.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Cinder Reach watch oath",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Confront",
+     "directives": [],
+     "header": "Confront",
+     "text": "When this spirit attacks, your opponent must block with a spirit if able.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 5000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits with 5000 BP or less and destroy it.",
+     "levels": [
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-015",
+   "name": "Magma Sanctum",
+   "card_type": "nexus",
+   "colors": [
+    "red"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] All of your red spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "color": "red"
+        }
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "",
+     "text": "All of your red spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-016",
+   "name": "Forge Reach",
+   "card_type": "nexus",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Attack Step: All of your spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "during": "your_attack_step",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Attack Step",
+     "text": "All of your spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-017",
+   "name": "Ember Terrace",
+   "card_type": "nexus",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] When Your Spirit Attacks: Once per turn, select one of your opponent's spirits with 2000 BP or less and destroy it.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "your_spirits",
+     "once_per_turn": true,
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 2000
+        }
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "When Your Spirit Attacks",
+     "text": "Once per turn, select one of your opponent's spirits with 2000 BP or less and destroy it."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-018",
+   "name": "Cinder Reach",
+   "card_type": "nexus",
+   "colors": [
+    "red"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Draw Step: Draw one additional card. After your draw, discard a card from your hand.\n[LV2] During Your Attack Step: All of your spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "after_draw",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "discard",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Draw Step",
+     "text": "Draw one additional card. After your draw, discard a card from your hand."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "during": "your_attack_step",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0
+       }
+      }
+     ],
+     "levels": [
+      2
+     ],
+     "header": "During Your Attack Step",
+     "text": "All of your spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-019",
+   "name": "Blaze Whisper",
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Select one of your opponent's spirits with 2000 BP or less and destroy it.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 2000
+        }
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Select one of your opponent's spirits with 2000 BP or less and destroy it."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-020",
+   "name": "Flare Gambit",
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "red"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main / Flash: Select one of your spirits. It gets +3000 BP this turn.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "turn",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Select one of your spirits. It gets +3000 BP this turn."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-021",
+   "name": "Ember Whisper",
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Your opponent's spirits with 4000 BP or less cannot block this turn.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "set_flag",
+       "flag": "no_block",
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "bp_max": 4000
+        }
+       }
+      }
+     ],
+     "header": "Main",
+     "text": "Your opponent's spirits with 4000 BP or less cannot block this turn."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-022",
+   "name": "Magma Rite",
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Select one of your opponent's nexuses and destroy it.\nMain / Flash: Select two of your opponent's spirits with 3000 or fewer BP and destroy them.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Main",
+     "text": "Select one of your opponent's nexuses and destroy it."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 2,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Select two of your opponent's spirits with 3000 or fewer BP and destroy them."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-023",
+   "name": "Dusk Sprite",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] When Destroyed: Draw one card.",
+   "flavor": "The night the second moon went dark, the shadows sang. \u2014 Chronicle of the Hollow Vale",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Draw one card.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-024",
+   "name": "Grave Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "",
+   "flavor": "When the Hollow Vale burned beneath twin suns, the shadows rose to guard its last gate. They guard it still.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-025",
+   "name": "Grave Hound",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Send one core from one of your opponent's spirits to their reserve.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Hollow Vale watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Send one core from one of your opponent's spirits to their reserve.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-026",
+   "name": "Wraith Warden",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "",
+   "flavor": "Its call is the first thing heard in the Hollow Vale at dawn, and the last thing most intruders ever hear.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-027",
+   "name": "Dusk Hound",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] Immortal (When another of your purple spirits is destroyed, you may summon this spirit from your trash.)",
+   "flavor": "The night the second moon went dark, the shadows sang. \u2014 Chronicle of the Hollow Vale",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Immortal",
+     "directives": [],
+     "header": "Immortal",
+     "text": "When another of your purple spirits is destroyed, you may summon this spirit from your trash.",
+     "keyword_value": {
+      "color": "purple"
+     },
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-028",
+   "name": "Wraith Drake",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Undead"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Draw one card.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Hollow Vale watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Draw one card.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-029",
+   "name": "Mourn Hound",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Undead"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] Curse (When this spirit is blocked, destroy the blocking spirit at the end of the battle.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Hollow Vale watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Curse",
+     "directives": [],
+     "header": "Curse",
+     "text": "When this spirit is blocked, destroy the blocking spirit at the end of the battle.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-030",
+   "name": "Hollow Golem",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Undead"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "text": "",
+   "flavor": "When the Hollow Vale burned beneath twin suns, the undeads rose to guard its last gate. They guard it still.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-031",
+   "name": "Wraith Wyrm",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Summon one purple spirit with cost 3 or less from your trash without paying its cost.",
+   "flavor": "Even its shadow is counted among the defenders of the Hollow Vale.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "summon_from",
+       "free": true,
+       "cores_from_void": true,
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "spirit",
+        "filters": {
+         "color": "purple",
+         "cost_max": 3
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Summon one purple spirit with cost 3 or less from your trash without paying its cost.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-032",
+   "name": "Dusk Sentinel",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Undead"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV2][LV3] When Attacks: Send one core from one of your opponent's spirits to their reserve.\n[LV1][LV2][LV3] When Destroyed: Draw one card.",
+   "flavor": "Even its shadow is counted among the defenders of the Hollow Vale.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Send one core from one of your opponent's spirits to their reserve.",
+     "levels": [
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Draw one card.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-033",
+   "name": "Mourn Herald",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Undead"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Send two cores from one of your opponent's spirits to their reserve.",
+   "flavor": "Even its shadow is counted among the defenders of the Hollow Vale.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 2,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Send two cores from one of your opponent's spirits to their reserve.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-034",
+   "name": "Grave Serpent",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Curse (When this spirit is blocked, destroy the blocking spirit at the end of the battle.)\n[LV1][LV2][LV3] When Summoned: Draw one card.",
+   "flavor": "Where it passes, the Hollow Vale grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Curse",
+     "directives": [],
+     "header": "Curse",
+     "text": "When this spirit is blocked, destroy the blocking spirit at the end of the battle.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Draw one card.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-035",
+   "name": "Shade Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Undead"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 6000
+    }
+   ],
+   "text": "[LV3] When Attacks: Send one core from each of your opponent's spirits to their reserve.\n[LV1][LV2][LV3] Immortal (When another of your purple spirits is destroyed, you may summon this spirit from your trash.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Hollow Vale watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Send one core from each of your opponent's spirits to their reserve.",
+     "levels": [
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Immortal",
+     "directives": [],
+     "header": "Immortal",
+     "text": "When another of your purple spirits is destroyed, you may summon this spirit from your trash.",
+     "keyword_value": {
+      "color": "purple"
+     },
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-036",
+   "name": "Bone Sprite",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple",
+    "purple"
+   ],
+   "spirit_types": [
+    "Shadow"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Summon one purple spirit with cost 5 or less from your trash without paying its cost.\n[LV3] When Attacks: Send one core from each of your opponent's spirits to their reserve.",
+   "flavor": "Even its shadow is counted among the defenders of the Hollow Vale.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "summon_from",
+       "free": true,
+       "cores_from_void": true,
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "spirit",
+        "filters": {
+         "color": "purple",
+         "cost_max": 5
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Summon one purple spirit with cost 5 or less from your trash without paying its cost.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Send one core from each of your opponent's spirits to their reserve.",
+     "levels": [
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-037",
+   "name": "Wraith Terrace",
+   "card_type": "nexus",
+   "colors": [
+    "purple"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] All of your purple spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "color": "purple"
+        }
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "",
+     "text": "All of your purple spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-038",
+   "name": "Bone Spire",
+   "card_type": "nexus",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Core Step: Put one more core from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "core",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Core Step",
+     "text": "Put one more core from the void into your reserve."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-039",
+   "name": "Mourn Bastion",
+   "card_type": "nexus",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] When Your Spirit Is Destroyed: Once per turn, draw one card.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "your_spirits",
+     "once_per_turn": true,
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "When Your Spirit Is Destroyed",
+     "text": "Once per turn, draw one card."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-040",
+   "name": "Grave Hollow",
+   "card_type": "nexus",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Draw Step: Draw one additional card. After your draw, discard a card from your hand.\n[LV2] When Your Spirit Attacks: Once per turn, send one core from one of your opponent's spirits to their reserve.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "after_draw",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "discard",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Draw Step",
+     "text": "Draw one additional card. After your draw, discard a card from your hand."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "your_spirits",
+     "once_per_turn": true,
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "levels": [
+      2
+     ],
+     "header": "When Your Spirit Attacks",
+     "text": "Once per turn, send one core from one of your opponent's spirits to their reserve."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-041",
+   "name": "Shade Tempest",
+   "card_type": "magic",
+   "colors": [
+    "purple"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Send one core from one of your opponent's spirits to their reserve.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Send one core from one of your opponent's spirits to their reserve."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-042",
+   "name": "Rot Whisper",
+   "card_type": "magic",
+   "colors": [
+    "purple"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Draw two cards.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 2
+      }
+     ],
+     "header": "Main",
+     "text": "Draw two cards."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-043",
+   "name": "Wraith Tempest",
+   "card_type": "magic",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Summon one purple spirit with cost 4 or less from your trash without paying its cost.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "summon_from",
+       "free": true,
+       "cores_from_void": true,
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "spirit",
+        "filters": {
+         "color": "purple",
+         "cost_max": 4
+        }
+       }
+      }
+     ],
+     "header": "Main",
+     "text": "Summon one purple spirit with cost 4 or less from your trash without paying its cost."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-044",
+   "name": "Dusk Gambit",
+   "card_type": "magic",
+   "colors": [
+    "purple"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Send one core from each of your opponent's spirits to their reserve.\nMain / Flash: Draw two cards. Then put one core from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true
+       }
+      }
+     ],
+     "header": "Main",
+     "text": "Send one core from each of your opponent's spirits to their reserve."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 2
+      },
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Draw two cards. Then put one core from the void into your reserve."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-045",
+   "name": "Glacier Wyrm",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Frost Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    }
+   ],
+   "text": "",
+   "flavor": "Scouts from the Rime Bastion speak of a frost beast that walks wherever cores fall from the sky, and never further.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-046",
+   "name": "Glacier Serpent",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Frost Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV1][LV2] When Blocks: This spirit gets +3000 BP during this battle.",
+   "flavor": "Where it passes, the Rime Bastion grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "while_blocking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "This spirit gets +3000 BP during this battle.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-047",
+   "name": "Rime Hound",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Frost Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV1][LV2] Armor: Red / Purple (This spirit cannot be selected by your opponent's red or purple effects.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Rime Bastion watch oath",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "directives": [],
+     "header": "Armor: Red / Purple",
+     "text": "This spirit cannot be selected by your opponent's red or purple effects.",
+     "keyword_value": [
+      "red",
+      "purple"
+     ],
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-048",
+   "name": "Bastion Beast",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    }
+   ],
+   "text": "",
+   "flavor": "Scouts from the Rime Bastion speak of a machine that walks wherever cores fall from the sky, and never further.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-049",
+   "name": "Rime Titan",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Frost Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV2] When Blocks: Once per turn, refresh this spirit.",
+   "flavor": "The night the second moon went dark, the frost beasts sang. \u2014 Chronicle of the Rime Bastion",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "Once per turn, refresh this spirit.",
+     "once_per_turn": true,
+     "levels": [
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-050",
+   "name": "Frost Drake",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Select one of your exhausted spirits and refresh it.",
+   "flavor": "Where it passes, the Rime Bastion grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your exhausted spirits and refresh it.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-051",
+   "name": "Snow Serpent",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Frost Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV1][LV2] When Blocks: This spirit gets +3000 BP during this battle.\n[LV1][LV2] Armor: Red / Purple (This spirit cannot be selected by your opponent's red or purple effects.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Rime Bastion watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "while_blocking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "This spirit gets +3000 BP during this battle.",
+     "levels": [
+      1,
+      2
+     ]
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "directives": [],
+     "header": "Armor: Red / Purple",
+     "text": "This spirit cannot be selected by your opponent's red or purple effects.",
+     "keyword_value": [
+      "red",
+      "purple"
+     ],
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-052",
+   "name": "Snow Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "text": "",
+   "flavor": "Scouts from the Rime Bastion speak of a machine that walks wherever cores fall from the sky, and never further.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-053",
+   "name": "Pale Serpent",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Select one of your opponent's spirits with cost 3 or less and return it to its owner's hand.",
+   "flavor": "Where it passes, the Rime Bastion grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 3
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits with cost 3 or less and return it to its owner's hand.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-054",
+   "name": "Rime Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Frost Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "text": "[LV2][LV3] When Blocks: Once per turn, refresh this spirit.\n[LV1][LV2][LV3] During Opponent's Turn: This spirit gains 2000 BP.",
+   "flavor": "Even its shadow is counted among the defenders of the Rime Bastion.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "Once per turn, refresh this spirit.",
+     "once_per_turn": true,
+     "levels": [
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "constant",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Opponent's Turn",
+     "text": "This spirit gains 2000 BP.",
+     "during": "opponent_turn",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-055",
+   "name": "Rime Stalker",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Frost Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 7000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Swift (You may summon this spirit during flash timing, paying only with cores from your reserve.)\n[LV1][LV2][LV3] When Blocks: This spirit gets +3000 BP during this battle.",
+   "flavor": "The night the second moon went dark, the frost beasts sang. \u2014 Chronicle of the Rime Bastion",
+   "effects": [
+    {
+     "kind": "activated",
+     "timing": "keyword",
+     "keyword": "Swift",
+     "directives": [],
+     "header": "Swift",
+     "text": "You may summon this spirit during flash timing, paying only with cores from your reserve.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "while_blocking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "This spirit gets +3000 BP during this battle.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-056",
+   "name": "Rime Warden",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 7000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Select one of your opponent's spirits with cost 3 or less and return it to its owner's hand.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Rime Bastion watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 3
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits with cost 3 or less and return it to its owner's hand.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-057",
+   "name": "Rime Sentinel",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 8000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Armor: All Colours (This spirit cannot be selected by your opponent's effects of any colour but white.)\n[LV1][LV2][LV3] During Opponent's Turn: This spirit gains 2000 BP.",
+   "flavor": "Where it passes, the Rime Bastion grows quiet.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "directives": [],
+     "header": "Armor: All Colours",
+     "text": "This spirit cannot be selected by your opponent's effects of any colour but white.",
+     "keyword_value": [
+      "red",
+      "purple",
+      "yellow",
+      "green",
+      "blue"
+     ],
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "constant",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Opponent's Turn",
+     "text": "This spirit gains 2000 BP.",
+     "during": "opponent_turn",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-058",
+   "name": "Frost Titan",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white",
+    "white"
+   ],
+   "spirit_types": [
+    "Machine"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 2,
+     "bp": 6000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 8000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 9000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Armor: All Colours (This spirit cannot be selected by your opponent's effects of any colour but white.)\n[LV2][LV3] When Blocks: Once per turn, refresh this spirit.\n[LV1][LV2][LV3] When Summoned: Select one of your opponent's spirits with cost 4 or less and return it to its owner's hand.",
+   "flavor": "Where it passes, the Rime Bastion grows quiet.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "directives": [],
+     "header": "Armor: All Colours",
+     "text": "This spirit cannot be selected by your opponent's effects of any colour but white.",
+     "keyword_value": [
+      "red",
+      "purple",
+      "yellow",
+      "green",
+      "blue"
+     ],
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "Once per turn, refresh this spirit.",
+     "once_per_turn": true,
+     "levels": [
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 4
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits with cost 4 or less and return it to its owner's hand.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-059",
+   "name": "Rime Hollow",
+   "card_type": "nexus",
+   "colors": [
+    "white"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Opponent's Turn: All of your white spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "color": "white"
+        }
+       }
+      }
+     ],
+     "during": "opponent_turn",
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Opponent's Turn",
+     "text": "All of your white spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-060",
+   "name": "Glacier Terrace",
+   "card_type": "nexus",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] When Your Spirit Blocks: That spirit gets +2000 BP during this battle.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "your_spirits",
+     "once_per_turn": false,
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "while_blocking",
+       "target": {
+        "zone": "trigger"
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "When Your Spirit Blocks",
+     "text": "That spirit gets +2000 BP during this battle."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-061",
+   "name": "Frost Reach",
+   "card_type": "nexus",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Core Step: Put one more core from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "core",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Core Step",
+     "text": "Put one more core from the void into your reserve."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-062",
+   "name": "Glacier Sanctum",
+   "card_type": "nexus",
+   "colors": [
+    "white"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] All of your white spirits gain 1000 BP.\n[LV2] When Your Spirit Blocks: Once per turn, refresh that spirit.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "color": "white"
+        }
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "",
+     "text": "All of your white spirits gain 1000 BP."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "your_spirits",
+     "once_per_turn": true,
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "trigger"
+       }
+      }
+     ],
+     "levels": [
+      2
+     ],
+     "header": "When Your Spirit Blocks",
+     "text": "Once per turn, refresh that spirit."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-063",
+   "name": "Snow Tempest",
+   "card_type": "magic",
+   "colors": [
+    "white"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Select one of your exhausted spirits and refresh it.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Select one of your exhausted spirits and refresh it."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-064",
+   "name": "Rime Tempest",
+   "card_type": "magic",
+   "colors": [
+    "white"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "white"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main / Flash: Select one of your spirits. It gets +3000 BP this turn.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "turn",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Select one of your spirits. It gets +3000 BP this turn."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-065",
+   "name": "Snow Gambit",
+   "card_type": "magic",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Select one of your opponent's spirits with cost 3 or less and return it to its owner's hand.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 3
+        }
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Select one of your opponent's spirits with cost 3 or less and return it to its owner's hand."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-066",
+   "name": "Glacier Tempest",
+   "card_type": "magic",
+   "colors": [
+    "white"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Refresh all of your spirits.\nMain: Put one core from the void on your life. Then draw one card.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": true
+        },
+        "all": true
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Refresh all of your spirits."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "life_gain",
+       "amount": 1
+      },
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "Main",
+     "text": "Put one core from the void on your life. Then draw one card."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-067",
+   "name": "Halo Warden",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "",
+   "flavor": "Halo Warden remembers nothing of the war that made it. It remembers only the oath it swore at the end of it.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-068",
+   "name": "Sun Warden",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Fairy"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] Blessed (When this spirit's attack reduces your opponent's life, put one core from the void on your life.)",
+   "flavor": "Where it passes, the Halo Spires grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Blessed",
+     "directives": [],
+     "header": "Blessed",
+     "text": "When this spirit's attack reduces your opponent's life, put one core from the void on your life.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-069",
+   "name": "Gleam Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Fairy"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Return one magic card from your trash to your hand.",
+   "flavor": "Even its shadow is counted among the defenders of the Halo Spires.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "magic",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Return one magic card from your trash to your hand.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-070",
+   "name": "Gleam Knight",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Fairy"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "",
+   "flavor": "Its call is the first thing heard in the Halo Spires at dawn, and the last thing most intruders ever hear.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-071",
+   "name": "Bright Hound",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] Luster (At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Halo Spires watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Luster",
+     "directives": [],
+     "header": "Luster",
+     "text": "At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-072",
+   "name": "Dawn Drake",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Draw one card.",
+   "flavor": "Even its shadow is counted among the defenders of the Halo Spires.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Draw one card.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-073",
+   "name": "Gilded Drake",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Fairy"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 2000
+    }
+   ],
+   "text": "[LV1][LV2] Blessed (When this spirit's attack reduces your opponent's life, put one core from the void on your life.)\n[LV2] When Attacks: This spirit gets +2000 BP during this battle.",
+   "flavor": "The night the second moon went dark, the fairys sang. \u2014 Chronicle of the Halo Spires",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Blessed",
+     "directives": [],
+     "header": "Blessed",
+     "text": "When this spirit's attack reduces your opponent's life, put one core from the void on your life.",
+     "levels": [
+      1,
+      2
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "This spirit gets +2000 BP during this battle.",
+     "levels": [
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-074",
+   "name": "Bright Golem",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "text": "",
+   "flavor": "After the Starfall the celestials of the Halo Spires scattered to the edges of the map. This one stayed.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-075",
+   "name": "Bright Serpent",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Put one core from the void on your life.",
+   "flavor": "Even its shadow is counted among the defenders of the Halo Spires.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "life_gain",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Put one core from the void on your life.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-076",
+   "name": "Halo Titan",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Fairy"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 4000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Luster (At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.)\n[LV2][LV3] When Attacks: Draw one card.",
+   "flavor": "Where it passes, the Halo Spires grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Luster",
+     "directives": [],
+     "header": "Luster",
+     "text": "At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Draw one card.",
+     "levels": [
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-077",
+   "name": "Radiant Hound",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Fairy"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Return one magic card from your trash to your hand.\n[LV1][LV2][LV3] When Summoned: Draw one card.",
+   "flavor": "The night the second moon went dark, the fairys sang. \u2014 Chronicle of the Halo Spires",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "magic",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Return one magic card from your trash to your hand.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Draw one card.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-078",
+   "name": "Radiant Sprite",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV2][LV3] When Attacks: Select one of your opponent's spirits. Its BP becomes 1000 this turn.",
+   "flavor": "The night the second moon went dark, the celestials sang. \u2014 Chronicle of the Halo Spires",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "set_bp",
+       "amount": 1000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits. Its BP becomes 1000 this turn.",
+     "levels": [
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-079",
+   "name": "Radiant Stalker",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "yellow",
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 6000
+    }
+   ],
+   "text": "[LV2][LV3] When Attacks: Select one of your opponent's spirits. Its BP becomes 1000 this turn.\n[LV1][LV2][LV3] Luster (At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.)",
+   "flavor": "Where it passes, the Halo Spires grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "set_bp",
+       "amount": 1000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits. Its BP becomes 1000 this turn.",
+     "levels": [
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Luster",
+     "directives": [],
+     "header": "Luster",
+     "text": "At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-080",
+   "name": "Dawn Knight",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "yellow",
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "spirit_types": [
+    "Celestial"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Blessed (When this spirit's attack reduces your opponent's life, put one core from the void on your life.)\n[LV1][LV2][LV3] When Summoned: Put one core from the void on your life.\n[LV1][LV2][LV3] Luster (At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.)",
+   "flavor": "Where it passes, the Halo Spires grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Blessed",
+     "directives": [],
+     "header": "Blessed",
+     "text": "When this spirit's attack reduces your opponent's life, put one core from the void on your life.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "life_gain",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Put one core from the void on your life.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Luster",
+     "directives": [],
+     "header": "Luster",
+     "text": "At the end of this spirit's battle, return every magic card you used during it from your trash to your hand.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-081",
+   "name": "Halo Sanctum",
+   "card_type": "nexus",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] All of your yellow spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "color": "yellow"
+        }
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "",
+     "text": "All of your yellow spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-082",
+   "name": "Gleam Bastion",
+   "card_type": "nexus",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Draw Step: Draw one additional card. After your draw, discard a card from your hand.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "after_draw",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "discard",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Draw Step",
+     "text": "Draw one additional card. After your draw, discard a card from your hand."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-083",
+   "name": "Gleam Hollow",
+   "card_type": "nexus",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your End Step: If you have three or fewer life, put one core from the void on your life.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "end_of_turn",
+     "scope": "your_turn",
+     "condition": {
+      "type": "life_at_most",
+      "amount": 3
+     },
+     "directives": [
+      {
+       "op": "life_gain",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your End Step",
+     "text": "If you have three or fewer life, put one core from the void on your life."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-084",
+   "name": "Bright Spire",
+   "card_type": "nexus",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1] During Your Core Step: Put one more core from the void into your reserve.\n[LV2] During Your Draw Step: Draw one additional card.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "core",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1
+     ],
+     "header": "During Your Core Step",
+     "text": "Put one more core from the void into your reserve."
+    },
+    {
+     "kind": "triggered",
+     "timing": "after_draw",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      2
+     ],
+     "header": "During Your Draw Step",
+     "text": "Draw one additional card."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-085",
+   "name": "Dawn Surge",
+   "card_type": "magic",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Select one of your opponent's spirits. Its BP becomes 1000 this turn.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "set_bp",
+       "amount": 1000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Select one of your opponent's spirits. Its BP becomes 1000 this turn."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-086",
+   "name": "Sun Surge",
+   "card_type": "magic",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Draw two cards.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 2
+      }
+     ],
+     "header": "Main",
+     "text": "Draw two cards."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-087",
+   "name": "Lucent Gambit",
+   "card_type": "magic",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main / Flash: Put one core from the void on your life. Then draw one card.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "life_gain",
+       "amount": 1
+      },
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Put one core from the void on your life. Then draw one card."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-088",
+   "name": "Radiant Tempest",
+   "card_type": "magic",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Select one of your opponent's spirits with 6000 BP or less and destroy it.\nMain: Draw two cards. Then put one core from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 6000
+        }
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Select one of your opponent's spirits with 6000 BP or less and destroy it."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 2
+      },
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "header": "Main",
+     "text": "Draw two cards. Then put one core from the void into your reserve."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-089",
+   "name": "Bramble Wyrm",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Plant"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Put one core from the void on this spirit.",
+   "flavor": "The night the second moon went dark, the plants sang. \u2014 Chronicle of the Verdant Deep",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1,
+       "to": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Put one core from the void on this spirit.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-090",
+   "name": "Seed Drake",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "",
+   "flavor": "It answers no summoner twice. Those it does answer, it never abandons.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-091",
+   "name": "Bramble Herald",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Put one core from the void into your reserve.",
+   "flavor": "Even its shadow is counted among the defenders of the Verdant Deep.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Put one core from the void into your reserve.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-092",
+   "name": "Root Drake",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV2] When Attacks: Select one of your opponent's spirits and exhaust it.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Verdant Deep watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits and exhaust it.",
+     "levels": [
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-093",
+   "name": "Seed Titan",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] Gale 1 (When this spirit is blocked, your opponent exhausts one of their refreshed spirits.)",
+   "flavor": "The night the second moon went dark, the insects sang. \u2014 Chronicle of the Verdant Deep",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Gale",
+     "directives": [],
+     "header": "Gale 1",
+     "text": "When this spirit is blocked, your opponent exhausts one of their refreshed spirits.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-094",
+   "name": "Bramble Hound",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Put one core from the void on this spirit.",
+   "flavor": "Where it passes, the Verdant Deep grows quiet.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1,
+       "to": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Put one core from the void on this spirit.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-095",
+   "name": "Grove Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV2] When Attacks: Once per turn, refresh this spirit.",
+   "flavor": "Even its shadow is counted among the defenders of the Verdant Deep.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Once per turn, refresh this spirit.",
+     "once_per_turn": true,
+     "levels": [
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-096",
+   "name": "Moss Beast",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Plant"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    }
+   ],
+   "text": "",
+   "flavor": "Its call is the first thing heard in the Verdant Deep at dawn, and the last thing most intruders ever hear.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-097",
+   "name": "Thorn Warden",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Plant"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Select two of your opponent's spirits and exhaust them.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Verdant Deep watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 2
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select two of your opponent's spirits and exhaust them.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-098",
+   "name": "Bramble Knight",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Gale 1 (When this spirit is blocked, your opponent exhausts one of their refreshed spirits.)\n[LV1][LV2][LV3] When Attacks: Put one core from the void into your reserve.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Verdant Deep watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Gale",
+     "directives": [],
+     "header": "Gale 1",
+     "text": "When this spirit is blocked, your opponent exhausts one of their refreshed spirits.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Put one core from the void into your reserve.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-099",
+   "name": "Thorn Sentinel",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "text": "[LV2][LV3] When Attacks: Once per turn, refresh this spirit.\n[LV1][LV2][LV3] When Summoned: Put one core from the void on this spirit.",
+   "flavor": "The night the second moon went dark, the insects sang. \u2014 Chronicle of the Verdant Deep",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Once per turn, refresh this spirit.",
+     "once_per_turn": true,
+     "levels": [
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1,
+       "to": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Put one core from the void on this spirit.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-100",
+   "name": "Grove Wyrm",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "green",
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Plant"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 8000
+    }
+   ],
+   "text": "",
+   "flavor": "Grove Wyrm remembers nothing of the war that made it. It remembers only the oath it swore at the end of it.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-101",
+   "name": "Seed Stalker",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "green",
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Plant"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 7000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Gale 2 (When this spirit is blocked, your opponent exhausts two of their refreshed spirits.)\n[LV3] When Attacks: Exhaust every one of your opponent's spirits with 3000 BP or less.",
+   "flavor": "Even its shadow is counted among the defenders of the Verdant Deep.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Gale",
+     "directives": [],
+     "header": "Gale 2",
+     "text": "When this spirit is blocked, your opponent exhausts two of their refreshed spirits.",
+     "keyword_value": 2,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Exhaust every one of your opponent's spirits with 3000 BP or less.",
+     "levels": [
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-102",
+   "name": "Seed Sprite",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "green",
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green",
+    "green"
+   ],
+   "spirit_types": [
+    "Insect"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 2,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 8000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Put two cores from the void into your reserve.\n[LV2][LV3] When Attacks: Once per turn, refresh this spirit.\n[LV1][LV2][LV3] Gale 2 (When this spirit is blocked, your opponent exhausts two of their refreshed spirits.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Verdant Deep watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 2
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Put two cores from the void into your reserve.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Once per turn, refresh this spirit.",
+     "once_per_turn": true,
+     "levels": [
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Gale",
+     "directives": [],
+     "header": "Gale 2",
+     "text": "When this spirit is blocked, your opponent exhausts two of their refreshed spirits.",
+     "keyword_value": 2,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-103",
+   "name": "Grove Bastion",
+   "card_type": "nexus",
+   "colors": [
+    "green"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Core Step: Put one more core from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "core",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Core Step",
+     "text": "Put one more core from the void into your reserve."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-104",
+   "name": "Verdant Spire",
+   "card_type": "nexus",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] All of your green spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "color": "green"
+        }
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "",
+     "text": "All of your green spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-105",
+   "name": "Thorn Terrace",
+   "card_type": "nexus",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] When Your Spirit Attacks: Once per turn, select one of your opponent's spirits and exhaust it.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "your_spirits",
+     "once_per_turn": true,
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "When Your Spirit Attacks",
+     "text": "Once per turn, select one of your opponent's spirits and exhaust it."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-106",
+   "name": "Root Reach",
+   "card_type": "nexus",
+   "colors": [
+    "green"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1] During Your Core Step: Put one more core from the void into your reserve.\n[LV2] During Your Core Step: Put two more cores from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "core",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1
+     ],
+     "header": "During Your Core Step",
+     "text": "Put one more core from the void into your reserve."
+    },
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "core",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 2
+      }
+     ],
+     "levels": [
+      2
+     ],
+     "header": "During Your Core Step",
+     "text": "Put two more cores from the void into your reserve."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-107",
+   "name": "Bramble Tempest",
+   "card_type": "magic",
+   "colors": [
+    "green"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Select one of your opponent's spirits and exhaust it.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Select one of your opponent's spirits and exhaust it."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-108",
+   "name": "Verdant Surge",
+   "card_type": "magic",
+   "colors": [
+    "green"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "green"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Put two cores from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 2
+      }
+     ],
+     "header": "Main",
+     "text": "Put two cores from the void into your reserve."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-109",
+   "name": "Verdant Rite",
+   "card_type": "magic",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main / Flash: Select one of your exhausted spirits and refresh it. Then put one core from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": true
+        }
+       }
+      },
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Select one of your exhausted spirits and refresh it. Then put one core from the void into your reserve."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-110",
+   "name": "Wild Verdict",
+   "card_type": "magic",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Exhaust every one of your opponent's spirits with 5000 BP or less.\nMain / Flash: Draw one card. Then put two cores from the void into your reserve.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "bp_max": 5000
+        }
+       }
+      }
+     ],
+     "header": "Main",
+     "text": "Exhaust every one of your opponent's spirits with 5000 BP or less."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "add_core_from_void",
+       "amount": 2
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Draw one card. Then put two cores from the void into your reserve."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-111",
+   "name": "Rain Sentinel",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] Crush (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Fathom Coast watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "directives": [],
+     "header": "Crush",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level.",
+     "keyword_value": 0,
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-112",
+   "name": "Mist Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "",
+   "flavor": "It answers no summoner twice. Those it does answer, it never abandons.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-113",
+   "name": "Storm Serpent",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Bird"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: Send the top three cards of your opponent's deck to their trash.",
+   "flavor": "The night the second moon went dark, the birds sang. \u2014 Chronicle of the Fathom Coast",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "mill",
+       "amount": 3,
+       "player": "opponent"
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Send the top three cards of your opponent's deck to their trash.",
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-114",
+   "name": "Abyss Guardian",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "",
+   "flavor": "After the Starfall the sea beasts of the Fathom Coast scattered to the edges of the map. This one stayed.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-115",
+   "name": "Reef Drake",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Bird"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] Raid 1 (When this spirit attacks, you may exhaust one of your nexuses to refresh it. Once per turn.)",
+   "flavor": "The night the second moon went dark, the birds sang. \u2014 Chronicle of the Fathom Coast",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Raid",
+     "directives": [],
+     "header": "Raid 1",
+     "text": "When this spirit attacks, you may exhaust one of your nexuses to refresh it. Once per turn.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-116",
+   "name": "Mist Stalker",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Bird"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] When Summoned: If you have a nexus, draw one card.",
+   "flavor": "Even its shadow is counted among the defenders of the Fathom Coast.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "If you have a nexus, draw one card.",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "nexus"
+      }
+     },
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-117",
+   "name": "Tide Beast",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "text": "[LV1][LV2] Crush (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level.)\n[LV1][LV2] When Attacks: If you have two or more nexuses, this spirit gets +3000 BP during this battle.",
+   "flavor": "Even its shadow is counted among the defenders of the Fathom Coast.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "directives": [],
+     "header": "Crush",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level.",
+     "keyword_value": 0,
+     "levels": [
+      1,
+      2
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "If you have two or more nexuses, this spirit gets +3000 BP during this battle.",
+     "condition": {
+      "type": "controls",
+      "amount": 2,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "nexus"
+      }
+     },
+     "levels": [
+      1,
+      2
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-118",
+   "name": "Current Wyrm",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "text": "",
+   "flavor": "After the Starfall the sea beasts of the Fathom Coast scattered to the edges of the map. This one stayed.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-119",
+   "name": "Current Stalker",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Bird"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Raid 1 (When this spirit attacks, you may exhaust one of your nexuses to refresh it. Once per turn.)\n[LV1][LV2][LV3] Crush (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level.)",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Fathom Coast watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Raid",
+     "directives": [],
+     "header": "Raid 1",
+     "text": "When this spirit attacks, you may exhaust one of your nexuses to refresh it. Once per turn.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "directives": [],
+     "header": "Crush",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level.",
+     "keyword_value": 0,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-120",
+   "name": "Rain Wyrm",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "text": "[LV2][LV3] When Attacks: Select one of your opponent's nexuses and destroy it.",
+   "flavor": "The night the second moon went dark, the sea beasts sang. \u2014 Chronicle of the Fathom Coast",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's nexuses and destroy it.",
+     "levels": [
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-121",
+   "name": "Abyss Titan",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Bird"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 6000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Crush +1 (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.)\n[LV1][LV2][LV3] When Attacks: If you have two or more nexuses, this spirit gets +3000 BP during this battle.",
+   "flavor": "Even its shadow is counted among the defenders of the Fathom Coast.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "directives": [],
+     "header": "Crush +1",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "If you have two or more nexuses, this spirit gets +3000 BP during this battle.",
+     "condition": {
+      "type": "controls",
+      "amount": 2,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "nexus"
+      }
+     },
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-122",
+   "name": "Storm Drake",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "blue",
+    "blue",
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 8000
+    }
+   ],
+   "text": "",
+   "flavor": "When the Fathom Coast burned beneath twin suns, the sea beasts rose to guard its last gate. They guard it still.",
+   "effects": [],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-123",
+   "name": "Mist Golem",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "blue",
+    "blue",
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [
+    "Bird"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Raid 2 (When this spirit attacks, you may exhaust one of your nexuses to refresh it. Twice per turn.)\n[LV1][LV2][LV3] Crush +1 (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.)\n[LV1][LV2][LV3] When Summoned: Send the top three cards of your opponent's deck to their trash.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Fathom Coast watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Raid",
+     "directives": [],
+     "header": "Raid 2",
+     "text": "When this spirit attacks, you may exhaust one of your nexuses to refresh it. Twice per turn.",
+     "keyword_value": 2,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "directives": [],
+     "header": "Crush +1",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "mill",
+       "amount": 3,
+       "player": "opponent"
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Send the top three cards of your opponent's deck to their trash.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-124",
+   "name": "Tide Sprite",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "blue",
+    "blue",
+    "blue"
+   ],
+   "symbols": [
+    "blue",
+    "blue"
+   ],
+   "spirit_types": [
+    "Sea Beast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 2,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 8000
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Crush +1 (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.)\n[LV1][LV2][LV3] Raid 1 (When this spirit attacks, you may exhaust one of your nexuses to refresh it. Once per turn.)\n[LV1][LV2][LV3] When Summoned: Select one of your opponent's nexuses and destroy it.",
+   "flavor": "\u201cHold the line until the cores run dry.\u201d \u2014 the Fathom Coast watch oath",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "directives": [],
+     "header": "Crush +1",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Raid",
+     "directives": [],
+     "header": "Raid 1",
+     "text": "When this spirit attacks, you may exhaust one of your nexuses to refresh it. Once per turn.",
+     "keyword_value": 1,
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's nexuses and destroy it.",
+     "levels": [
+      1,
+      2,
+      3
+     ]
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "R",
+   "block": 0
+  },
+  {
+   "id": "PH-125",
+   "name": "Tide Hollow",
+   "card_type": "nexus",
+   "colors": [
+    "blue"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] All of your blue spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "color": "blue"
+        }
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "",
+     "text": "All of your blue spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-126",
+   "name": "Tide Sanctum",
+   "card_type": "nexus",
+   "colors": [
+    "blue"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] During Your Attack Step: All of your spirits gain 1000 BP.",
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "during": "your_attack_step",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 1000,
+       "duration": "constant",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0
+       }
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "During Your Attack Step",
+     "text": "All of your spirits gain 1000 BP."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-127",
+   "name": "Current Sanctum",
+   "card_type": "nexus",
+   "colors": [
+    "blue"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1][LV2] When Your Spirit Attacks: Once per turn, send the top two cards of your opponent's deck to their trash.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "your_spirits",
+     "once_per_turn": true,
+     "directives": [
+      {
+       "op": "mill",
+       "amount": 2,
+       "player": "opponent"
+      }
+     ],
+     "levels": [
+      1,
+      2
+     ],
+     "header": "When Your Spirit Attacks",
+     "text": "Once per turn, send the top two cards of your opponent's deck to their trash."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-128",
+   "name": "Rain Hollow",
+   "card_type": "nexus",
+   "colors": [
+    "blue"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "spirit_types": [],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "text": "[LV1] During Your Core Step: Put one more core from the void into your reserve.\n[LV2] During Your Draw Step: Draw one additional card. After your draw, discard a card from your hand.",
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "step": "core",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      1
+     ],
+     "header": "During Your Core Step",
+     "text": "Put one more core from the void into your reserve."
+    },
+    {
+     "kind": "triggered",
+     "timing": "after_draw",
+     "scope": "your_turn",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "discard",
+       "amount": 1
+      }
+     ],
+     "levels": [
+      2
+     ],
+     "header": "During Your Draw Step",
+     "text": "Draw one additional card. After your draw, discard a card from your hand."
+    }
+   ],
+   "flavor": "",
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  },
+  {
+   "id": "PH-129",
+   "name": "Tide Whisper",
+   "card_type": "magic",
+   "colors": [
+    "blue"
+   ],
+   "cost": 1,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Send the top four cards of your opponent's deck to their trash.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "mill",
+       "amount": 4,
+       "player": "opponent"
+      }
+     ],
+     "header": "Main",
+     "text": "Send the top four cards of your opponent's deck to their trash."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-130",
+   "name": "Tide Gambit",
+   "card_type": "magic",
+   "colors": [
+    "blue"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "blue"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Flash: Select one of your opponent's spirits with cost 2 or less and return it to its owner's hand.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "flash",
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 2
+        }
+       }
+      }
+     ],
+     "header": "Flash",
+     "text": "Select one of your opponent's spirits with cost 2 or less and return it to its owner's hand."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-131",
+   "name": "Abyss Whisper",
+   "card_type": "magic",
+   "colors": [
+    "blue"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Select one of your opponent's nexuses and destroy it. Then draw one card.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 1
+       }
+      },
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "Main",
+     "text": "Select one of your opponent's nexuses and destroy it. Then draw one card."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "C",
+   "block": 0
+  },
+  {
+   "id": "PH-132",
+   "name": "Storm Verdict",
+   "card_type": "magic",
+   "colors": [
+    "blue"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "text": "Main: Send the top eight cards of your opponent's deck to their trash.\nMain / Flash: Select one of your opponent's spirits with 4000 BP or less and destroy it.",
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "mill",
+       "amount": 8,
+       "player": "opponent"
+      }
+     ],
+     "header": "Main",
+     "text": "Send the top eight cards of your opponent's deck to their trash."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 4000
+        }
+       }
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Select one of your opponent's spirits with 4000 BP or less and destroy it."
+    }
+   ],
+   "set_code": "PH",
+   "rarity": "U",
+   "block": 0
+  }
+ ]
+}

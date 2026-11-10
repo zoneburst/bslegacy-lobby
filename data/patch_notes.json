@@ -1,0 +1,1197 @@
+{
+ "releases": [
+  {
+   "version": "0.23.0",
+   "date": "2026-11-08",
+   "codename": "Online in the browser",
+   "added": [
+    "Online play in the web version (itch.io and the website): Quick Match and Custom Room through the online lobby.",
+    "Bug reports are sent to the team through the online lobby. If one cannot be sent, copy it and post it on the game's page.",
+    "Cards can come packed with the game, so you can play them without importing anything."
+   ],
+   "changed": [
+    "\"Show AI-generated cards\" replaces \"Hide AI-generated cards\": the AI cards are off unless you turn them on (while no real cards exist, they stay in view)."
+   ],
+   "fixed": [
+    "The waiting time for a lobby that was asleep (up to a minute) is shown instead of failing."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.22.2",
+   "date": "2026-11-08",
+   "codename": "Pentagon soul core",
+   "added": [],
+   "changed": [
+    "The soul core is now a pentagon: a red gem in a silver pentagon setting."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "The core changes are still a proposal and may be adjusted."
+   ]
+  },
+  {
+   "version": "0.22.1",
+   "date": "2026-11-07",
+   "codename": "Cores, revised",
+   "added": [
+    "At flash timing with priority (the opponent's turn included), drag a core from one of your cards onto a spirit with Awaken to Awaken it.",
+    "Dragging cores works with a finger on touch screens."
+   ],
+   "changed": [
+    "New look for the cores (hexagon crystals) and the soul core (a red gem in a silver setting).",
+    "A dragged core stays exactly where you drop it, and the spirit's numbers change at once."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "The core changes are still a proposal and may be adjusted."
+   ]
+  },
+  {
+   "version": "0.22.0",
+   "date": "2026-11-07",
+   "codename": "Cores",
+   "added": [
+    "Cores and the soul core are now drawn as real gems.",
+    "Drag a core from your reserve or one of your spirits onto another spirit, or back to the reserve (your main step). Places it can go glow blue; taking a spirit's last core asks first.",
+    "At the start of your turn the new core appears beside your reserve and flies in, and the cores in your core trash fly home one by one."
+   ],
+   "changed": [
+    "Every core movement flies gem by gem, and the rows fill slot by slot.",
+    "A spirit's BP counts to its new number (green up, red down) and its level flashes when it changes."
+   ],
+   "fixed": [
+    "The reserve, life and core trash no longer show their new count before the cores arrive."
+   ],
+   "known_issues": [
+    "This is a proposal: the core changes may still be adjusted."
+   ]
+  },
+  {
+   "version": "0.21.1",
+   "date": "2026-11-07",
+   "codename": "Web import",
+   "added": [
+    "The web version can import your card spreadsheet (CONFIG → Imports). The cards and pictures stay in your browser; nothing is uploaded."
+   ],
+   "changed": [],
+   "fixed": [
+    "Profile pictures can be uploaded in the web version."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.21.0",
+   "date": "2026-11-07",
+   "codename": "Web build",
+   "added": [
+    "A web version (BSLegacy) that runs in a browser: play against the CPU; online play there is coming soon."
+   ],
+   "changed": [],
+   "fixed": [],
+   "known_issues": [
+    "The card back is the official design; an original one is needed before the website is public."
+   ]
+  },
+  {
+   "version": "0.20.3",
+   "date": "2026-11-07",
+   "codename": "Web plan: bslegacy.online",
+   "added": [],
+   "changed": [
+    "Documentation only: hosting and domain decisions in the web plan."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.20.2",
+   "date": "2026-11-07",
+   "codename": "Web plan: hosting options",
+   "added": [],
+   "changed": [
+    "Documentation only: hosting alternatives, budget options and the sign-in decision in the web plan."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.20.1",
+   "date": "2026-11-07",
+   "codename": "Web plan update",
+   "added": [],
+   "changed": [
+    "Documentation only: the web-browser plan gains hosting, budget and language sections."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.20.0",
+   "date": "2026-11-07",
+   "codename": "Coin toss",
+   "added": [
+    "The coin toss: its winner looks at their starting hand and chooses to go first or second, then both players mulligan."
+   ],
+   "changed": [
+    "The CPU's opening decisions are shown at its normal pace after the deal."
+   ],
+   "fixed": [
+    "The first player is no longer picked at random."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.19.7",
+   "date": "2026-11-07",
+   "codename": "Pale Quar, second picture",
+   "added": [],
+   "changed": [
+    "Thunderspout Pale Quar uses the project owner's new picture."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.19.6",
+   "date": "2026-11-07",
+   "codename": "Pale Quar, no blur",
+   "added": [],
+   "changed": [],
+   "fixed": [
+    "Thunderspout Pale Quar's art no longer has blurred sides."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.19.5",
+   "date": "2026-11-06",
+   "codename": "Pale Quar, whole picture",
+   "added": [],
+   "changed": [],
+   "fixed": [
+    "Thunderspout Pale Quar's art shows the whole picture instead of a zoomed-in crop."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.19.4",
+   "date": "2026-11-06",
+   "codename": "Pale Quar, your artwork",
+   "added": [],
+   "changed": [
+    "Thunderspout Pale Quar uses artwork supplied by the project owner."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.19.3",
+   "date": "2026-11-06",
+   "codename": "Pale Quar, anime style",
+   "added": [],
+   "changed": [
+    "Thunderspout Pale Quar's artwork is redrawn in the game's anime card style."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.19.2",
+   "date": "2026-11-06",
+   "codename": "Pale Quar art repass",
+   "added": [],
+   "changed": [
+    "Thunderspout Pale Quar has new artwork."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.19.1",
+   "date": "2026-11-06",
+   "codename": "Thunderspout Pale Quar",
+   "added": [
+    "A translated Japanese card: Thunderspout Pale Quar (26RSD05-X01), with the Inherit keyword and our own artwork.",
+    "Tests for translated cards."
+   ],
+   "changed": [],
+   "fixed": [
+    "Long card numbers no longer run into the rarity letter on the card face."
+   ],
+   "known_issues": [
+    "Inherit removes trash cards automatically; no card in our sets has an EX symbol yet."
+   ]
+  },
+  {
+   "version": "0.19.0",
+   "date": "2026-11-06",
+   "codename": "Gate Open",
+   "added": [
+    "\"Gate Open, Kaiho!\" opens the first battle of a session, in your deck's colour. A split deck shows every co-dominant colour with the gate as a spectrum across them. Settings → Display turns it off."
+   ],
+   "changed": [],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.9",
+   "date": "2026-11-06",
+   "codename": "Gate Open (recordings at the real pace)",
+   "added": [],
+   "changed": [],
+   "fixed": [
+    "Tests no longer write the player's settings file (one could leave Animation speed at 8×)."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.8",
+   "date": "2026-11-06",
+   "codename": "Gate Open (the CPU waits)",
+   "added": [],
+   "changed": [],
+   "fixed": [
+    "The CPU no longer plays its first turn during the Gate Open opening; the game starts at its normal pace after it."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.7",
+   "date": "2026-11-06",
+   "codename": "Gate Open (music waits)",
+   "added": [],
+   "changed": [
+    "The battle music starts after the Gate Open opening, not under it."
+   ],
+   "fixed": [
+    "The Gate Open recordings no longer have the opening deal's sounds under the opening."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.6",
+   "date": "2026-11-06",
+   "codename": "Gate Open (no bubbles)",
+   "added": [],
+   "changed": [
+    "The opening sound of both Gate Open variants is now air, not a tone."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.5",
+   "date": "2026-11-06",
+   "codename": "Gate Open (A and C)",
+   "added": [
+    "A \"Gate Open opening\" setting (Off / Isekai Gate / Burst Through), with sound; it plays once per session. Off until a proposal is approved."
+   ],
+   "changed": [],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.4",
+   "date": "2026-11-05",
+   "codename": "Gate Open (in-engine)",
+   "added": [
+    "The three \"Gate Open, Kaiho!\" proposals are now built in the game (off until one is chosen; recordings in docs/gate)."
+   ],
+   "changed": [],
+   "fixed": [],
+   "known_issues": [
+    "The battle-start animation is waiting for a proposal to be chosen."
+   ]
+  },
+  {
+   "version": "0.18.3",
+   "date": "2026-11-05",
+   "codename": "Gate Open",
+   "added": [
+    "Three proposals for a \"Gate Open, Kaiho!\" animation at the start of a battle (previews in docs/gate; not in the game yet)."
+   ],
+   "changed": [],
+   "fixed": [],
+   "known_issues": [
+    "The battle-start animation is waiting for a proposal to be chosen."
+   ]
+  },
+  {
+   "version": "0.18.2",
+   "date": "2026-11-05",
+   "codename": "Side by Side",
+   "added": [],
+   "changed": [
+    "Cards imported from a spreadsheet are added next to our own versions instead of replacing them. Our cards, with their art, stay in the card list and in your decks.",
+    "The six Saga starter decks (Dragon Assault, Curse Caller, Machine Bulwark, Sealed Arcana, Emerald Wings, Iron Colossi) are no longer included. Their cards are still in the game, and a copy you edited is kept."
+   ],
+   "fixed": [
+    "Importing BSS cards from a spreadsheet no longer hides our starter cards such as Nebula Drake Andarion."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.1",
+   "date": "2026-11-05",
+   "codename": "Full Deck",
+   "added": [
+    "The card art package: every card's painted art, one folder per colour."
+   ],
+   "changed": [
+    "Every card now has painted art (228 of 228), each matching its colour and its family.",
+    "Fetter Angel's art was redone in a long gown."
+   ],
+   "fixed": [
+    "Drakkin Captain and the other Dragonoid, Dragon, Insect, Carapite, Fairy and Celestial cards whose art showed a human in armour now show their own kind of creature."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.18.0",
+   "date": "2026-11-05",
+   "codename": "New Face",
+   "added": [],
+   "changed": [
+    "Every card uses the new card template: art to the top, a polished cost medallion with the reduction symbols around it, a black text box with hexagon level markers, white keyword tags.",
+    "16 more starter cards have painted art (34 of 228 so far).",
+    "Deck covers and the deck editor's deck rows show just the card's art."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "194 cards still have the drawn placeholder art; the art pass continues."
+   ]
+  },
+  {
+   "version": "0.17.9",
+   "date": "2026-11-05",
+   "codename": "Clear Sky",
+   "added": [],
+   "changed": [
+    "New card template proposal: level markers in the earlier colours (white plate, coloured LV), and the large gold arc over the art removed (not in the game yet)."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "The new card template is waiting for approval; the game still uses the current card faces."
+   ]
+  },
+  {
+   "version": "0.17.8",
+   "date": "2026-11-05",
+   "codename": "Level Markers",
+   "added": [],
+   "changed": [
+    "New card template proposal: the level markers are one piece, a gold-rimmed hexagon with the core cost joined to an LV plate (not in the game yet)."
+   ],
+   "fixed": [
+    "New card template proposal: the top of Nebula Drake Andarion's art is no longer blurred."
+   ],
+   "known_issues": [
+    "The new card template is waiting for approval; the game still uses the current card faces."
+   ]
+  },
+  {
+   "version": "0.17.7",
+   "date": "2026-11-05",
+   "codename": "Medallion",
+   "added": [],
+   "changed": [
+    "New card template proposal: a polished cost medallion (gunmetal rim, embossed gold sunburst, glossy gem), with the reduction symbols in sockets around it (not in the game yet)."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "The new card template is waiting for approval; the game still uses the current card faces."
+   ]
+  },
+  {
+   "version": "0.17.6",
+   "date": "2026-11-05",
+   "codename": "Crescent",
+   "added": [],
+   "changed": [
+    "New card template proposal: the reduction symbols circle the cost, the type tab hangs from the cost, and keyword tags are white (not in the game yet)."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "The new card template is waiting for approval; the game still uses the current card faces."
+   ]
+  },
+  {
+   "version": "0.17.5",
+   "date": "2026-11-05",
+   "codename": "First Light",
+   "added": [
+    "A new card template, modelled on the current Battle Spirits Saga cards, is ready as a proposal (not in the game yet)."
+   ],
+   "changed": [
+    "18 cards now have painted art: the 8 approved samples, and a nexus and a magic card for each colour."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "210 cards still have the drawn placeholder art; the art pass continues in small runs."
+   ]
+  },
+  {
+   "version": "0.17.4",
+   "date": "2026-11-05",
+   "codename": "Steady Grid",
+   "added": [
+    "Painted card art from NovelAI: tools/novelai_art.py makes an illustration for a card with your NovelAI account, or brings in pictures you made on novelai.net, and the card faces show it in the art window. An 8-card proposal batch is ready for you to approve."
+   ],
+   "changed": [],
+   "fixed": [
+    "Deck editor: right-clicking a card to take it out of the deck no longer widens the card list. Each right-click made it wider until it ran off the screen."
+   ],
+   "known_issues": [
+    "The NovelAI art pass needs your NovelAI account: no pictures have been made yet."
+   ]
+  },
+  {
+   "version": "0.17.3",
+   "date": "2026-11-04",
+   "codename": "On Target",
+   "added": [],
+   "changed": [],
+   "fixed": [
+    "The attack arrow starts on the attacking card. It began beside it, because attacking spirits are turned sideways. The ATTACK!/BLOCK! rings and words and the card animations are centred on sideways cards too."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.17.2",
+   "date": "2026-11-04",
+   "codename": "Stay Put",
+   "added": [],
+   "changed": [
+    "Turning Fullscreen off returns the window to how it was before (maximized, if it was)."
+   ],
+   "fixed": [
+    "A maximized window no longer shrinks back to its normal size when you press a button that saves a setting: Use on the Decks screen, choosing a deck on the Battle screen, renaming your profile, or any Settings control."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.17.1",
+   "date": "2026-11-04",
+   "codename": "Live Link",
+   "added": [],
+   "changed": [
+    "Link: the attacker's borrowed BP and symbols follow the linking spirit while linked: if its BP changes during the battle, so does the attacker's (rule 11-18-1)."
+   ],
+   "fixed": [
+    "Link: if the linking spirit or the attacker leaves the field during the battle, the link ends at once and BP and symbols return to normal (rule 11-18-4). Before, the attacker kept the bonus until the battle ended.",
+    "The end of a link no longer removes symbols the attacker got from other effects."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.17.0",
+   "date": "2026-11-03",
+   "codename": "Easy Connect",
+   "added": [
+    "Create room asks your router to let your friend in (UPnP): on most home routers, friends anywhere can join with no settings at all.",
+    "One-line invites: Copy invite, and your friend pastes it into one Join box (no address and code to type separately).",
+    "Online lobby: when the game has a lobby address, rooms are made there and work from any network; your friend types only the code. A one-command setup script for running the lobby on a Linux server is included (server/setup_lobby.sh).",
+    "The online guide video and document are redone for the new, simpler steps."
+   ],
+   "changed": [
+    "Custom Room: Create room / Close room, the router's answer under the code, and a single Join box. Settings → Connection: Online lobby, hosting port, and automatic router setup."
+   ],
+   "fixed": [
+    "The invite could show the address of a virtual network adapter (Docker, VirtualBox, Hyper-V…) instead of the computer's real one.",
+    "Online lobbies limit wrong room codes (8 a minute per player), so rooms cannot be found by guessing."
+   ],
+   "known_issues": [
+    "Some internet providers share one address among many customers (CGNAT): then only an online lobby lets friends outside your home network in. A dropped connection still counts as conceding."
+   ]
+  },
+  {
+   "version": "0.16.9",
+   "date": "2026-11-03",
+   "codename": "Host a Room",
+   "added": [
+    "Host a room on this computer: on Battle → Custom Room, \"Host a room\" makes your game the server, shows the room code at once, and an invite with your address, port and code (Copy invite).",
+    "Join a friend's room by typing their address and the code.",
+    "Online Play Guide (document and video): setting up a match, playing over the internet, and what each error means."
+   ],
+   "changed": [
+    "Connecting gives up after 8 seconds with a message saying what to check, instead of waiting about 30 seconds.",
+    "Settings → Connection explains hosting instead of a command line."
+   ],
+   "fixed": [
+    "Making a private room never showed a room code unless a separate server had been started by hand."
+   ],
+   "known_issues": [
+    "A dropped connection still counts as conceding (no reconnection yet). Playing over the internet needs a virtual LAN app or a forwarded UDP port (see the Online Play Guide)."
+   ]
+  },
+  {
+   "version": "0.16.8",
+   "date": "2026-11-03",
+   "codename": "Silver Wire",
+   "added": [],
+   "changed": [
+    "A new program icon in the Battle Spirits style: the silver BSS mark on black, with radiating silver lances, a chrome frame and the six colour gems.",
+    "Online games now animate like games against the AI, and \"Auto-pass empty flash windows\" works online."
+   ],
+   "fixed": [
+    "Online matches can now be played in full: summoning, magic, attacks, blocks, core moves, Awaken and bursts are offered online (before, only the step buttons and prompts were).",
+    "The end of an online game shows the final board; conceding or an opponent leaving is named on the end screen, and spectators see who won.",
+    "A player leaving mid-game no longer sends the other player the wrong view of the board.",
+    "Finished online rooms are closed when their players leave.",
+    "A failed connection no longer leaves the Battle screen waiting; a different game version is refused with a clear message."
+   ],
+   "known_issues": [
+    "Online: a dropped connection still counts as conceding (no reconnection yet), and room codes are not rate-limited."
+   ]
+  },
+  {
+   "version": "0.16.7",
+   "date": "2026-11-03",
+   "codename": "Buried Charge",
+   "added": [],
+   "changed": [
+    "A new program icon: the BSS monogram on a gold-framed tile with the six colour gems (a simpler version at small sizes). The Windows executable now has its own icon."
+   ],
+   "fixed": [
+    "A spirit destroyed because an opponent's effect removed its last core (or lowered its BP to 0) now triggers bursts such as Landmine, and its own When Destroyed effects.",
+    "A burst is no longer lost when its condition is met while another question is on screen, for example when both spirits are destroyed in a battle."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.16.6",
+   "date": "2026-11-02",
+   "codename": "Pay As You Go",
+   "added": [
+    "When your reserve is short, choose which of your cards on the field the cores come from (with warnings when a spirit would level down or be destroyed)."
+   ],
+   "changed": [],
+   "fixed": [
+    "Colour gems no longer overlap the deck name for decks with three or more colours.",
+    "Awaken (and spirits' Flash effects) can be used from the board, including at flash timing.",
+    "After conceding, Back no longer leads to an empty game board you could not leave.",
+    "A rare case where a spirit revived by Immortal died at once, taking another of your spirits with it."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.16.5",
+   "date": "2026-11-02",
+   "codename": "Full Rows",
+   "added": [],
+   "changed": [
+    "Deck editor: 30 cards a page in complete rows; the default order is Spirits, Nexuses, Magic, newest set first within each type, then card number.",
+    "Deck list: a margin below the tiles so they no longer sit on the footer."
+   ],
+   "fixed": [
+    "The deck editor's Spirit, Nexus and Magic filter chips showed no cards."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.16.4",
+   "date": "2026-11-02",
+   "codename": "Trailer",
+   "added": [
+    "A 46-second promotional video of the simulator, with the tools to remake it (tools/promo)."
+   ],
+   "changed": [],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.16.3",
+   "date": "2026-11-02",
+   "codename": "Six Stones",
+   "added": [],
+   "changed": [
+    "New colour symbols: the six gem pictures now appear on the generated card faces (corner symbol and reduction symbols, with no white circle behind) and on the deck editor's colour filters and colour markers."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.16.2",
+   "date": "2026-11-01",
+   "codename": "Front and Back",
+   "added": [],
+   "changed": [
+    "Spirits are placed on the top half of your field and nexuses on the lower half (mirrored for the opponent)."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.16.1",
+   "date": "2026-11-01",
+   "codename": "Shown, Not Told",
+   "added": [],
+   "changed": [],
+   "fixed": [
+    "Reveal effects (Galaxy Dragon Andrometeos and every 'reveal the top cards' card) now show the revealed cards and let you choose which legal card to take; 'look at the top cards' is your choice too.",
+    "You can look through either trash pile during a game: click it."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.16.0",
+   "date": "2026-11-01",
+   "codename": "Gilded Ink",
+   "added": [
+    "Deck editor: filter by set, rarity, spirit type, keyword, condition (When Summoned, When Destroyed...) and BP, plus sorts by type, colour, rarity, set and spirit type. Typing a set code in the search box works.",
+    "Player profile: choose an icon from any card's art or your own image, see your win/loss record by deck, recent matches, and a strengths-and-weaknesses summary built from your play history."
+   ],
+   "changed": [
+    "Every menu screen was redesigned (Start, Main Menu, Battle, Decks, Deck Editor, Settings, Patch Notes, Report Bug, Profile): gold-framed panels, one soul-core Play button, serif titles, and subtle animations. Settings > Display > Reduce motion turns the animations off.",
+    "Settings is now tabbed; the card import controls are on the Imports tab."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "The title fonts from the design brief (Cinzel, Barlow) could not be downloaded; TeX Gyre Pagella stands in."
+   ]
+  },
+  {
+   "version": "0.15.0",
+   "date": "2026-11-01",
+   "codename": "Five Sets",
+   "added": [
+    "Sets 2 to 6: all 669 cards (and the promo PR-068) are playable when imported from your card workbook, so the whole workbook imports: 917 cards, nothing skipped.",
+    "About 250 new card rules, including tokens, Chain, Link (now a choice), Feast, two-colour cards, full Ascend, and activated nexus effects you can use in flash windows."
+   ],
+   "changed": [
+    "Notes and totals in your workbook are no longer read as cards."
+   ],
+   "fixed": [
+    "Chain effects stopped the game.",
+    "A card with two effects on the same timing used only the first.",
+    "BSS01-021 never destroyed a nexus after winning a battle.",
+    "'When you use a magic card' fired before the magic finished.",
+    "A rare endless loop when a spirit at 0 BP was destroyed.",
+    "Two Armor keywords on one spirit now combine their colours."
+   ],
+   "known_issues": [
+    "About 20 choices a card leaves to you are made for you (see I-028).",
+    "The Supsprite token's colour and BP are not confirmed (I-029)."
+   ]
+  },
+  {
+   "version": "0.14.0",
+   "date": "2026-11-01",
+   "codename": "Dawn of History",
+   "added": [
+    "Set 1 'Dawn of History': all 136 cards are playable when imported from your card workbook, with Bloodcurse, Ascend combos and about 40 new card rules."
+   ],
+   "changed": [
+    "The spreadsheet importer reads every sheet in a workbook (starter decks and booster sets together) and says which cards still have no rules.",
+    "When an effect makes the AI destroy one of its own spirits, it gives up its smallest."
+   ],
+   "fixed": [],
+   "known_issues": [
+    "Sets 2 to 6 are added one set per release; until then their cards are skipped on import."
+   ]
+  },
+  {
+   "version": "0.13.0",
+   "date": "2026-11-01",
+   "codename": "Soul and Switches",
+   "added": [
+    "Move the soul core itself: click your spirit in your main step for 'Move the soul core here' or 'Return the soul core to reserve'.",
+    "Settings > Gameplay: hide all AI-generated cards and every deck that uses one, so only your imported cards are in view."
+   ],
+   "changed": [
+    "New title and main-menu music: original anime-rock themes in the style of the Battle Spirits openings."
+   ],
+   "fixed": [
+    "A.T. Field no longer saves a spirit that loses a battle; it only stops your opponent's spirits' destruction effects."
+   ],
+   "known_issues": [
+    "Rules for Battle Spirits Saga Sets 1-6 are being added one set per round; Set 1 is next, from your card sheet."
+   ]
+  },
+  {
+   "version": "0.12.0",
+   "date": "2026-11-01",
+   "codename": "Official Import",
+   "added": [
+    "Import cards from a spreadsheet: Settings > Import cards from a spreadsheet reads an Excel card list (with card pictures) into your own user folder. Imported official cards replace our versions everywhere, decks included, and can be removed again.",
+    "The ST07 starter deck can be imported and played, with the new rules its cards need (A.T. Field, must attack, cannot be selected, and more)."
+   ],
+   "changed": [
+    "20 of our starter-deck cards now match the official cards exactly (levels, reductions, families and wording)."
+   ],
+   "fixed": [
+    "Choosing the target of a destroy effect now counts as your destroy, so 'when your opponent destroys your spirit' Bursts trigger."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.11.4",
+   "date": "2026-11-01",
+   "codename": "Flash Icon",
+   "added": [],
+   "changed": [],
+   "fixed": [
+    "Spirits with a 'Flash' header (Swift, Awaken) now show the flash icon in front of it, as the printed cards do."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.11.3",
+   "date": "2026-11-01",
+   "codename": "Formatted",
+   "added": [
+    "Keywords on every card are now black tags with white letters, with their reminder text after them in italics and in parentheses, as on the printed cards.",
+    "Burst headers sit on a black bar."
+   ],
+   "changed": [
+    "The card text beside the board and in the card zoom now uses the same formatting, in a parchment box like the card's.",
+    "Card text shrinks to fit and wraps around the colour symbol; every card face is checked so no text runs out of its box."
+   ],
+   "fixed": [
+    "Raid's reminder text no longer ends '(once per turn).)'."
+   ],
+   "known_issues": []
+  },
+  {
+   "version": "0.11.2",
+   "date": "2026-11-01",
+   "codename": "Full Set",
+   "added": [
+    "The last 7 starter-deck cards are now based on the real cards (from photos you sent): Marionette Threads, Leafhound, Antling Trooper, Conquering Warlord Nirvan, Isle Bearer Francois, Torrent Surge and Hallowed Cores. All 96 starter-deck cards are now based on real cards.",
+    "New effects for them: 'treat a spirit as its highest level this turn', 'destroy any number of spirits whose costs add up to 5 or less', and a Raid that switches on once your opponent has 10 cards in the trash."
+   ],
+   "changed": [
+    "When a magic card says 'select one spirit', the AI boosts its own spirits and removes yours."
+   ],
+   "fixed": [],
+   "known_issues": []
+  },
+  {
+   "version": "0.11.1",
+   "date": "2026-11-01",
+   "codename": "Twenty Found",
+   "added": [
+    "20 more starter-deck cards are now based on the real cards (from photos you sent), including Starfall Altar, Frostblade Brigitte, Tome Fairy and Spiral Spire."
+   ],
+   "changed": [
+    "The AI picks your spirits, not its own, for 'take a core from one spirit', and skips magic whose condition isn't met."
+   ],
+   "fixed": [
+    "Long magic headers no longer run off the card."
+   ],
+   "known_issues": [
+    "7 starter-deck cards are still our own designs: ST04-015, ST05-006, ST05-009, ST06-001, ST06-002, ST06-014, ST06-016."
+   ]
+  },
+  {
+   "version": "0.11.0",
+   "date": "2026-11-01",
+   "codename": "Starter Decks",
+   "added": [
+    "Our own versions of the first six Battle Spirits Saga starter decks: 96 new cards and six ready-to-play decks (Dragon Assault, Curse Caller, Machine Bulwark, Sealed Arcana, Emerald Wings, Iron Colossi), with the original effects reworded, new names and generated art.",
+    "Awaken can now be used: pick it from a spirit's menu to pull spare cores from your other spirits.",
+    "Bursts now trigger on their own condition (losing life, a spirit destroyed, or the opponent's When Summoned), and afterwards offer to pay for the card's other effect.",
+    "New effect types for the new cards: destroy-by-BP triggers, cannot-attack and cannot-be-destroyed effects, deck searching, cost changes and more."
+   ],
+   "changed": [
+    "The AI never summons a spirit it cannot keep alive, pays with spare cores on its spirits first, and levels its spirits up before attacking."
+   ],
+   "fixed": [
+    "The AI no longer loses spirits by summoning them without enough cores.",
+    "Starter decks added in an update now appear for existing players.",
+    "An effect that needed a target after a 'you may' choice could skip another effect."
+   ],
+   "known_issues": [
+    "27 of the 96 starter-deck slots are our own designs: those cards could not be found online.",
+    "Some 'look at the top cards' effects choose for you."
+   ]
+  },
+  {
+   "version": "0.10.2",
+   "date": "2026-10-31",
+   "codename": "True Black",
+   "added": [],
+   "changed": [
+    "The card back's black is deeper and cleaner than the source image, with the silver as bright as before."
+   ],
+   "fixed": [
+    "The card back's black no longer looks washed out: 0.10.1 had turned it dark grey."
+   ],
+   "known_issues": [
+    "Blue's milling rarely decks an opponent out before the game ends on life."
+   ]
+  },
+  {
+   "version": "0.10.1",
+   "date": "2026-10-31",
+   "codename": "The Real Back",
+   "added": [],
+   "changed": [
+    "The card back is now the Battle Spirits card back: black with silver filigree, the BS emblem and 'Battle Spirits' along the bottom."
+   ],
+   "fixed": [
+    "Clean rounded corners on the card back, with no pale edge on the dark board."
+   ],
+   "known_issues": [
+    "Blue's milling rarely decks an opponent out before the game ends on life."
+   ]
+  },
+  {
+   "version": "0.10.0",
+   "date": "2026-10-31",
+   "codename": "Colour Identity",
+   "added": [
+    "Every colour now plays its own way. Red: destroy blockers by BP, Confront, 'cannot block this turn'. Purple: strip your opponent's cores, revive spirits from your trash, Curse and Immortal. White: big blockers that refresh and block again, Armor, bounce. Yellow: magic that returns to your hand, life gain, BP rewrites. Green: extra cores, exhaust blockers, attack twice. Blue: Crush mills the deck, Raid uses your nexuses, nexus destruction.",
+    "Each colour has its own stats and starter-deck mix: white spirits are bigger, yellow and purple smaller, green levels up for fewer cores, red's big spirits hit for two; yellow runs 12 magic cards, blue 8 nexuses.",
+    "A new card back: a glowing core in a ring of the six colours.",
+    "Milled cards now fly from the deck to the trash, and core removal and Raid show a callout."
+   ],
+   "changed": [
+    "The AI uses each colour's tools and keeps defensive spirits home to block."
+   ],
+   "fixed": [
+    "Answering Yes to Raid or Immortal now works.",
+    "A destroyed nexus no longer keeps working from the trash.",
+    "A card back placed in your user folder is now used."
+   ],
+   "known_issues": [
+    "Blue's milling rarely decks an opponent out before the game ends on life.",
+    "The card back is modelled on the general Battle Spirits style; send a photo of the real back to match it more closely."
+   ]
+  },
+  {
+   "version": "0.9.0",
+   "date": "2026-10-31",
+   "codename": "Nexus and Magic",
+   "added": [
+    "Magic and nexus cards redesigned in the Battle Spirits Saga card layouts: magic with Main / Flash timing icons, nexuses with their level column and 'During Your ... Step' effects.",
+    "New magic and nexus effects, including a two-effect magic card and nexuses that act during your core, draw and attack steps.",
+    "Starter decks now include nexus and magic cards, and the AI plays them."
+   ],
+   "changed": [
+    "The board stays the same size however many cards are on the field; the cards on the field shrink to fit instead."
+   ],
+   "fixed": [
+    "A full field no longer pushes the board under the card preview.",
+    "An effect that asks you to choose during your draw step no longer freezes the turn.",
+    "Both effects of a two-effect magic card can be used.",
+    "Unedited starter decks now update to the new version."
+   ],
+   "known_issues": [
+    "The AI rarely blocks, so games are still on the short side."
+   ]
+  },
+  {
+   "version": "0.8.0",
+   "date": "2026-10-31",
+   "codename": "Spirit Template",
+   "added": [
+    "Spirit cards redesigned in the Battle Spirits Saga card layout: cost badge, reduction symbols, name and family plates, level column with BP and cores, and effect text with level chips and timings.",
+    "Cards you can't play right now are darkened in your hand. Hover one to see why.",
+    "More spirit effects: When Blocks, and When Summoned or When Destroyed effects that destroy a weaker opposing spirit."
+   ],
+   "changed": [
+    "Spirits now use the printed cards' numbers: fewer reduction symbols than their cost, three levels from cost 4, and BP on the printed curve. Games last a little longer."
+   ],
+   "fixed": [
+    "Spirit and nexus effects now work. A bug meant level-based effects (When Summoned, When Attacks, When Destroyed, and every nexus) never activated.",
+    "Magic cards that destroy a spirit no longer crash the effect system.",
+    "'Put a core on this spirit' and 'this spirit gets +BP' now affect that spirit."
+   ],
+   "known_issues": [
+    "Nexus and magic cards still use the old card design; they are next."
+   ]
+  },
+  {
+   "version": "0.7.1",
+   "date": "2026-10-31",
+   "codename": "Soundtrack",
+   "added": [
+    "A new soundtrack of seven original tracks: a heroic title theme, a hopeful menu theme, a relaxed deck-building theme, an anime-rock battle theme, and victory and defeat jingles.",
+    "When either player is down to 2 life, the battle music crossfades into a faster, more urgent theme.",
+    "Music now crossfades between screens."
+   ],
+   "changed": [],
+   "fixed": [
+    "The 'Integer division' warning in the debugger (Battle screen).",
+    "A stereo WAV used as a replacement music track now loops correctly."
+   ],
+   "known_issues": [
+    "Games still end quickly because the placeholder cards are too cheap. This will be fixed with the card redesign."
+   ]
+  },
+  {
+   "version": "0.7.0",
+   "date": "2026-10-30",
+   "codename": "Battle Presentation",
+   "added": [
+    "Battle animations: opening hands dealt, turn banners, each step named as it happens, and cards drawn from the deck.",
+    "Summons and nexuses rise to centre stage with their name, then slam into the field.",
+    "An attack arrow shows what is being attacked: the defender's life, then the blocking spirit if a block is declared.",
+    "BP clashes: both spirits face off at centre, their BP counts up, and the loser shatters.",
+    "Life damage, destruction, magic, bursts, level changes, and VICTORY / DEFEAT banners.",
+    "Eight new sound effects.",
+    "Settings: Battle animations on/off and Animation speed. Click during an animation to speed it up."
+   ],
+   "changed": [
+    "The AI now plays one action at a time so you can see what it does."
+   ],
+   "fixed": [
+    "'Auto-pass flash windows when I have no legal response' now works.",
+    "The attack and draw sound effects now play."
+   ],
+   "known_issues": [
+    "Games still end quickly because the placeholder cards are too cheap. This will be fixed with the card redesign.",
+    "Online games animate in less detail than games against the AI."
+   ]
+  },
+  {
+   "version": "0.6.0",
+   "date": "2026-10-30",
+   "codename": "Ground Up",
+   "added": [
+    "A rebuilt interface with a proper visual style: new typeface, nebula backgrounds, and every control styled to match.",
+    "A Battle hub: pick your deck, then VS AI, Quick Match or Custom Room, on one screen.",
+    "A game board laid out like the official playsheet, with cores shown as gems, a step tracker, playable cards outlined in gold, and a readable game log.",
+    "Quick Play vs AI from the main menu.",
+    "A card inspector in the deck editor."
+   ],
+   "changed": [
+    "The deck editor saves only when you press Save deck, and asks before discarding changes.",
+    "The AI no longer summons spirits it cannot keep a core on."
+   ],
+   "fixed": [
+    "The soul core can now pay costs, and a failed summon no longer loses cores.",
+    "The game no longer crashes during long AI turns.",
+    "Card images no longer appear as plain colour boxes.",
+    "Opening the deck editor no longer creates an empty deck.",
+    "The 'Could not open' screen no longer appears for screens that work."
+   ],
+   "known_issues": [
+    "Games end quickly because the placeholder cards are too cheap. This will be fixed with the card redesign."
+   ]
+  },
+  {
+   "version": "0.5.2",
+   "date": "2026-09-04",
+   "codename": "Isolate It",
+   "changed": [
+    "The deck editor no longer fails to open when the card zoom overlay has a problem; zoom is disabled instead.",
+    "The zoom overlay's code was simplified to plainer, easier-to-verify statements."
+   ]
+  },
+  {
+   "version": "0.5.1",
+   "date": "2026-09-04",
+   "codename": "Say Which Screen",
+   "added": [
+    "A screen that fails to open now says so, naming the screen and the reason, instead of showing a blank window."
+   ],
+   "fixed": [
+    "Simplified the deck editor's search so it is easier to verify."
+   ]
+  },
+  {
+   "version": "0.5.0",
+   "date": "2026-09-04",
+   "codename": "Inspector",
+   "added": [
+    "Click any card, in the grid or your decklist, to zoom in on it — full art, stats, levels and effects, with add and remove built in.",
+    "Every card in the grid shows how many copies you already have, with buttons to add or remove.",
+    "Card size control and paging in the search grid."
+   ],
+   "changed": [
+    "Search, sort and display options are now a single toolbar across the top.",
+    "Your decklist is grouped by card type with counts per group."
+   ]
+  },
+  {
+   "version": "0.4.2",
+   "date": "2026-09-04",
+   "codename": "Cards, Not Main",
+   "fixed": [
+    "No match could be started: the engine looked for a deck's cards under the wrong key and saw an empty deck.",
+    "Error messages were cut off after a few words; they now appear in full, wrapped, at the top of the screen."
+   ]
+  },
+  {
+   "version": "0.4.1",
+   "date": "2026-09-04",
+   "codename": "One Character Wide",
+   "fixed": [
+    "Text appeared as vertical strips of single characters in the deck editor and footer.",
+    "The deck editor's card grid was empty; the collapsed text above it was taking all the space.",
+    "Deck stats always showed zero spirits, nexuses and magic."
+   ],
+   "changed": [
+    "The deck editor's result header is tighter, and the card grid reflows with its own panel."
+   ]
+  },
+  {
+   "version": "0.4.0",
+   "date": "2026-08-28",
+   "codename": "Playable",
+   "added": [
+    "132 placeholder cards with generated art, and six legal starter decks — enough to play a real game immediately.",
+    "Every card face shows its cost, type, effect text and BP."
+   ],
+   "fixed": [
+    "A fresh install had no decks, so no game could be started at all.",
+    "Bot Match refused to start when no default deck had been chosen."
+   ]
+  },
+  {
+   "version": "0.3.3",
+   "date": "2026-08-28",
+   "codename": "Checked It",
+   "fixed": [
+    "The card importer stopped after one page of cards without saying so; it now explains what happened and what to do."
+   ],
+   "added": [
+    "An optional browser mode for the card importer, to get past the source site's client-side paging."
+   ]
+  },
+  {
+   "version": "0.3.2",
+   "date": "2026-08-28",
+   "codename": "Manual",
+   "added": [
+    "A step-by-step card import manual, in Markdown and Word."
+   ],
+   "fixed": [
+    "The card scraper's built-in help listed two options that did not exist."
+   ]
+  },
+  {
+   "version": "0.3.1",
+   "date": "2026-08-28",
+   "codename": "Anchors All The Way",
+   "fixed": [
+    "Battle, Deck, Config, Patch Notes and Report Bug all opened blank: the shared screen shell collapsed their content to zero height.",
+    "The player name on the main menu can now be typed into; an invisible button had been swallowing every click."
+   ]
+  },
+  {
+   "version": "0.3.0",
+   "date": "2026-08-28",
+   "codename": "Hub",
+   "changed": [
+    "The main menu is rebuilt: full-bleed artwork, a name plate with your avatar, and large menu text with descriptions on hover.",
+    "The hub is built on anchors rather than nested containers, so it cannot collapse to an empty screen."
+   ],
+   "added": [
+    "A default profile portrait, and a status line showing cards, decks and lobby state."
+   ]
+  },
+  {
+   "version": "0.2.2",
+   "date": "2026-08-28",
+   "codename": "Fail Loud",
+   "fixed": [
+    "The deck editor failed to load because a loop variable had no type to infer from.",
+    "The title screen built its interface after starting audio, so any audio fault left an empty window."
+   ],
+   "added": [
+    "A screen that builds nothing now says so on screen instead of showing an empty page.",
+    "A corner readout in debug builds showing screen, card count and window size."
+   ]
+  },
+  {
+   "version": "0.2.1",
+   "date": "2026-08-28",
+   "codename": "Right Folder",
+   "fixed": [
+    "Screens could come up empty: content inside the new scrolling area collapsed instead of filling the window.",
+    "A variable named after a built-in function produced a warning on every load."
+   ],
+   "added": [
+    "A README that leads with how to open the project, and a check that catches a second project.godot below the root."
+   ]
+  },
+  {
+   "version": "0.2.0",
+   "date": "2026-08-28",
+   "codename": "Presentation",
+   "added": [
+    "Backgrounds, logo, card back, three music loops and six sound effects — the asset folders were empty, which is why nothing appeared or played.",
+    "New application icon and in-game logo built from the BSS mark.",
+    "A proper design system behind every screen: palette, type scale, button states and sounds."
+   ],
+   "changed": [
+    "The deck editor is now three panes: filters, a grid of card art, and your decklist side by side, with a cost curve and live legality.",
+    "Every screen scrolls and scales with the window instead of running off the bottom edge."
+   ],
+   "fixed": [
+    "Music never looped, because WAV tracks use a loop range rather than a loop flag.",
+    "The title screen asked for a music track that did not exist."
+   ]
+  },
+  {
+   "version": "0.1.3",
+   "date": "2026-08-28",
+   "codename": "Quiet Console",
+   "fixed": [
+    "Four screens failed to load: two used a theme colour that had been renamed, and two had a helper method whose name is reserved by the engine.",
+    "Cleared every remaining editor warning: unused parameters, shadowed names, and one dead variable."
+   ],
+   "changed": [
+    "The project checker now cross-references class members and flags reserved method names, unused parameters and shadowed properties."
+   ]
+  },
+  {
+   "version": "0.1.2",
+   "date": "2026-08-28",
+   "codename": "Clean Compile",
+   "fixed": [
+    "The project failed to open in Godot 4.5: two enum names collided with engine types and brought down every dependent script.",
+    "Nine variables inferred their type from a Variant value, which Godot treats as an error."
+   ],
+   "changed": [
+    "UITheme.OK renamed to UITheme.SUCCESS to stop shadowing the global OK constant.",
+    "The project checker now catches engine-name collisions and Variant inference before the editor is opened."
+   ],
+   "added": [
+    "Word editions of the architecture, asset and changelog documents, with diagrams and a linked contents.",
+    "tools/build_docs.py and tools/make_doc_figures.py to regenerate that documentation."
+   ]
+  },
+  {
+   "version": "0.1.1",
+   "date": "2026-08-28",
+   "codename": "Static Pass",
+   "added": [
+    "tools/check_project.py, a static consistency pass to run before opening the project in Godot.",
+    "Project icon."
+   ],
+   "fixed": [
+    "Cost reduction counted a double-colour symbol twice, so a card with two reduction icons of different colours could cost one core less than it should."
+   ],
+   "changed": [
+    "Field symbols are now matched to reduction icons individually, so each printed symbol is spent at most once (rule 2-8-2-2)."
+   ]
+  },
+  {
+   "version": "0.1.0",
+   "date": "2026-08-27",
+   "codename": "First Light",
+   "added": [
+    "Complete rules engine covering Comprehensive Rules v1.7.0 sections 1-12.",
+    "All eighteen section 11 keyword effects.",
+    "Online play: random matchmaking, private rooms with six-character codes, and spectating.",
+    "Offline bot opponent with five difficulty levels.",
+    "Deck editor with filtered card search, cost curve, legality checking, and text import/export.",
+    "Settings, patch notes, and an in-game bug reporter that attaches a replayable action log.",
+    "Data-driven card effects so a new set is a JSON drop rather than a code change."
+   ],
+   "changed": [],
+   "fixed": [],
+   "known_issues": [
+    "Ships with 24 synthetic sample cards; run tools/scrape_bssdb.py for real data.",
+    "The board UI renders state correctly but has no card movement animation yet.",
+    "Effect ordering when several triggers fire at once resolves newest-first rather than asking the turn player (8-5-2-4).",
+    "Awaken has no dedicated UI; it is reachable only via the activate action."
+   ]
+  }
+ ]
+}

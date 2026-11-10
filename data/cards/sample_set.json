@@ -1,0 +1,1226 @@
+{
+  "_comment": [
+    "SAMPLE DATA -- not real Battle Spirits Saga cards.",
+    "These 24 cards exist so the simulator is playable before you scrape a real",
+    "database. They exercise every card type, every cost-reduction path, and most",
+    "of the section 11 keywords, which makes them a useful regression set.",
+    "Run tools/scrape_bssdb.py to produce real card files alongside this one;",
+    "delete this file once you have them."
+  ],
+  "set": "SAMPLE",
+  "cards": [
+    {
+      "id": "SAMPLE-001",
+      "name": "Ember Whelp",
+      "card_type": "spirit",
+      "colors": [
+        "red"
+      ],
+      "cost": 2,
+      "reduction_symbols": [
+        "red"
+      ],
+      "symbols": [
+        "red"
+      ],
+      "spirit_types": [
+        "Dragon"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 2000
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 4000
+        }
+      ],
+      "text": "[LV2] When this spirit attacks, it gains 1000 BP during that battle.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "on_attack",
+          "scope": "self",
+          "levels": [
+            2
+          ],
+          "directives": [
+            {
+              "op": "add_bp",
+              "amount": 1000,
+              "duration": "while_attacking",
+              "target": {
+                "controller": "self",
+                "zone": "field",
+                "count": 1,
+                "filters": {
+                  "exclude_self": false
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-002",
+      "name": "Blazefang Raider",
+      "card_type": "spirit",
+      "colors": [
+        "red"
+      ],
+      "cost": 4,
+      "reduction_symbols": [
+        "red",
+        "red"
+      ],
+      "symbols": [
+        "red"
+      ],
+      "spirit_types": [
+        "Dragon",
+        "Raider"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 2,
+          "bp": 4000
+        },
+        {
+          "level": 2,
+          "core_cost": 4,
+          "bp": 7000
+        }
+      ],
+      "text": "[LV1][LV2] Crush: +1",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "keyword",
+          "keyword": "Crush",
+          "keyword_value": 1,
+          "levels": [
+            1,
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-003",
+      "name": "Scorchmaw Tyrant",
+      "card_type": "spirit",
+      "colors": [
+        "red"
+      ],
+      "cost": 7,
+      "reduction_symbols": [
+        "red",
+        "red",
+        "red"
+      ],
+      "symbols": [
+        "red",
+        "red"
+      ],
+      "spirit_types": [
+        "Dragon"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 3,
+          "bp": 8000
+        },
+        {
+          "level": 2,
+          "core_cost": 5,
+          "bp": 12000
+        },
+        {
+          "level": 3,
+          "core_cost": 7,
+          "bp": 16000
+        }
+      ],
+      "text": "[LV2][LV3] Confront. [LV3] When this spirit attacks, destroy one opposing spirit with 5000 BP or less.",
+      "effects": [
+        {
+          "kind": "constant",
+          "timing": "keyword",
+          "keyword": "Confront",
+          "levels": [
+            2,
+            3
+          ]
+        },
+        {
+          "kind": "triggered",
+          "timing": "on_attack",
+          "scope": "self",
+          "levels": [
+            3
+          ],
+          "directives": [
+            {
+              "op": "destroy",
+              "prompt": "Destroy an opposing spirit (BP 5000 or less)",
+              "target": {
+                "controller": "opponent",
+                "zone": "field",
+                "card_type": "spirit",
+                "count": 1,
+                "filters": {
+                  "bp_max": 5000
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-004",
+      "name": "Cinder Surge",
+      "card_type": "magic",
+      "colors": [
+        "red"
+      ],
+      "cost": 3,
+      "reduction_symbols": [
+        "red"
+      ],
+      "symbols": [],
+      "spirit_types": [],
+      "levels": [],
+      "text": "Main / Flash: One of your spirits gains 3000 BP during this turn.",
+      "effects": [
+        {
+          "kind": "magic",
+          "timing": "magic",
+          "window": "both",
+          "directives": [
+            {
+              "op": "add_bp",
+              "amount": 3000,
+              "duration": "turn",
+              "target": {
+                "controller": "self",
+                "zone": "field",
+                "card_type": "spirit",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-005",
+      "name": "Volcanic Bastion",
+      "card_type": "nexus",
+      "colors": [
+        "red"
+      ],
+      "cost": 3,
+      "reduction_symbols": [
+        "red"
+      ],
+      "symbols": [
+        "red"
+      ],
+      "spirit_types": [],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 0
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 0
+        }
+      ],
+      "text": "[LV1][LV2] All of your red spirits gain 1000 BP.",
+      "effects": [
+        {
+          "kind": "constant",
+          "timing": "constant",
+          "levels": [
+            1,
+            2
+          ],
+          "directives": [
+            {
+              "op": "add_bp",
+              "amount": 1000,
+              "duration": "permanent",
+              "target": {
+                "controller": "self",
+                "zone": "field",
+                "card_type": "spirit",
+                "all": true,
+                "filters": {
+                  "color": "red"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-006",
+      "name": "Backdraft Trap",
+      "card_type": "magic",
+      "colors": [
+        "red"
+      ],
+      "cost": 2,
+      "reduction_symbols": [
+        "red"
+      ],
+      "symbols": [],
+      "spirit_types": [],
+      "levels": [],
+      "text": "Burst: After your life is reduced. Destroy one opposing spirit with 6000 BP or less.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "burst",
+          "burst_condition": "life_decreased",
+          "directives": [
+            {
+              "op": "destroy",
+              "prompt": "Destroy an opposing spirit",
+              "target": {
+                "controller": "opponent",
+                "zone": "field",
+                "card_type": "spirit",
+                "count": 1,
+                "filters": {
+                  "bp_max": 6000
+                }
+              }
+            }
+          ]
+        },
+        {
+          "kind": "magic",
+          "timing": "magic",
+          "window": "main",
+          "directives": [
+            {
+              "op": "mill",
+              "player": "opponent",
+              "amount": 2
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-011",
+      "name": "Tidewatch Scout",
+      "card_type": "spirit",
+      "colors": [
+        "blue"
+      ],
+      "cost": 2,
+      "reduction_symbols": [
+        "blue"
+      ],
+      "symbols": [
+        "blue"
+      ],
+      "spirit_types": [
+        "Machine"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 1000
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 3000
+        }
+      ],
+      "text": "[LV1][LV2] When summoned, draw one card, then discard one card.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "on_summon",
+          "scope": "self",
+          "levels": [
+            1,
+            2
+          ],
+          "directives": [
+            {
+              "op": "draw",
+              "amount": 1
+            },
+            {
+              "op": "discard",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-012",
+      "name": "Abyssal Sentinel",
+      "card_type": "spirit",
+      "colors": [
+        "blue"
+      ],
+      "cost": 5,
+      "reduction_symbols": [
+        "blue",
+        "blue"
+      ],
+      "symbols": [
+        "blue"
+      ],
+      "spirit_types": [
+        "Machine",
+        "Guardian"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 2,
+          "bp": 5000
+        },
+        {
+          "level": 2,
+          "core_cost": 4,
+          "bp": 9000
+        }
+      ],
+      "text": "[LV1][LV2] Armor: Red",
+      "effects": [
+        {
+          "kind": "constant",
+          "timing": "keyword",
+          "keyword": "Armor",
+          "keyword_value": [
+            "red"
+          ],
+          "levels": [
+            1,
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-013",
+      "name": "Riptide Corsair",
+      "card_type": "spirit",
+      "colors": [
+        "blue"
+      ],
+      "cost": 4,
+      "reduction_symbols": [
+        "blue"
+      ],
+      "symbols": [
+        "blue"
+      ],
+      "spirit_types": [
+        "Corsair"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 2,
+          "bp": 3000
+        },
+        {
+          "level": 2,
+          "core_cost": 4,
+          "bp": 6000
+        }
+      ],
+      "text": "[LV1][LV2] Gale: 1",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "keyword",
+          "keyword": "Gale",
+          "keyword_value": 1,
+          "levels": [
+            1,
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-014",
+      "name": "Undertow",
+      "card_type": "magic",
+      "colors": [
+        "blue"
+      ],
+      "cost": 3,
+      "reduction_symbols": [
+        "blue"
+      ],
+      "symbols": [],
+      "spirit_types": [],
+      "levels": [],
+      "text": "Flash: Return one opposing spirit with cost 4 or less to its owner's hand.",
+      "effects": [
+        {
+          "kind": "magic",
+          "timing": "magic",
+          "window": "flash",
+          "directives": [
+            {
+              "op": "return_to_hand",
+              "prompt": "Return an opposing spirit",
+              "target": {
+                "controller": "opponent",
+                "zone": "field",
+                "card_type": "spirit",
+                "count": 1,
+                "filters": {
+                  "cost_max": 4
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-015",
+      "name": "Deepcurrent Array",
+      "card_type": "nexus",
+      "colors": [
+        "blue"
+      ],
+      "cost": 4,
+      "reduction_symbols": [
+        "blue"
+      ],
+      "symbols": [
+        "blue"
+      ],
+      "spirit_types": [],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 2,
+          "bp": 0
+        },
+        {
+          "level": 2,
+          "core_cost": 4,
+          "bp": 0
+        }
+      ],
+      "text": "[LV2] At the start of your draw step, draw one additional card.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "start_of_step",
+          "scope": "your_turn",
+          "levels": [
+            2
+          ],
+          "directives": [
+            {
+              "op": "draw",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-021",
+      "name": "Thornhide Beetle",
+      "card_type": "spirit",
+      "colors": [
+        "green"
+      ],
+      "cost": 1,
+      "reduction_symbols": [
+        "green"
+      ],
+      "symbols": [
+        "green"
+      ],
+      "spirit_types": [
+        "Carapite"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 1000
+        },
+        {
+          "level": 2,
+          "core_cost": 2,
+          "bp": 3000
+        }
+      ],
+      "text": "[LV1][LV2] Swift",
+      "effects": [
+        {
+          "kind": "activated",
+          "timing": "keyword",
+          "keyword": "Swift",
+          "levels": [
+            1,
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-022",
+      "name": "Bramblehorn Elder",
+      "card_type": "spirit",
+      "colors": [
+        "green"
+      ],
+      "cost": 5,
+      "reduction_symbols": [
+        "green",
+        "green"
+      ],
+      "symbols": [
+        "green"
+      ],
+      "spirit_types": [
+        "Carapite",
+        "Elder"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 2,
+          "bp": 4000
+        },
+        {
+          "level": 2,
+          "core_cost": 4,
+          "bp": 8000
+        }
+      ],
+      "text": "[LV1][LV2] When summoned, place one core from the void onto this spirit.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "on_summon",
+          "scope": "self",
+          "levels": [
+            1,
+            2
+          ],
+          "directives": [
+            {
+              "op": "add_core_from_void",
+              "amount": 1,
+              "to": {
+                "zone": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-023",
+      "name": "Verdant Growth",
+      "card_type": "magic",
+      "colors": [
+        "green"
+      ],
+      "cost": 2,
+      "reduction_symbols": [
+        "green"
+      ],
+      "symbols": [],
+      "spirit_types": [],
+      "levels": [],
+      "text": "Main: Place two cores from the void into your reserve.",
+      "effects": [
+        {
+          "kind": "magic",
+          "timing": "magic",
+          "window": "main",
+          "directives": [
+            {
+              "op": "add_core_from_void",
+              "amount": 2,
+              "to": {
+                "zone": "reserve",
+                "player": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-024",
+      "name": "Wildwood Nexus",
+      "card_type": "nexus",
+      "colors": [
+        "green"
+      ],
+      "cost": 2,
+      "reduction_symbols": [
+        "green"
+      ],
+      "symbols": [
+        "green"
+      ],
+      "spirit_types": [],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 0
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 0
+        }
+      ],
+      "text": "[LV1][LV2] At the start of your core step, place one core from the void into your reserve.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "start_of_step",
+          "scope": "your_turn",
+          "levels": [
+            1,
+            2
+          ],
+          "directives": [
+            {
+              "op": "add_core_from_void",
+              "amount": 1,
+              "to": {
+                "zone": "reserve",
+                "player": "self"
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-031",
+      "name": "Dawnshield Acolyte",
+      "card_type": "spirit",
+      "colors": [
+        "white"
+      ],
+      "cost": 3,
+      "reduction_symbols": [
+        "white"
+      ],
+      "symbols": [
+        "white"
+      ],
+      "spirit_types": [
+        "Angel"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 3000
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 5000
+        }
+      ],
+      "text": "[LV2] Blessed",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "keyword",
+          "keyword": "Blessed",
+          "levels": [
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-032",
+      "name": "Radiant Custodian",
+      "card_type": "spirit",
+      "colors": [
+        "white"
+      ],
+      "cost": 6,
+      "reduction_symbols": [
+        "white",
+        "white"
+      ],
+      "symbols": [
+        "white",
+        "white"
+      ],
+      "spirit_types": [
+        "Angel",
+        "Guardian"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 3,
+          "bp": 6000
+        },
+        {
+          "level": 2,
+          "core_cost": 5,
+          "bp": 10000
+        }
+      ],
+      "text": "[LV1][LV2] A.T. Field. [LV2] Astral",
+      "effects": [
+        {
+          "kind": "constant",
+          "timing": "keyword",
+          "keyword": "A.T. Field",
+          "levels": [
+            1,
+            2
+          ]
+        },
+        {
+          "kind": "constant",
+          "timing": "keyword",
+          "keyword": "Astral",
+          "levels": [
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-033",
+      "name": "Sanctified Ward",
+      "card_type": "magic",
+      "colors": [
+        "white"
+      ],
+      "cost": 2,
+      "reduction_symbols": [
+        "white"
+      ],
+      "symbols": [],
+      "spirit_types": [],
+      "levels": [],
+      "text": "Burst: After your life is reduced. Place one core from the void into your life.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "burst",
+          "burst_condition": "life_decreased",
+          "directives": [
+            {
+              "op": "life_gain",
+              "player": "self",
+              "amount": 1
+            }
+          ]
+        },
+        {
+          "kind": "magic",
+          "timing": "magic",
+          "window": "flash",
+          "directives": [
+            {
+              "op": "refresh",
+              "target": {
+                "controller": "self",
+                "zone": "field",
+                "card_type": "spirit",
+                "count": 1
+              }
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-041",
+      "name": "Fatespinner Sprite",
+      "card_type": "spirit",
+      "colors": [
+        "yellow"
+      ],
+      "cost": 2,
+      "reduction_symbols": [
+        "yellow"
+      ],
+      "symbols": [
+        "yellow"
+      ],
+      "spirit_types": [
+        "Fairy"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 2000
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 4000
+        }
+      ],
+      "text": "[LV1][LV2] Luster",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "keyword",
+          "keyword": "Luster",
+          "levels": [
+            1,
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-042",
+      "name": "Gilded Arbiter",
+      "card_type": "spirit",
+      "colors": [
+        "yellow"
+      ],
+      "cost": 5,
+      "reduction_symbols": [
+        "yellow",
+        "yellow"
+      ],
+      "symbols": [
+        "yellow"
+      ],
+      "spirit_types": [
+        "Fairy",
+        "Arbiter"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 2,
+          "bp": 5000
+        },
+        {
+          "level": 2,
+          "core_cost": 4,
+          "bp": 8000
+        }
+      ],
+      "text": "[LV2] Raid: 1",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "keyword",
+          "keyword": "Raid",
+          "keyword_value": 1,
+          "levels": [
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-051",
+      "name": "Gravecall Wretch",
+      "card_type": "spirit",
+      "colors": [
+        "purple"
+      ],
+      "cost": 3,
+      "reduction_symbols": [
+        "purple"
+      ],
+      "symbols": [
+        "purple"
+      ],
+      "spirit_types": [
+        "Undead"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 3000
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 5000
+        }
+      ],
+      "text": "[LV1][LV2] Immortal: cost 2 or more",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "keyword",
+          "keyword": "Immortal",
+          "keyword_value": {
+            "cost_min": 2
+          },
+          "levels": [
+            1,
+            2
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-052",
+      "name": "Hexbound Reaper",
+      "card_type": "spirit",
+      "colors": [
+        "purple"
+      ],
+      "cost": 6,
+      "reduction_symbols": [
+        "purple",
+        "purple"
+      ],
+      "symbols": [
+        "purple"
+      ],
+      "spirit_types": [
+        "Undead",
+        "Reaper"
+      ],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 3,
+          "bp": 6000
+        },
+        {
+          "level": 2,
+          "core_cost": 5,
+          "bp": 9000
+        }
+      ],
+      "text": "[LV1][LV2] Curse. [LV2] When destroyed, your opponent discards one card.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "keyword",
+          "keyword": "Curse",
+          "levels": [
+            1,
+            2
+          ]
+        },
+        {
+          "kind": "triggered",
+          "timing": "when_destroyed",
+          "scope": "self",
+          "levels": [
+            2
+          ],
+          "directives": [
+            {
+              "op": "discard",
+              "player": "opponent",
+              "amount": 1
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-053",
+      "name": "Soulrend",
+      "card_type": "magic",
+      "colors": [
+        "purple"
+      ],
+      "cost": 4,
+      "reduction_symbols": [
+        "purple"
+      ],
+      "symbols": [],
+      "spirit_types": [],
+      "levels": [],
+      "text": "Main: Destroy one opposing spirit with 8000 BP or less. Chain: purple -- draw one card.",
+      "effects": [
+        {
+          "kind": "magic",
+          "timing": "magic",
+          "window": "main",
+          "directives": [
+            {
+              "op": "destroy",
+              "prompt": "Destroy an opposing spirit",
+              "target": {
+                "controller": "opponent",
+                "zone": "field",
+                "card_type": "spirit",
+                "count": 1,
+                "filters": {
+                  "bp_max": 8000
+                }
+              }
+            }
+          ],
+          "chain": {
+            "condition": "purple",
+            "directives": [
+              {
+                "op": "draw",
+                "amount": 1
+              }
+            ]
+          }
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    },
+    {
+      "id": "SAMPLE-054",
+      "name": "Tombward Monolith",
+      "card_type": "nexus",
+      "colors": [
+        "purple"
+      ],
+      "cost": 3,
+      "reduction_symbols": [
+        "purple"
+      ],
+      "symbols": [
+        "purple"
+      ],
+      "spirit_types": [],
+      "levels": [
+        {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 0
+        },
+        {
+          "level": 2,
+          "core_cost": 3,
+          "bp": 0
+        }
+      ],
+      "text": "[LV2] At the end of your turn, discard the top two cards of your opponent's deck.",
+      "effects": [
+        {
+          "kind": "triggered",
+          "timing": "end_of_turn",
+          "scope": "your_turn",
+          "levels": [
+            2
+          ],
+          "directives": [
+            {
+              "op": "mill",
+              "player": "opponent",
+              "amount": 2
+            }
+          ]
+        }
+      ],
+      "set_code": "SAMPLE",
+      "rarity": "C",
+      "block": 0
+    }
+  ]
+}

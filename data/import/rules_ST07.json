@@ -1,0 +1,1257 @@
+{
+ "set": "ST07",
+ "note": "Mechanics for the official ST07 cards, used only by the spreadsheet importer. No card names, card text or art.",
+ "rules": {
+  "ST07-001": {
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "red",
+    "red",
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-02",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 9000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      3
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 4000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits with 4000 BP or less and destroy it."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)\n[LV3] When Attacks: Select one of your opponent's spirits with 4000 BP or less and destroy it.",
+   "flavor": ""
+  },
+  "ST07-002": {
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "red",
+    "red",
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-02",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 8000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    },
+    {
+     "kind": "triggered",
+     "timing": "battle_end",
+     "scope": "your_spirits",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "Draw a card when a battle with one of your NERV spirits ends.",
+     "trigger_filter": {
+      "spirit_type": "NERV"
+     },
+     "during": "your_attack_step"
+    }
+   ],
+   "text": "[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)\n[LV2][LV3] During Your Attack Step: Draw a card when a battle with one of your NERV spirits ends.",
+   "flavor": ""
+  },
+  "ST07-003": {
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red",
+    "purple",
+    "yellow"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-02",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 7000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)",
+   "flavor": ""
+  },
+  "ST07-004": {
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 7,
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "red",
+    "yellow",
+    "yellow"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-01",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 10000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "",
+        "count": 1,
+        "filters": {
+         "spirit_type": "NERV",
+         "cost_max": 4
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Return a NERV card that costs 4 or less from your trash to your hand."
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      3
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Put five cores from this spirit into your trash to take four cores from an opposing spirit?",
+       "labels": [
+        "Do it",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "move_cores",
+           "from": {
+            "zone": "self"
+           },
+           "to": {
+            "zone": "trash"
+           },
+           "amount": 5
+          },
+          {
+           "op": "remove_cores",
+           "amount": 4,
+           "target": {
+            "controller": "opponent",
+            "zone": "field",
+            "card_type": "spirit",
+            "count": 1
+           }
+          },
+          {
+           "op": "life_loss",
+           "player": "opponent",
+           "amount": 1,
+           "to": "reserve",
+           "if": {
+            "all": [
+             {
+              "type": "frame_flag",
+              "flag": "zeroed"
+             },
+             {
+              "type": "controls",
+              "amount": 1,
+              "target": {
+               "controller": "self",
+               "zone": "field",
+               "card_type": "nexus",
+               "filters": {
+                "spirit_type": "Shinji"
+               }
+              }
+             }
+            ]
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Attacks",
+     "text": "You may put five cores from this spirit into your trash. If you do, select one of your opponent's spirits and send four of its cores to their reserve. If that destroys it and you control a Shinji nexus, send one core from your opponent's life to their reserve."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Return a NERV card that costs 4 or less from your trash to your hand.\n[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)\n[LV3] When Attacks: You may put five cores from this spirit into your trash. If you do, select one of your opponent's spirits and send four of its cores to their reserve. If that destroys it and you control a Shinji nexus, send one core from your opponent's life to their reserve.",
+   "flavor": ""
+  },
+  "ST07-005": {
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "red",
+    "yellow"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-01",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 9000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "must_attack",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "This spirit must attack if able.",
+     "during": "your_attack_step"
+    }
+   ],
+   "text": "[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)\n[LV1][LV2][LV3] During Your Attack Step: This spirit must attack if able.",
+   "flavor": ""
+  },
+  "ST07-006": {
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-01",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 5000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Draw a card if your opponent controls a spirit.",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "opponent",
+       "zone": "field",
+       "card_type": "spirit"
+      }
+     }
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Draw a card if your opponent controls a spirit.\n[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)",
+   "flavor": ""
+  },
+  "ST07-007": {
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "red",
+    "yellow"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-01",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 7000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)",
+   "flavor": ""
+  },
+  "ST07-008": {
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "yellow",
+    "yellow",
+    "purple"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-00",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "untargetable",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "spirit_type": "EVA-01"
+        }
+       }
+      }
+     ],
+     "header": "During Opponent's Turn",
+     "text": "If this spirit is refreshed, your opponent's effects cannot select your EVA-01 spirits.",
+     "during": "opponent_turn",
+     "condition": {
+      "type": "self_refreshed"
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Refresh one of your NERV spirits?",
+       "labels": [
+        "Refresh",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "refresh",
+           "target": {
+            "controller": "self",
+            "zone": "field",
+            "card_type": "spirit",
+            "count": 1,
+            "filters": {
+             "spirit_type": "NERV",
+             "exhausted": true
+            }
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Destroyed By Opponent",
+     "text": "You may select one of your NERV spirits and refresh it."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)\n[LV1][LV2][LV3] During Opponent's Turn: If this spirit is refreshed, your opponent's effects cannot select your EVA-01 spirits.\n[LV2][LV3] When Destroyed By Opponent: You may select one of your NERV spirits and refresh it.",
+   "flavor": ""
+  },
+  "ST07-009": {
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 0,
+   "reduction_symbols": [],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-00",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1
+     ],
+     "directives": [
+      {
+       "op": "cannot_attack",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "",
+     "text": "This spirit cannot attack."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1
+     ],
+     "directives": [
+      {
+       "op": "symbol_also",
+       "colors": [
+        "red",
+        "purple"
+       ],
+       "for": {
+        "spirit_type": "NERV"
+       }
+      }
+     ],
+     "header": "During Your Main Step",
+     "text": "When you summon or place a NERV card, this spirit's colour and symbol also count as red and purple.",
+     "during": "your_main_step"
+    }
+   ],
+   "text": "[LV1] This spirit cannot attack.\n[LV1] During Your Main Step: When you summon or place a NERV card, this spirit's colour and symbol also count as red and purple.",
+   "flavor": ""
+  },
+  "ST07-010": {
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Golem",
+    "EVA-00",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 6000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "A.T. Field",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "A.T. Field",
+     "text": "If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] A.T. Field (If this spirit has a soul core on it, your opponent's spirits' destruction effects cannot destroy it.)",
+   "flavor": ""
+  },
+  "ST07-011": {
+   "card_type": "nexus",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "red",
+    "purple"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "spirit_types": [
+    "Asuka",
+    "Pilot",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "scope": "your_turn",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "add_cores_from_trash",
+       "amount": 2,
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "spirit_type": "NERV"
+        }
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "At the start of the step, select one of your NERV spirits. Put two cores from your trash (not the soul core) on it.",
+     "step": "attack"
+    },
+    {
+     "kind": "triggered",
+     "timing": "battle_destroy",
+     "scope": "your_spirits",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "Draw a card when one of your EVA-02 spirits destroys an opposing spirit by comparing BP.",
+     "trigger_filter": {
+      "spirit_type": "EVA-02"
+     },
+     "during": "your_attack_step"
+    }
+   ],
+   "text": "[LV1][LV2] During Your Attack Step: At the start of the step, select one of your NERV spirits. Put two cores from your trash (not the soul core) on it.\n[LV2] During Your Attack Step: Draw a card when one of your EVA-02 spirits destroys an opposing spirit by comparing BP.",
+   "flavor": ""
+  },
+  "ST07-012": {
+   "card_type": "nexus",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "red",
+    "yellow"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Shinji",
+    "Pilot",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 0
+    }
+   ],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "",
+     "text": "When one of your EVA-01 spirits is destroyed, draw a card if you have five or fewer cards in your hand.",
+     "trigger_filter": {
+      "spirit_type": "EVA-01"
+     },
+     "condition": {
+      "not": {
+       "type": "hand_count",
+       "amount": 6
+      }
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "blocked",
+     "scope": "your_spirits",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "zone": "blocker"
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When one of your EVA-01 spirits is blocked, send one core from the blocking spirit to its owner's reserve.",
+     "trigger_filter": {
+      "spirit_type": "EVA-01"
+     },
+     "during": "your_attack_step"
+    }
+   ],
+   "text": "[LV1][LV2] When one of your EVA-01 spirits is destroyed, draw a card if you have five or fewer cards in your hand.\n[LV2] During Your Attack Step: When one of your EVA-01 spirits is blocked, send one core from the blocking spirit to its owner's reserve.",
+   "flavor": ""
+  },
+  "ST07-013": {
+   "card_type": "nexus",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow",
+    "purple"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Rei",
+    "Pilot",
+    "NERV"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 0,
+     "bp": 0
+    },
+    {
+     "level": 2,
+     "core_cost": 1,
+     "bp": 0
+    }
+   ],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_place",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "search_top",
+       "amount": 3,
+       "take": 1,
+       "card_type": "",
+       "filters": {
+        "spirit_type": "NERV",
+        "not_same_name": true
+       },
+       "rest": "trash"
+      }
+     ],
+     "header": "When Placed",
+     "text": "Reveal the top three cards of your deck. Add a NERV card with a different name from this card to your hand, and discard the rest."
+    },
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "scope": "opponent_turn",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "spirit_type": "EVA-00",
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "During Opponent's Attack Step",
+     "text": "At the start of the step, you may select one of your EVA-00 spirits and refresh it.",
+     "step": "attack"
+    }
+   ],
+   "text": "[LV1][LV2] When Placed: Reveal the top three cards of your deck. Add a NERV card with a different name from this card to your hand, and discard the rest.\n[LV2] During Opponent's Attack Step: At the start of the step, you may select one of your EVA-00 spirits and refresh it.",
+   "flavor": ""
+  },
+  "ST07-014": {
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "red",
+    "purple",
+    "yellow"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "burst",
+     "burst_condition": "spirit_destroyed",
+     "window": "burst",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "Burst: When Opponent Destroys Your Spirit",
+     "text": "Select one of your opponent's spirits with 3000 BP or less and destroy it. Then you may pay this card's cost to use its other effect."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 2
+      }
+     ],
+     "header": "Main",
+     "text": "Draw two cards."
+    }
+   ],
+   "text": "Burst: When Opponent Destroys Your Spirit: Select one of your opponent's spirits with 3000 BP or less and destroy it. Then you may pay this card's cost to use its other effect.\nMain: Draw two cards.",
+   "flavor": ""
+  },
+  "ST07-015": {
+   "card_type": "magic",
+   "colors": [
+    "purple"
+   ],
+   "cost": 6,
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "purple",
+    "red",
+    "yellow"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "effects": [
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      },
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cores_max": 2
+        }
+       },
+       "if": {
+        "type": "controls",
+        "amount": 1,
+        "target": {
+         "controller": "self",
+         "zone": "field",
+         "card_type": "nexus",
+         "filters": {
+          "spirit_type": "Shinji"
+         }
+        }
+       }
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Select one of your opponent's spirits and send one of its cores to their reserve. Then, if you control a Shinji nexus, select one of your opponent's spirits with two or fewer cores and destroy it."
+    }
+   ],
+   "text": "Main / Flash: Select one of your opponent's spirits and send one of its cores to their reserve. Then, if you control a Shinji nexus, select one of your opponent's spirits with two or fewer cores and destroy it.",
+   "flavor": ""
+  },
+  "ST07-016": {
+   "card_type": "magic",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "yellow",
+    "red",
+    "purple"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "burst",
+     "burst_condition": "life_decreased",
+     "window": "burst",
+     "directives": [
+      {
+       "op": "set_flag",
+       "flag": "no_attack",
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Burst: When You Lose Life",
+     "text": "Select one of your opponent's spirits. It cannot attack this turn. Then you may pay this card's cost to use its other effect."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "both",
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 3000,
+       "duration": "turn",
+       "target": {
+        "controller": "any",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "Main / Flash",
+     "text": "Select one spirit. It gets +3000 BP this turn."
+    }
+   ],
+   "text": "Burst: When You Lose Life: Select one of your opponent's spirits. It cannot attack this turn. Then you may pay this card's cost to use its other effect.\nMain / Flash: Select one spirit. It gets +3000 BP this turn.",
+   "flavor": ""
+  }
+ }
+}

@@ -1,0 +1,5 @@
+{
+ "_comment": "The online lobby every copy of the game uses for Create room, Join by code and Quick Match (0.17.0). Fill in the address of the lobby server you run (see docs/ONLINE_GUIDE.md, 'Running the online lobby'). Leave the address empty to have no online lobby: rooms are then hosted on the player's own computer.",
+ "address": "",
+ "port": 8910
+}
