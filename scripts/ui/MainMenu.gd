@@ -367,13 +367,7 @@ func _build_corners() -> void:
 ## The chosen deck if it can be played, otherwise the first deck that can.
 ## An unfinished or empty deck is never shown as "active".
 func _active_deck() -> Dictionary:
-	var d := DeckManager.get_deck(GameConfig.default_deck_id)
-	if not d.is_empty() and bool(DeckManager.validate(d).get("ok", false)):
-		return d
-	var playable := DeckManager.visible_playable_decks()
-	if not playable.is_empty():
-		return playable[0]
-	return d
+	return DeckManager.active_deck()
 
 
 func _deck_colors(deck: Dictionary) -> Array:

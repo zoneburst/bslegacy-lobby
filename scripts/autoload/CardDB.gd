@@ -103,8 +103,16 @@ func _load_file(path: String) -> int:
 		# Every card file inside the game is ours; cards you add (imported
 		# or scraped) live in user:// (0.13.0).
 		cd.generated = path.begins_with("res://") and not path.begins_with(BUNDLE_DIR)
+		# A card loaded again under the same id (0.23.1: the bundled sheet, then
+		# the player importing the same sheet) replaces the earlier one; it is
+		# not listed twice, or the deck editor and AI decks counted it twice.
+		if cards.has(cd.id):
+			var old: CardData = cards[cd.id]
+			if by_name.has(old.name):
+				(by_name[old.name] as Array).erase(old)
+		else:
+			all_ids.append(cd.id)
 		cards[cd.id] = cd
-		all_ids.append(cd.id)
 		if not by_name.has(cd.name):
 			by_name[cd.name] = []
 		by_name[cd.name].append(cd)

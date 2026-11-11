@@ -196,12 +196,25 @@ func load_all() -> void:
 	Log.info("DeckManager: %d decks loaded" % decks.size())
 	# Having decks but no PLAYABLE chosen deck is the same dead end as having
 	# none, so pick one that can actually start a match.
-	var chosen := get_deck(GameConfig.default_deck_id)
-	if chosen.is_empty() or not bool(validate(chosen).get("ok", false)):
-		var playable := playable_decks()
-		if not playable.is_empty():
-			GameConfig.default_deck_id = str(playable[0]["id"])
+	active_deck()
 	decks_changed.emit()
+
+
+## The deck the player plays with: the chosen one if it can be played AND is
+## shown (0.23.1: a hidden AI-generated deck is not kept as the active one
+## once real cards are in the game), otherwise the first shown deck that can
+## be played -- which then becomes the chosen one.
+func active_deck() -> Dictionary:
+	var d := get_deck(GameConfig.default_deck_id)
+	if not d.is_empty() and bool(validate(d).get("ok", false)) and is_visible(d):
+		return d
+	var playable := visible_playable_decks()
+	if playable.is_empty():
+		playable = playable_decks()
+	if playable.is_empty():
+		return {}
+	GameConfig.default_deck_id = str(playable[0]["id"])
+	return playable[0]
 
 
 ## Returns a DRAFT deck. It is not added to `decks` and not written to disk

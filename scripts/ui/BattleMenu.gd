@@ -239,14 +239,7 @@ func _show_deck_detail(d: Dictionary) -> void:
 
 
 func _current_deck() -> Dictionary:
-	var d := DeckManager.get_deck(GameConfig.default_deck_id)
-	if not d.is_empty() and bool(DeckManager.validate(d).get("ok", false)):
-		return d
-	var playable := DeckManager.visible_playable_decks()
-	if not playable.is_empty():
-		GameConfig.default_deck_id = str(playable[0]["id"])
-		return playable[0]
-	return {}
+	return DeckManager.active_deck()
 
 
 func _deck_colors(deck: Dictionary) -> Array:
