@@ -5,7 +5,7 @@ services:
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
-    autoDeploy: true
+    autoDeployTrigger: commit
     envVars:
       # optional: a Discord webhook address; bug reports are posted there
       - key: BSL_DISCORD_WEBHOOK

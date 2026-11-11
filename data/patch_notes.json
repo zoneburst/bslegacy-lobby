@@ -1,6 +1,23 @@
 {
  "releases": [
   {
+   "version": "0.23.1",
+   "date": "2026-11-09",
+   "codename": "BSS cards included",
+   "added": [
+    "The Battle Spirits Saga cards come with the game: the seven starter decks and Sets 1 to 6 (917 cards), with their pictures and the official starter decks. Nothing to import."
+   ],
+   "changed": [
+    "The AI-generated cards are off by default now that the real cards are included (Settings → Gameplay → Show AI-generated cards)."
+   ],
+   "fixed": [
+    "Your active deck switches to a deck you can see when the AI-generated decks are hidden."
+   ],
+   "known_issues": [
+    "The game is a larger download the first time (about 120 MB)."
+   ]
+  },
+  {
    "version": "0.23.0",
    "date": "2026-11-08",
    "codename": "Online in the browser",

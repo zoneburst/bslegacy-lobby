@@ -1,5 +1,6 @@
 {
- "_comment": "The online lobby every copy of the game uses for Create room, Join by code and Quick Match (0.17.0). Fill in the address of the lobby server you run (see docs/ONLINE_GUIDE.md, 'Running the online lobby'). Leave the address empty to have no online lobby: rooms are then hosted on the player's own computer.",
- "address": "",
- "port": 8910
+ "_comment": "The online lobby every copy of the game uses for Create room, Join by code and Quick Match. Since 0.23.0 it is the WebSocket lobby on Render (wss://bslegacy-lobby.onrender.com); the web build's lobby.json beside index.html can override it without a rebuild. Leave the address empty to have no online lobby: rooms are then hosted on the player's own computer (desktop only).",
+ "address": "wss://bslegacy-lobby.onrender.com",
+ "port": 0,
+ "feedback_url": ""
 }
