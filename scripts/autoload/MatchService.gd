@@ -43,6 +43,17 @@ var _recorded := false
 signal updated(snapshot: Dictionary)
 signal ended(data: Dictionary)
 signal rejected(reason: String)
+## 0.24.0: the match around the games -- best of 1 or 3, rematches.
+## series: {"best_of": 1|3, "wins": [a, b], "game": n, "over": bool,
+##          "chooser": seat that picks the turn order next, or -1}
+## series_changed fires when the other player becomes ready, asks for a
+## rematch, or leaves (online), and when a local series moves on.
+signal series_changed(info: Dictionary)
+
+var series: Dictionary = {}
+var game_series: Dictionary = {}     # the series as this game began (the opening banner shows it)
+var series_info: Dictionary = {}    # online: the lobby's latest word on readiness / rematch
+var current_main: Array = []        # the cards played this game (after sideboarding)
 
 
 func _ready() -> void:
@@ -69,14 +80,47 @@ func _engine_deck(d: Dictionary) -> Dictionary:
 ## `wait_for_board` (0.20.0): the CPU makes no decision (turn order,
 ## mulligan) until the battle screen calls board_ready(), so its choices are
 ## paced and shown like its other moves. Callers that open the board pass true.
-func start_bot_match(deck: Dictionary, bot_difficulty: int, bot_deck: Dictionary = {}, wait_for_board: bool = false) -> Dictionary:
+func start_bot_match(deck: Dictionary, bot_difficulty: int, bot_deck: Dictionary = {}, wait_for_board: bool = false,
+		best_of: int = 1) -> Dictionary:
+	var res := _start_bot_game(deck, bot_difficulty, bot_deck, wait_for_board, (deck.get("main", deck.get("cards", [])) as Array), -1)
+	if bool(res.get("ok", false)):
+		series = {"best_of": 3 if best_of >= 3 else 1, "wins": [0, 0], "game": 1, "over": false, "chooser": -1}
+		game_series = series.duplicate(true)
+		series_info = {}
+	return res
+
+
+## The next game of a best of 3 against the CPU, or a rematch (`fresh`), with
+## the deck as sideboarded (`main`). The loser of the last game chooses the
+## turn order in a best of 3; a rematch tosses a coin again.
+func next_bot_game(main: Array, fresh: bool = false) -> Dictionary:
+	var deck := my_deck
+	var chooser := -1 if fresh else int(series.get("chooser", -1))
+	var res := _start_bot_game(deck, difficulty, _opp_deck, true, main, chooser)
+	if not bool(res.get("ok", false)):
+		return res
+	if fresh:
+		series = {"best_of": int(series.get("best_of", 1)), "wins": [0, 0], "game": 1, "over": false, "chooser": -1}
+	else:
+		series["game"] = int(series.get("game", 1)) + 1
+	game_series = series.duplicate(true)
+	record_results = true
+	return res
+
+
+func _start_bot_game(deck: Dictionary, bot_difficulty: int, bot_deck: Dictionary, wait_for_board: bool,
+		main: Array, chooser: int) -> Dictionary:
+	if bot != null:
+		bot.queue_free()
+		bot = null
 	var st := GameState.new(randi())
 	engine = RulesEngine.new(st)
 	var opp_deck := bot_deck if not bot_deck.is_empty() else deck
-	var res := engine.setup([_engine_deck(deck), _engine_deck(opp_deck)],
-			[GameConfig.player_name, "CPU"])
+	var res := engine.setup([{"name": str(deck.get("name", "Untitled")), "cards": main}, _engine_deck(opp_deck)],
+			[GameConfig.player_name, "CPU"], -1, chooser)
 	if not res["ok"]:
 		return res
+	current_main = main.duplicate()
 	kind = Kind.BOT
 	_match_token += 1
 	my_seat = 0
@@ -135,6 +179,9 @@ func end_match() -> void:
 	my_deck = {}
 	_opp_deck = {}
 	difficulty = -1
+	series = {}
+	series_info = {}
+	current_main = []
 	if bot != null:
 		bot.queue_free()
 		bot = null
@@ -313,8 +360,49 @@ func _refresh_local() -> void:
 
 func _on_local_ended(winner: int) -> void:
 	_record_result()
-	ended.emit({"winner": winner, "you": my_seat,
+	if kind == Kind.BOT:
+		_series_scored(winner)
+	ended.emit({"winner": winner, "you": my_seat, "series": series.duplicate(true),
 		"result": ("draw" if winner == 2 else ("win" if winner == my_seat else "loss"))})
+
+
+## A game of the series is over (local games; the lobby does this online).
+## A draw counts for neither player; the next game is chosen by the loser.
+func _series_scored(winner: int) -> void:
+	if series.is_empty():
+		return
+	var wins: Array = series.get("wins", [0, 0])
+	if winner == 0 or winner == 1:
+		wins[winner] = int(wins[winner]) + 1
+		series["chooser"] = 1 - winner
+	series["wins"] = wins
+	var need := 2 if int(series.get("best_of", 1)) >= 3 else 1
+	series["over"] = int(wins[0]) >= need or int(wins[1]) >= need or int(series.get("best_of", 1)) < 3 \
+			or int(series.get("game", 1)) >= 5
+
+
+## True while a best of 3 still has games to play.
+func series_continues() -> bool:
+	return not series.is_empty() and int(series.get("best_of", 1)) >= 3 and not bool(series.get("over", true))
+
+
+## The deck as registered for this match (deck + sideboard), for sideboarding.
+func match_deck() -> Dictionary:
+	return my_deck
+
+
+## Online (0.24.0): ready for the next game of the best of 3 with `main`.
+func ready_next_game(main: Array) -> void:
+	if kind == Kind.ONLINE:
+		current_main = main.duplicate()
+		Net.series_ready(main)
+
+
+## Online: ask for (or accept) a rematch with `main`; `cancel` withdraws it.
+func request_rematch(main: Array, cancel: bool = false) -> void:
+	if kind == Kind.ONLINE:
+		current_main = main.duplicate()
+		Net.rematch(main, cancel)
 
 
 ## Writes the finished match to the player's profile, once (0.16.0). Local
@@ -361,6 +449,11 @@ func _on_net_found(data: Dictionary) -> void:
 	_recorded = false
 	record_results = not is_spectator and not my_deck.is_empty()
 	difficulty = -1
+	series = (data.get("series", {}) as Dictionary).duplicate(true)
+	game_series = series.duplicate(true)
+	series_info = {}
+	if current_main.is_empty() or int(series.get("game", 1)) <= 1 and not bool(data.get("rematch", false)):
+		current_main = (my_deck.get("main", []) as Array).duplicate()
 	SceneRouter.go("game", {"mode": "online"})
 
 
@@ -405,6 +498,8 @@ func _on_net_ended(data: Dictionary) -> void:
 	if kind != Kind.ONLINE or _online_over:
 		return
 	_online_over = true
+	if data.has("series"):
+		series = (data["series"] as Dictionary).duplicate(true)
 	_record_result(str(data.get("result", "")))
 	ended.emit(data)
 
@@ -424,6 +519,11 @@ func _on_net_message(kind_name: String, data: Dictionary) -> void:
 	if kind_name == "reject":
 		last_reject = str(data.get("reason", ""))
 		rejected.emit(last_reject)
+	elif kind_name == "series" and kind == Kind.ONLINE:
+		series_info = data.duplicate(true)
+		if data.has("series"):
+			series = (data["series"] as Dictionary).duplicate(true)
+		series_changed.emit(series_info)
 
 
 # ---------------------------------------------------------------------------

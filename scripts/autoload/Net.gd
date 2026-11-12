@@ -602,8 +602,8 @@ func _call(method: String, args: Array) -> void:
 		callv("rpc_id", [1, "s_" + method] + args)
 
 
-func queue_random(deck: Dictionary) -> void:
-	_call("queue_random", [deck])
+func queue_random(deck: Dictionary, opts: Dictionary = {}) -> void:
+	_call("queue_random", [deck, opts])
 
 func cancel_queue() -> void:
 	_call("cancel_queue", [])
@@ -625,6 +625,14 @@ func send_action(action: Dictionary) -> void:
 
 func send_chat(text: String) -> void:
 	_call("chat", [text.substr(0, 300)])
+
+## 0.24.0: ready for the next game of a best of 3, with this deck
+func series_ready(main: Array) -> void:
+	_call("series_ready", [main])
+
+## 0.24.0: ask for (or withdraw) a rematch, with this deck
+func rematch(main: Array, cancel: bool = false) -> void:
+	_call("rematch", [main, cancel])
 
 
 # ---------------------------------------------------------------------------
@@ -701,9 +709,19 @@ func s_register(display_name: String, version: String) -> void:
 	server_script.register(multiplayer.get_remote_sender_id(), display_name, version)
 
 @rpc("any_peer", "call_remote", "reliable")
-func s_queue_random(deck: Dictionary) -> void:
+func s_queue_random(deck: Dictionary, opts: Dictionary) -> void:
 	if not _is_server(): return
-	server_script.queue_random(multiplayer.get_remote_sender_id(), deck)
+	server_script.queue_random(multiplayer.get_remote_sender_id(), deck, opts)
+
+@rpc("any_peer", "call_remote", "reliable")
+func s_series_ready(main: Array) -> void:
+	if not _is_server(): return
+	server_script.series_ready(multiplayer.get_remote_sender_id(), main)
+
+@rpc("any_peer", "call_remote", "reliable")
+func s_rematch(main: Array, cancel: bool) -> void:
+	if not _is_server(): return
+	server_script.rematch(multiplayer.get_remote_sender_id(), main, cancel)
 
 @rpc("any_peer", "call_remote", "reliable")
 func s_cancel_queue() -> void:

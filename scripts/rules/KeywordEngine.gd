@@ -311,7 +311,7 @@ func on_damage_dealt(attacker: CardInstance) -> void:
 # --- 11-3 Curse + 11-6 Luster resolution ----------------------------------
 func on_battle_end(attacker: CardInstance, blocker: CardInstance) -> void:
 	# 11-3-1: the blocker is destroyed at the end of the battle.
-	if bool(state.battle.get("curse", false)) and blocker != null and blocker.zone == BSS.Zone.FIELD:
+	if bool(state.battle.get("curse", false)) and engine.battling(blocker):
 		engine.destroy(blocker, attacker.uid if attacker else -1)
 
 	# 11-6-1: return every magic card the attacker's owner used this battle.
@@ -422,22 +422,40 @@ func pay_ascend(pid: int, ci: CardInstance, action: Dictionary) -> Dictionary:
 	var need := _ascend_count(ci)
 	if candidates.size() < need:
 		return {"ok": false, "reason": "no spirit qualifies for Ascend"}
-	var chosen: CardInstance = candidates[0]
-	for c: CardInstance in candidates:
-		if c.uid == want: chosen = c
-	var from_cost := ascend_cost(chosen)
+	# 0.24.0 (R-159): the player chooses the spirit(s) whose cores pay Ascend
+	# ("ascend_uids"; "ascend_uid" for one). Before, the board never asked
+	# and the first qualifying spirit was always used.
+	var wanted: Array = []
+	for u: Variant in action.get("ascend_uids", []):
+		wanted.append(int(u))
+	if want >= 0 and not wanted.has(want):
+		wanted.push_front(want)
+	var strip: Array = []
+	for wu: int in wanted:
+		for c: CardInstance in candidates:
+			if c.uid == wu and not strip.has(c) and strip.size() < need:
+				strip.append(c)
+	if not wanted.is_empty() and strip.size() < mini(wanted.size(), need):
+		return {"ok": false, "reason": "that spirit cannot be used for Ascend"}
 	# "Ascend: Skybinder x2" (0.15.0, BSS06-001): strip two of them
-	var strip: Array = [chosen]
 	for c2: CardInstance in candidates:
 		if strip.size() >= need:
 			break
 		if not strip.has(c2):
 			strip.append(c2)
+	var chosen: CardInstance = strip[0]
+	var from_cost := ascend_cost(chosen)
 	for s: CardInstance in strip:
 		state.move_cores(GameState.on_card(s.uid), GameState.pool(pid, BSS.Zone.RESERVE),
 				s.total_cores(), false, true)
 		state.log_event("ascend", {"from": s.uid, "to": ci.uid})
 	return {"ok": true, "reason": "", "from_name": chosen.data.name, "from_uid": chosen.uid, "from_cost": from_cost}
+
+
+## The spirits Ascend may use, and how many it takes (the board's choice, 0.24.0).
+func ascend_options(pid: int, ci: CardInstance) -> Dictionary:
+	return {"candidates": _ascend_candidates(pid, ci), "count": _ascend_count(ci),
+			"waived": _ascend_waiver(pid) != null}
 
 
 ## How many spirits Ascend strips ("Ascend: Skybinder x2" -> 2; 0.15.0).
@@ -691,6 +709,14 @@ func flush_pending_bursts() -> void:
 		guard += 1
 		var q: Dictionary = state.pending_bursts.pop_front()
 		offer_bursts(int(q["player"]), str(q["event"]))
+	var g2 := 0
+	while not state.pending_followups.is_empty() and state.pending_choice.is_empty() and not state.game_over \
+			and state.effect_stack.is_empty() and g2 < 8:
+		g2 += 1
+		var f: Dictionary = state.pending_followups.pop_front()
+		var fc: CardInstance = state.card(int(f["uid"]))
+		if fc != null:
+			offer_burst_followup(int(f["player"]), fc)
 
 
 ## Called after life loss, the most common burst condition.
@@ -740,7 +766,12 @@ func activate_burst(pid: int, uid: int) -> Dictionary:
 ## "You may then pay this card's cost to activate its flash (or main)
 ## effect." (0.11.0) Offered after the burst resolves, if the reserve can pay.
 func offer_burst_followup(pid: int, ci: CardInstance) -> void:
-	if not state.pending_choice.is_empty() or state.game_over:
+	if state.game_over:
+		return
+	if not state.pending_choice.is_empty():
+		# another prompt is open: offer it once that one is answered
+		# (0.24.0, R-157; before, it was dropped)
+		state.pending_followups.append({"player": pid, "uid": ci.uid})
 		return
 	var follow: Dictionary = {}
 	for spec in ci.data.effects:
@@ -750,7 +781,14 @@ func offer_burst_followup(pid: int, ci: CardInstance) -> void:
 	if follow.is_empty():
 		return
 	var cost := engine.compute_cost(pid, ci.data)
-	if state.player(pid).total_reserve() < cost:
+	# the reserve and the spare cores on the field can pay (0.24.0, R-157);
+	# before, only the reserve counted and the offer was silently skipped
+	var can := state.player(pid).total_reserve()
+	for fu in state.player(pid).field:
+		var fc: CardInstance = state.cards[fu]
+		can += maxi(0, fc.cores - (fc.data.min_level_cost() if fc.data != null else 0))
+	if can < cost:
+		state.log_event("burst_followup_unaffordable", {"uid": ci.uid, "cost": cost})
 		return
 	var dirs: Array = [{"op": "pay_cores", "amount": cost}]
 	for d: Dictionary in follow.get("directives", []):

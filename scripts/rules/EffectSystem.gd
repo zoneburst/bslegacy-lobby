@@ -124,6 +124,18 @@ func resolve_top() -> void:
 
 func _finish_frame(frame: Dictionary) -> void:
 	var meta: Dictionary = frame.get("meta", {})
+	# "Burst: When Opponent Resolves a When Summoned" (0.24.0, R-158): a
+	# spirit's own When Summoned effect has resolved -- offer the opponent's
+	# burst now. Not when the effect did not apply: its "if ..." condition
+	# was not met (Absolute Divinity Amaterasu Dragon with fewer than ten
+	# symbols).
+	var fspec: Dictionary = frame.get("spec", {})
+	if str(fspec.get("timing", "")) == "on_summon" and str(fspec.get("scope", "self")) == "self" \
+			and not bool((frame.get("flags", {}) as Dictionary).get("_cond_failed", false)):
+		var summoner := int(frame.get("controller", -1))
+		if summoner >= 0:
+			state.log_event("when_summoned_resolved", {"uid": int(frame.get("source", -1)), "player": summoner})
+			engine.keywords.offer_bursts(state.opponent_of(summoner), "opponent_summon_effect")
 	if meta.has("burst_followup"):
 		var bc: CardInstance = state.card(int(meta["burst_followup"]))
 		if bc != null:
@@ -228,6 +240,7 @@ func _run_frame(frame: Dictionary) -> bool:
 ## satisfied several times at the same instant.
 func trigger(timing: String, ctx: Dictionary = {}) -> void:
 	var fired := {}
+	var queued: Array = []
 	var candidates: Array = []
 	for ci in state.all_field_cards():
 		candidates.append(ci)
@@ -268,7 +281,13 @@ func trigger(timing: String, ctx: Dictionary = {}) -> void:
 			if not _trigger_matches(ci, spec, ctx):
 				continue
 			fired[[ci.uid, timing, ei]] = true
-			push(ci, spec, ci.controller_id, {"ctx": ctx})
+			queued.append([ci, spec])
+	# 0.24.0 (R-147): the same draw/discard effect from several copies of a
+	# card (two Volcanic Canyons: "Draw one more card, then discard a card")
+	# resolves once with the amounts added -- draw 2, then discard 2 -- not
+	# draw 1, discard 1, draw 1, discard 1.
+	for q: Array in _merge_same(queued):
+		push(q[0], q[1], (q[0] as CardInstance).controller_id, {"ctx": ctx})
 	# "This turn, when ..." (0.15.0): temporary triggers from resolved effects
 	for e: Dictionary in state.delayed.duplicate():
 		var dsp: Dictionary = e["spec"]
@@ -292,6 +311,43 @@ func trigger(timing: String, ctx: Dictionary = {}) -> void:
 	if not state.effect_stack.is_empty():
 		# 8-5-2-4 -- when several activate at once, the turn player orders them.
 		resolve_top()
+
+
+## Triggered effects that are the same card's same effect for the same
+## player, and only draw / discard, become one with the amounts added
+## (0.24.0, R-147). Anything else is left as it is, in order.
+const MERGEABLE_OPS := ["draw", "discard"]
+
+
+func _merge_same(queued: Array) -> Array:
+	var out: Array = []
+	var by_key := {}
+	for q: Array in queued:
+		var ci: CardInstance = q[0]
+		var spec: Dictionary = q[1]
+		var dirs: Array = spec.get("directives", [])
+		var ok := not dirs.is_empty() and spec.get("choice", null) == null and not bool(spec.get("optional", false))
+		for d: Variant in dirs:
+			if not (d is Dictionary) or not str((d as Dictionary).get("op", "")) in MERGEABLE_OPS \
+					or (d as Dictionary).has("if") or (d as Dictionary).has("condition"):
+				ok = false
+		if not ok or ci.data == null:
+			out.append(q)
+			continue
+		var key := "%d|%s|%s" % [ci.controller_id, ci.data.name, JSON.stringify(dirs)]
+		if not by_key.has(key):
+			by_key[key] = out.size()
+			out.append([ci, spec.duplicate(true), 1])
+			continue
+		var merged: Array = out[int(by_key[key])]
+		merged[2] = int(merged[2]) + 1
+		var mspec: Dictionary = merged[1]
+		var mdirs: Array = mspec.get("directives", [])
+		for i in mdirs.size():
+			var md: Dictionary = mdirs[i]
+			md["amount"] = int(md.get("amount", 1)) + int((dirs[i] as Dictionary).get("amount", 1))
+		mspec["merged_copies"] = int(merged[2])
+	return out
 
 
 const STEP_NAMES := {"start": 0, "core": 1, "draw": 2, "refresh": 3, "main": 4, "attack": 5, "end": 6}
@@ -544,8 +600,25 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 				_exhaust_nexus(pid, t))
 		"pay_cores":
 			var n := int(d.get("amount", 0))
-			state.move_cores(GameState.pool(pid, BSS.Zone.RESERVE),
+			var paid := state.move_cores(GameState.pool(pid, BSS.Zone.RESERVE),
 					GameState.pool(pid, BSS.Zone.TRASH), n, false, true)
+			# 0.24.0 (R-157): a cost is paid from the reserve AND the field
+			# (10-6-6). The rest comes from cards' spare cores (above their
+			# LV1), the card with the most spare first.
+			var left := n - paid
+			while left > 0:
+				var best: CardInstance = null
+				var best_spare := 0
+				for fu in state.player(pid).field:
+					var fc: CardInstance = state.cards[fu]
+					var spare := fc.cores - (fc.data.min_level_cost() if fc.data != null else 0)
+					if spare > best_spare:
+						best = fc
+						best_spare = spare
+				if best == null:
+					break
+				left -= state.move_cores(GameState.on_card(best.uid), GameState.pool(pid, BSS.Zone.TRASH),
+						mini(left, best_spare))
 		"remove_cores":
 			# Purple (0.10.0): "Send N cores from one of your opponent's
 			# spirits to the void." A spirit left below its LV1 cost is
@@ -585,8 +658,7 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 			# "You may attack that spirit": the battle is fought against it as
 			# though it had blocked (Dark Knight Palomides, Poison Mist).
 			return _op_targeted(pid, d, frame, func(t: CardInstance):
-				if not state.battle.is_empty():
-					state.battle["forced_target"] = t.uid)
+				engine.attack_spirit_now(t))
 		"to_deck_bottom", "to_deck_top":
 			var top := op == "to_deck_top"
 			return _op_targeted(pid, d, frame, func(t: CardInstance):
@@ -720,6 +792,14 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 			# whose effect set it -- "when an effect of your opponent ends your
 			# attack step" (0.15.0, BSS05-072)
 			state.turn_flags["%d:%s:by" % [spw, str(d.get("flag", "x"))]] = pid
+			# "When this battle ends, the attack step ends" used after that
+			# battle has already finished ending -- the follow-up of an
+			# Absolute Ice Shield burst, answered after the damage: the
+			# battle it names is over, so the attack step ends now
+			# (0.24.0, R-157). Before, it waited for the NEXT battle.
+			if str(d.get("flag", "")) == "end_attack_after_battle" and state.battle.is_empty() \
+					and state.step == BSS.Step.ATTACK:
+				engine.end_attack_step_by_flag()
 			# "During this battle, ..." (0.15.0, BSS03-134): cleared when the battle ends
 			if str(d.get("duration", "")) == "battle" and not state.battle.is_empty():
 				if not state.battle.has("player_flags"):
@@ -2231,8 +2311,7 @@ func _apply_chosen(_pid: int, d: Dictionary, ci: CardInstance, frame: Dictionary
 		"refresh_or_exhaust": _refresh_or_exhaust(_pid, d, ci)
 		"activate_crush": engine.keywords.do_crush(ci)
 		"attack_spirit":
-			if not state.battle.is_empty():
-				state.battle["forced_target"] = ci.uid
+			engine.attack_spirit_now(ci)
 		"to_deck_bottom", "to_deck_top":
 			if not _bounce_blocked(_pid, ci):
 				_return_to_deck(ci, str(d.get("op", "")) == "to_deck_top")

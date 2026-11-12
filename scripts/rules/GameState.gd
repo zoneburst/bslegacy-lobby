@@ -157,6 +157,14 @@ func move_card(uid: int, to_zone: int, to_owner: int = -1, to_top: bool = true,
 	# its partner too (0.17.1).
 	if from_zone == BSS.Zone.FIELD:
 		unlink(ci)
+		# 7-1-5-2-1 (0.24.0, R-151): remember that a battling spirit left the
+		# field -- the block still stands, and a card that comes back is a new
+		# card, not the spirit in this battle.
+		if not battle.is_empty():
+			if uid == int(battle.get("blocker", -1)):
+				battle["blocker_left"] = true
+			if uid == int(battle.get("attacker", -1)):
+				battle["attacker_left"] = true
 
 	# Cores riding on the card are released before the card lands.
 	if from_zone == BSS.Zone.FIELD and ci.total_cores() > 0:
@@ -229,6 +237,7 @@ var life_redirect_uid := -1
 var turn_rules: Array = []      # [{pid, source, d}]: "this turn, ..." constant rules from resolved effects
 var delayed: Array = []         # [{pid, source, spec, target, once, duration}]: "this turn, when ..." triggers
 var pending_bursts: Array = []  # [{player, event}]: bursts waiting for an open prompt (0.16.7)
+var pending_followups: Array = []  # [{player, uid}]: "then pay to use its other effect" offers waiting for an open prompt (0.24.0)
 var core_events: Array = []     # core moves since the last checkpoint: {kind: reserve|placed, player|uid}
 var turn_start_life: Array = [0, 0]   # each player's life when this turn began (0.15.0, BSS03-058 / BSS04-052)
 var trash_events: Array = []    # spirit cards put into a trash since the last checkpoint: {uid, player} (0.15.0, BSS05-016)
@@ -446,7 +455,7 @@ func to_net(viewer: int) -> Dictionary:
 		"step": step,
 		"battle": battle.duplicate(true),
 		"stack": effect_stack.size(),
-		"pending_choice": pending_choice.duplicate(true) if int(pending_choice.get("player", -1)) == viewer else ({"player": pending_choice.get("player", -1), "type": str(pending_choice.get("type", ""))} if not pending_choice.is_empty() else {}),
+		"pending_choice": pending_choice.duplicate(true) if int(pending_choice.get("player", -1)) == viewer else ({"player": pending_choice.get("player", -1), "type": str(pending_choice.get("type", "")), "reason": str(pending_choice.get("reason", ""))} if not pending_choice.is_empty() else {}),
 		"flash_priority": flash_priority,
 		"game_over": game_over,
 		"winner": winner,

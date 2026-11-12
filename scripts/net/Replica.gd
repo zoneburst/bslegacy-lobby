@@ -74,7 +74,8 @@ static func encode(st: GameState, viewer: int, since: int = -1, sent_defs: Dicti
 	var top := _encode_object(st, GameState.new(1), SKIP_STATE)
 	var pc: Dictionary = st.pending_choice
 	if not pc.is_empty() and int(pc.get("player", -1)) != viewer:
-		top["pending_choice"] = {"player": int(pc.get("player", -1)), "type": str(pc.get("type", ""))}
+		top["pending_choice"] = {"player": int(pc.get("player", -1)), "type": str(pc.get("type", "")),
+				"reason": str(pc.get("reason", ""))}
 	var events: Array = []
 	for e: Dictionary in st.event_log:
 		if int(e.get("t", -1)) > since:

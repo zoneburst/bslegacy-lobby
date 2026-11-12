@@ -42,10 +42,34 @@ var _art_cache: Dictionary = {}
 var _placeholder_ids: Dictionary = {}
 
 signal database_loaded(count: int)
+## A card's full picture became available (browser build: its set's picture
+## file arrived) -- SharpCardArt redraws (0.24.0).
+signal full_art_ready(id: String)
 
 
 func _ready() -> void:
 	load_all()
+	_web_art_check.call_deferred()
+
+
+## Browser self-test (tools/web_test.py): index.html?artcheck=ST01-009 fetches
+## that card's full picture from its set file and logs "ARTWEB <id> <w>x<h>".
+func _web_art_check() -> void:
+	if not OS.has_feature("web"):
+		return
+	var q: Variant = JavaScriptBridge.eval("new URLSearchParams(window.location.search).get('artcheck') || ''", true)
+	var id := str(q) if q != null else ""
+	if id == "":
+		return
+	var report := func(got: String) -> void:
+		if got == id:
+			var img := _full_image(id)
+			if img != null:
+				print("ARTWEB %s %dx%d" % [id, img.get_width(), img.get_height()])
+	full_art_ready.connect(report)
+	var now := _full_image(id)
+	if now != null:
+		print("ARTWEB %s %dx%d" % [id, now.get_width(), now.get_height()])
 
 
 func load_all() -> void:
@@ -417,7 +441,18 @@ func _texture_for(id: String) -> Texture2D:
 				tex = ImageTexture.create_from_image(img)
 				break
 	if tex == null:
-		for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+		# 0.24.0: the sharp bundled pictures ship as they are (importer
+		# "keep", tools/sharpen_card_art.py) and are decoded here, with
+		# mipmaps so they stay crisp when drawn small
+		var wpath := "%s/%s.webp" % [BUNDLE_ART_DIR, id]
+		if FileAccess.file_exists(wpath):
+			var wimg := Image.new()
+			if wimg.load_webp_from_buffer(FileAccess.get_file_as_bytes(wpath)) == OK and not wimg.is_empty():
+				wimg.generate_mipmaps()
+				tex = ImageTexture.create_from_image(wimg)
+				_note_bundled(id)
+	if tex == null:
+		for ext in [".png", ".jpg", ".jpeg"]:
 			var bpath := "%s/%s%s" % [BUNDLE_ART_DIR, id, ext]
 			if ResourceLoader.exists(bpath):
 				tex = load(bpath)
@@ -457,9 +492,213 @@ func has_art(id: String) -> bool:
 	return not _placeholder_ids.has(id)
 
 
+## Decoded bundled pictures are kept for the most recently used cards only
+## (0.24.0): a card on screen keeps its own texture, but browsing all 917
+## cards in the deck editor must not keep them all in memory (a browser has
+## little to spare).
+const BUNDLED_CACHE_MAX := 240
+var _bundled_order: Array = []
+
+
+func _note_bundled(id: String) -> void:
+	_bundled_order.append(id)
+	if _bundled_order.size() > BUNDLED_CACHE_MAX:
+		var old_id: String = _bundled_order.pop_front()
+		_art_cache.erase(old_id)
+
+
 func clear_art_cache() -> void:
 	_art_cache.clear()
+	_bundled_order.clear()
 	_placeholder_ids.clear()
+	_sharp_cache.clear()
+	_sharp_order.clear()
+	_full_cache.clear()
+	_full_order.clear()
+
+
+# ---------------------------------------------------------------------------
+# Full-quality pictures (0.24.0, R-154)
+# ---------------------------------------------------------------------------
+# The bundled pictures are bssdb.dev's enlarged pictures, lossless. Large
+# views draw them at the exact pixels they cover (SharpCardArt): the full
+# picture is resampled once with Lanczos and cached.
+#
+# Browser build: the game file carries small copies (data/bundle/art, about
+# 360 px wide) and the full pictures sit beside index.html in one file per
+# set, art/<SET>.bsa, fetched the first time a card of that set is shown
+# large (data/bundle/art/_web_packs.json lists them; tools/make_web_project.py).
+
+const SHARP_CACHE_MAX := 64
+const FULL_CACHE_MAX := 24
+const PACKS_KEPT := 3
+var _sharp_cache: Dictionary = {}
+var _sharp_order: Array = []
+var _full_cache: Dictionary = {}
+var _full_order: Array = []
+var _web_packs: Dictionary = {}      # set -> true (listed in _web_packs.json)
+var _web_packs_read := false
+var _packs: Dictionary = {}          # set -> {"index": {code: [off, len]}, "data": PackedByteArray}
+var _pack_order: Array = []
+var _pack_loading: Dictionary = {}   # set -> HTTPRequest
+
+
+## The card's picture resampled to exactly `px` pixels, or null when its full
+## picture is not available (yet).
+func sharp_texture(id: String, px: Vector2i) -> Texture2D:
+	id = resolve(id)
+	if _placeholder_ids.has(id) or px.x < 8 or px.y < 8:
+		return null
+	var key := "%s@%dx%d" % [id, px.x, px.y]
+	if _sharp_cache.has(key):
+		return _sharp_cache[key]
+	# browser build: up to ~330 px the small picture in the game is enough
+	# (resampled the same way); larger views fetch the set's full file
+	var full: Image = null
+	if _uses_web_packs(id) and px.x <= WEB_THUMB_MAX:
+		full = _thumb_image(id)
+	if full == null:
+		full = _full_image(id)
+	if full == null:
+		return null
+	var img := full.duplicate() as Image
+	if img.has_mipmaps():
+		img.clear_mipmaps()
+	if img.get_format() != Image.FORMAT_RGBA8:
+		img.convert(Image.FORMAT_RGBA8)
+	img.resize(px.x, px.y, Image.INTERPOLATE_LANCZOS)
+	var tex := ImageTexture.create_from_image(img)
+	_sharp_cache[key] = tex
+	_sharp_order.append(key)
+	if _sharp_order.size() > SHARP_CACHE_MAX:
+		_sharp_cache.erase(_sharp_order.pop_front())
+	return tex
+
+
+func _full_image(id: String) -> Image:
+	if _full_cache.has(id):
+		return _full_cache[id]
+	var img: Image = null
+	for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+		var upath := "%s/%s%s" % [GameConfig.card_art_override_dir, id, ext]
+		if FileAccess.file_exists(upath):
+			img = Image.load_from_file(upath)
+			break
+	if img == null and _uses_web_packs(id):
+		img = _image_from_pack(id)
+		if img == null:
+			return null                   # fetching; full_art_ready follows
+	if img == null:
+		var wpath := "%s/%s.webp" % [BUNDLE_ART_DIR, id]
+		if FileAccess.file_exists(wpath):
+			var w := Image.new()
+			if w.load_webp_from_buffer(FileAccess.get_file_as_bytes(wpath)) == OK and not w.is_empty():
+				img = w
+	if img == null:
+		var tex := get_card_texture(id)
+		if tex != null:
+			img = tex.get_image()
+	if img == null or img.is_empty():
+		return null
+	_full_cache[id] = img
+	_full_order.append(id)
+	if _full_order.size() > FULL_CACHE_MAX:
+		_full_cache.erase(_full_order.pop_front())
+	return img
+
+
+const WEB_THUMB_MAX := 330
+
+
+func _thumb_image(id: String) -> Image:
+	var key := "thumb:" + id
+	if _full_cache.has(key):
+		return _full_cache[key]
+	var wpath := "%s/%s.webp" % [BUNDLE_ART_DIR, id]
+	if not FileAccess.file_exists(wpath):
+		return null
+	var w := Image.new()
+	if w.load_webp_from_buffer(FileAccess.get_file_as_bytes(wpath)) != OK or w.is_empty():
+		return null
+	_full_cache[key] = w
+	_full_order.append(key)
+	if _full_order.size() > FULL_CACHE_MAX:
+		_full_cache.erase(_full_order.pop_front())
+	return w
+
+
+func _pack_name(id: String) -> String:
+	return id.get_slice("-", 0)
+
+
+func _uses_web_packs(id: String) -> bool:
+	if not OS.has_feature("web"):
+		return false
+	if not _web_packs_read:
+		_web_packs_read = true
+		var p := "%s/_web_packs.json" % BUNDLE_ART_DIR
+		if FileAccess.file_exists(p):
+			var d: Variant = JSON.parse_string(FileAccess.get_file_as_string(p))
+			if d is Dictionary:
+				for k: Variant in (d as Dictionary).get("packs", []):
+					_web_packs[str(k)] = true
+	return _web_packs.has(_pack_name(id))
+
+
+func _image_from_pack(id: String) -> Image:
+	var set_name := _pack_name(id)
+	if not _packs.has(set_name):
+		_fetch_pack(set_name)
+		return null
+	var pk: Dictionary = _packs[set_name]
+	var ent: Variant = (pk["index"] as Dictionary).get(id, null)
+	if ent == null:
+		return null
+	var off := int((ent as Array)[0])
+	var n := int((ent as Array)[1])
+	var img := Image.new()
+	if img.load_webp_from_buffer((pk["data"] as PackedByteArray).slice(off, off + n)) != OK:
+		return null
+	return img
+
+
+func _fetch_pack(set_name: String) -> void:
+	if _pack_loading.has(set_name):
+		return
+	var base: Variant = JavaScriptBridge.eval("window.location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '')", true)
+	var url := "%sart/%s.bsa" % [str(base) if base != null else "", set_name]
+	var req := HTTPRequest.new()
+	req.download_chunk_size = 1 << 20
+	add_child(req)
+	_pack_loading[set_name] = req
+	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray):
+		_pack_loading.erase(set_name)
+		req.queue_free()
+		if result != HTTPRequest.RESULT_SUCCESS or code != 200 or body.size() < 8:
+			push_warning("CardDB: picture file %s not loaded (%d / %d)" % [url, result, code])
+			return
+		_store_pack(set_name, body))
+	if req.request(url) != OK:
+		_pack_loading.erase(set_name)
+		req.queue_free()
+
+
+## art/<SET>.bsa: "BSA1", a 4-byte little-endian length, a JSON index
+## {code: [offset, length]} and the lossless WebP pictures one after another.
+func _store_pack(set_name: String, body: PackedByteArray) -> void:
+	if body.slice(0, 4).get_string_from_ascii() != "BSA1":
+		return
+	var n := body.decode_u32(4)
+	var idx: Variant = JSON.parse_string(body.slice(8, 8 + n).get_string_from_utf8())
+	if not idx is Dictionary:
+		return
+	_packs[set_name] = {"index": idx, "data": body.slice(8 + n)}
+	_pack_order.erase(set_name)
+	_pack_order.append(set_name)
+	while _pack_order.size() > PACKS_KEPT:
+		_packs.erase(_pack_order.pop_front())
+	for code: Variant in (idx as Dictionary).keys():
+		full_art_ready.emit(str(code))
 
 
 func _make_placeholder(id: String) -> Texture2D:

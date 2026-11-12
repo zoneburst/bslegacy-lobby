@@ -158,6 +158,23 @@ func _remove_retired_decks() -> void:
 				and float((d as Dictionary).get("modified", 0)) == 0.0:
 			DirAccess.remove_absolute(path)
 			removed += 1
+	# Our AI-generated starter decks (starter_*.json) that this copy of the
+	# game does not ship -- the itch.io build with the BSS cards in it leaves
+	# them out (0.23.1) -- are taken out of the deck folder too, when the
+	# player never edited them; an edited copy is theirs and stays.
+	var dir := DirAccess.open(DECK_DIR)
+	if dir != null:
+		for f in dir.get_files():
+			if not (f.begins_with("starter_") and f.ends_with(".json")):
+				continue
+			if FileAccess.file_exists(BUNDLED_DIR.path_join(f)):
+				continue
+			var path2: String = DECK_DIR.path_join(f)
+			var d2: Variant = JSON.parse_string(FileAccess.get_file_as_string(path2))
+			if d2 is Dictionary and str((d2 as Dictionary).get("author", "")) == "bundled" \
+					and float((d2 as Dictionary).get("modified", 0)) == 0.0:
+				DirAccess.remove_absolute(path2)
+				removed += 1
 	if removed > 0:
 		Log.info("DeckManager: removed %d retired starter deck(s) you had not edited" % removed)
 
@@ -313,48 +330,119 @@ func sorted_decks() -> Array:
 
 
 ## Can this card still be added? Enforces 5-1-1-1 (60 max) and 5-1-1-1-1
-## (four copies per card *name*, spanning alternate printings).
-func can_add(d: Dictionary, card_id: String) -> Dictionary:
+## (four copies per card *name*, spanning alternate printings). Since 0.24.0
+## the copies in the sideboard count too, and `to_side` adds to the sideboard
+## (at most BSS.SIDE_MAX cards).
+func can_add(d: Dictionary, card_id: String, to_side: bool = false) -> Dictionary:
 	var cd: CardData = CardDB.get_card(card_id)
 	if cd == null:
 		return {"ok": false, "reason": "unknown card"}
 	var main: Array = d.get("main", [])
-	if main.size() >= BSS.DECK_MAX:
+	var side: Array = d.get("side", [])
+	if to_side and side.size() >= BSS.SIDE_MAX:
+		return {"ok": false, "reason": "the sideboard is full (%d cards)" % BSS.SIDE_MAX}
+	if not to_side and main.size() >= BSS.DECK_MAX:
 		return {"ok": false, "reason": "deck is already at %d cards" % BSS.DECK_MAX}
 	var same := 0
-	for cid in main:
+	for cid in main + side:
 		var other: CardData = CardDB.get_card(cid)
 		if other != null and other.deck_key() == cd.deck_key():
 			same += 1
 	if same >= BSS.MAX_COPIES:
-		return {"ok": false, "reason": "already 4 copies of \"%s\"" % cd.name}
+		return {"ok": false, "reason": "already 4 copies of \"%s\" (deck and sideboard together)" % cd.name}
 	return {"ok": true, "reason": ""}
 
 
 ## Edits the deck in memory only. Saving is the editor's decision -- before
 ## 0.6.0 every click wrote to disk, which made a draft impossible and meant an
 ## abandoned edit was silently kept.
-func add_card(d: Dictionary, card_id: String) -> Dictionary:
-	var chk := can_add(d, card_id)
+func add_card(d: Dictionary, card_id: String, to_side: bool = false) -> Dictionary:
+	var chk := can_add(d, card_id, to_side)
 	if not chk["ok"]:
 		return chk
-	if not d.has("main"):
-		d["main"] = []
-	d["main"].append(card_id)
+	var key := "side" if to_side else "main"
+	if not d.has(key):
+		d[key] = []
+	d[key].append(card_id)
 	return {"ok": true, "reason": ""}
 
 
-func remove_card(d: Dictionary, card_id: String) -> void:
-	var main: Array = d.get("main", [])
-	var idx := main.find(card_id)
+func remove_card(d: Dictionary, card_id: String, from_side: bool = false) -> void:
+	var list: Array = d.get("side" if from_side else "main", [])
+	var idx := list.find(card_id)
 	if idx >= 0:
-		main.remove_at(idx)
+		list.remove_at(idx)
+
+
+## One copy from the deck to the sideboard or back (0.24.0). The total number
+## of copies does not change, so only the size limits apply.
+func move_card(d: Dictionary, card_id: String, to_side: bool) -> Dictionary:
+	var src: Array = d.get("main" if to_side else "side", [])
+	if not src.has(card_id):
+		return {"ok": false, "reason": "no copy to move"}
+	if not d.has("side"):
+		d["side"] = []
+	var dst: Array = d["side"] if to_side else d["main"]
+	if to_side and dst.size() >= BSS.SIDE_MAX:
+		return {"ok": false, "reason": "the sideboard is full (%d cards)" % BSS.SIDE_MAX}
+	if not to_side and dst.size() >= BSS.DECK_MAX:
+		return {"ok": false, "reason": "deck is already at %d cards" % BSS.DECK_MAX}
+	src.remove_at(src.find(card_id))
+	dst.append(card_id)
+	return {"ok": true, "reason": ""}
 
 
 ## Legality for matchmaking. Wraps RulesEngine.validate_deck so the editor and
-## the engine can never disagree about what a legal deck is.
+## the engine can never disagree about what a legal deck is; the sideboard
+## (0.24.0) may hold up to BSS.SIDE_MAX cards and shares the 4-copy limit.
 func validate(d: Dictionary) -> Dictionary:
-	return RulesEngine.validate_deck(d.get("main", []))
+	var res := RulesEngine.validate_deck(d.get("main", []))
+	if not bool(res.get("ok", false)):
+		return res
+	return validate_side(d)
+
+
+func validate_side(d: Dictionary) -> Dictionary:
+	var side: Array = d.get("side", [])
+	if side.size() > BSS.SIDE_MAX:
+		return {"ok": false, "reason": "sideboard has %d cards (at most %d)" % [side.size(), BSS.SIDE_MAX]}
+	var by_name := {}
+	for cid in (d.get("main", []) as Array) + side:
+		var cd: CardData = CardDB.get_card(str(cid))
+		if cd == null:
+			return {"ok": false, "reason": "unknown card %s" % cid}
+		var k := cd.deck_key()
+		by_name[k] = int(by_name.get(k, 0)) + 1
+		if by_name[k] > BSS.MAX_COPIES:
+			return {"ok": false, "reason": "more than %d copies of \"%s\" (deck and sideboard together)" % [BSS.MAX_COPIES, k]}
+	return {"ok": true, "reason": ""}
+
+
+## Between the games of a match (0.24.0): `main` is a legal deck made only of
+## the cards of `deck` (its deck and sideboard). The rest is its sideboard.
+func check_sideboarded(deck: Dictionary, main: Array) -> Dictionary:
+	var res := RulesEngine.validate_deck(main)
+	if not bool(res.get("ok", false)):
+		return res
+	var pool := {}
+	for cid in (deck.get("main", []) as Array) + (deck.get("side", []) as Array):
+		pool[str(cid)] = int(pool.get(str(cid), 0)) + 1
+	for cid in main:
+		var k := str(cid)
+		if int(pool.get(k, 0)) <= 0:
+			return {"ok": false, "reason": "%s is not in your deck or sideboard" % k}
+		pool[k] = int(pool[k]) - 1
+	return {"ok": true, "reason": ""}
+
+
+## What is left for the sideboard when `main` is played from `deck`.
+func side_after(deck: Dictionary, main: Array) -> Array:
+	var rest: Array = ((deck.get("main", []) as Array) + (deck.get("side", []) as Array)).duplicate()
+	for cid in main:
+		var i := rest.find(cid)
+		if i >= 0:
+			rest.remove_at(i)
+	return rest
 
 
 func stats(d: Dictionary) -> Dictionary:
@@ -378,10 +466,24 @@ func stats(d: Dictionary) -> Dictionary:
 ## Plain-text format, one line per stack: "4 BSS01-001 Card Name".
 ## This matches the text export offered by bssdb.dev closely enough to
 ## round-trip, which is the point -- users already have decks over there.
+## A sideboard (0.24.0) follows under "=== Sideboard ===", as bssdb.dev writes it.
 func to_text(d: Dictionary) -> String:
+	var side: Array = d.get("side", [])
+	var lines: Array = []
+	if not side.is_empty():
+		lines.append("=== Main Deck ===")
+	lines.append_array(_stack_lines(d.get("main", [])))
+	if not side.is_empty():
+		lines.append("")
+		lines.append("=== Sideboard ===")
+		lines.append_array(_stack_lines(side))
+	return "\n".join(lines)
+
+
+func _stack_lines(ids: Array) -> Array:
 	var counts := {}
 	var order: Array = []
-	for cid in d.get("main", []):
+	for cid in ids:
 		if not counts.has(cid):
 			counts[cid] = 0
 			order.append(cid)
@@ -390,23 +492,46 @@ func to_text(d: Dictionary) -> String:
 	for cid in order:
 		var cd: CardData = CardDB.get_card(cid)
 		lines.append("%d %s %s" % [counts[cid], cid, cd.name if cd else ""])
-	return "\n".join(lines)
+	return lines
 
 
+## What the last from_text() did (0.24.0): cards read, cards it does not
+## know, and copies left out by the limits -- the import shows it.
+var last_import := {}
+
+
+## Reads "4 BSS01-001 Name", "4x BSS01-001: Name" (bssdb.dev) and similar.
+## Lines after a heading with "side" in it ("=== Sideboard ===", "Sideboard:",
+## "// Side deck") go to the sideboard, until a heading with "main" or "deck".
 func from_text(text: String, deck_name: String = "Imported Deck") -> Dictionary:
 	var d := new_deck(deck_name)
 	var rx := RegEx.new()
 	rx.compile("^\\s*(\\d+)\\s*[xX]?\\s+([A-Za-z0-9\\-]+)")
+	var unknown: Array = []
+	var dropped := 0
+	var to_side := false
 	for raw in text.split("\n"):
-		var m := rx.search(raw)
+		var line := raw.strip_edges()
+		var m := rx.search(line)
 		if m == null:
+			var low := line.to_lower()
+			if low.contains("side"):
+				to_side = true
+			elif low.contains("main") or low.contains("deck"):
+				to_side = false
 			continue
 		var n := int(m.get_string(1))
-		var cid := m.get_string(2)
+		var cid := m.get_string(2).to_upper()
 		if CardDB.get_card(cid) == null:
 			Log.warn("Deck import: unknown card id %s" % cid)
+			if not unknown.has(cid):
+				unknown.append(cid)
 			continue
-		for i in min(n, BSS.MAX_COPIES):
-			d["main"].append(cid)
+		for i in n:
+			if not bool(add_card(d, cid, to_side).get("ok", false)):
+				dropped += 1
 	save(d)
+	last_import = {"main": (d["main"] as Array).size(), "side": (d["side"] as Array).size(),
+			"unknown": unknown, "dropped": dropped}
+	Log.info("Deck import: %d cards, sideboard %d, unknown %d" % [(d["main"] as Array).size(), (d["side"] as Array).size(), unknown.size()])
 	return d

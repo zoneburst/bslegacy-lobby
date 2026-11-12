@@ -90,6 +90,7 @@ const CARD_TYPE_NAMES := ["spirit", "nexus", "magic"]
 const DECK_MIN := 50
 const DECK_MAX := 60
 const MAX_COPIES := 4            # 5-1-1-1 four or fewer copies per card name
+const SIDE_MAX := 10             # 0.24.0: sideboard size (our choice; the rules have none); copies count with the deck
 const STARTING_LIFE := 5         # 5-2-3
 const STARTING_RESERVE := 3      # 5-2-4 (plus one soul core)
 const OPENING_HAND := 4          # 5-2-5

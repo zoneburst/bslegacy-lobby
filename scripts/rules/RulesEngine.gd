@@ -43,7 +43,7 @@ func _init(p_state: GameState = null) -> void:
 ## contain 50-60 cards (has 0)" for a deck the editor had just called legal.
 ## Callers should still pass "cards"; "main" is tolerated so that a deck
 ## dictionary can be handed over directly without a conversion step.
-func setup(decks: Array, names: Array = ["Player 1", "Player 2"], p_first: int = -1) -> Dictionary:
+func setup(decks: Array, names: Array = ["Player 1", "Player 2"], p_first: int = -1, chooser: int = -1) -> Dictionary:
 	for pid in 2:
 		var entry: Dictionary = decks[pid]
 		var ids: Array = entry.get("cards", entry.get("main", []))
@@ -75,6 +75,20 @@ func setup(decks: Array, names: Array = ["Player 1", "Player 2"], p_first: int =
 		state.turn_player = p_first
 		_open_mulligans()
 		state.log_event("setup", {"first": state.first_player})
+		return {"ok": true}
+	# 0.24.0 -- games 2 and 3 of a best of 3: no coin toss, the player who
+	# lost the last game chooses (the custom of other card games' matches).
+	if chooser == 0 or chooser == 1:
+		state.toss_winner = chooser
+		state.first_player = chooser
+		state.turn_player = chooser
+		state.log_event("setup", {"chooser": chooser})
+		state.pending_choice = {
+			"type": "turn_order",
+			"player": chooser,
+			"reason": "lost_last",
+			"prompt": "You lost the last game, so you choose: go first or go second?",
+		}
 		return {"ok": true}
 	# 0.20.0 -- the coin toss. The seeded RNG tosses, so every machine agrees.
 	# The winner has drawn their opening hand above and looks at it while
@@ -376,8 +390,31 @@ func submit(pid: int, action: Dictionary) -> Dictionary:
 		keywords.flush_pending_bursts()                # bursts that waited for a prompt (0.16.7)
 		_resume_steps()
 		keywords.offer_pending_links()                 # 11-18 Link, once nothing else waits (0.15.0)
+		_close_ended_attack_step()
 		state_changed.emit()
 	return result
+
+
+## "When this battle ends, the attack step ends" (Absolute Ice Shield,
+## 0.24.0, R-150): once that battle is over and nothing waits for an answer,
+## the turn moves on to the end step by itself. Before, the attack step only
+## refused new attacks and the turn player still had to end it.
+func _close_ended_attack_step() -> void:
+	var tp := state.turn_player
+	if state.game_over or state.step != BSS.Step.ATTACK or not state.battle.is_empty():
+		return
+	if not state.turn_flag(tp, "attack_step_closed") or bool(state.turn_flags.get("%d:attack_step_auto_ended" % tp, false)):
+		return
+	if not state.pending_choice.is_empty() or not state.effect_stack.is_empty() or not state.pending_bursts.is_empty() \
+			or not state.pending_followups.is_empty():
+		return
+	state.turn_flags["%d:attack_step_auto_ended" % tp] = true
+	state.log_event("attack_step_ended", {"player": tp})
+	effects.trigger("end_of_attack_step", {"player": tp})
+	effects.resolve_top()
+	_set_step(BSS.Step.END)
+	_run_step()
+	run_checkpoints()
 
 
 func _ok() -> Dictionary: return {"ok": true, "reason": ""}
@@ -400,8 +437,43 @@ func _act_resolve_choice(pid: int, action: Dictionary) -> Dictionary:
 		return _err("not your choice")
 	var choice = action.get("choice", null)
 	var pc := state.pending_choice
+	var bad := _bad_selection(pc, choice)
+	if bad != "":
+		return _err(bad)                               # the choice stays open
 	state.pending_choice = {}
 	return effects.deliver_choice(pid, pc, choice)
+
+
+## 0.24.0 (R-153): a "select N cards" answer must be N of the offered cards
+## (all of them when fewer are offered; at most N when "up to"), each once.
+## Before, a short answer was accepted -- Gale: 2 exhausted one spirit when
+## an answer named one. The board never sent one, but an online answer comes
+## from the other player's game, so the engine checks it.
+func _bad_selection(pc: Dictionary, choice: Variant) -> String:
+	if str(pc.get("type", "")) != "select_cards" or typeof(choice) != TYPE_ARRAY:
+		return ""
+	# a total-cost budget or a reveal (scry, search) has its own rules
+	if pc.has("cost_budget") or pc.has("revealed") \
+			or ((pc.get("resume", {}) as Dictionary).get("op", {}) as Dictionary).has("_reveal"):
+		return ""
+	var opts: Array = pc.get("options", [])
+	var picked: Array = []
+	for c: Variant in (choice as Array):
+		var u := int(c)
+		if picked.has(u):
+			return "a card was chosen twice"
+		if not opts.is_empty() and not opts.has(u) and not opts.has(float(u)):
+			return "that card cannot be chosen"
+		picked.append(u)
+	var count := int(pc.get("count", 1))
+	if count <= 0:
+		return ""
+	if picked.size() > count:
+		return "choose at most %d" % count
+	if not bool(pc.get("up_to", false)) and not bool(pc.get("optional", false)) \
+			and picked.size() < mini(count, opts.size()):
+		return "choose %d" % mini(count, opts.size())
+	return ""
 
 
 # ---------------------------------------------------------------------------
@@ -766,7 +838,7 @@ func _own_loc(pid: int, loc: Variant) -> bool:
 	return int(l.get("player", -1)) == pid and int(l.get("zone", -1)) == BSS.Zone.RESERVE
 
 
-func _pay_cost(pid: int, amount: int, payment: Array) -> bool:
+func _pay_cost(pid: int, amount: int, payment: Array, use_soul: bool = false) -> bool:
 	if amount <= 0:
 		return true
 	var p := state.player(pid)
@@ -791,6 +863,9 @@ func _pay_cost(pid: int, amount: int, payment: Array) -> bool:
 		# (R-024). Found by the BoardPlay test, which plays through the UI.
 		var trash := GameState.pool(pid, BSS.Zone.TRASH)
 		var reserve := GameState.pool(pid, BSS.Zone.RESERVE)
+		# 0.24.0 (R-149): the player chose to pay with the soul core
+		if use_soul and p.reserve_soul > 0:
+			remaining -= state.move_cores(reserve, trash, 1, true, true)
 		remaining -= state.move_cores(reserve, trash, remaining)
 		if remaining > 0 and p.reserve_soul > 0:
 			remaining -= state.move_cores(reserve, trash, mini(remaining, p.reserve_soul), true, true)
@@ -846,6 +921,15 @@ func _act_summon(pid: int, action: Dictionary) -> Dictionary:
 		# 11-9 Swift is the only way to summon outside your own main step.
 		if not (is_flash and ci.has_keyword(BSS.Keyword.SWIFT)):
 			return _err("cannot summon right now")
+	# 10-6-7 (0.24.0, R-155): the cost AND the cores of its lowest level, from
+	# the reserve and the field (Swift: the reserve only, 11-9-1)
+	var need_all := compute_cost(pid, ci.data) + ci.data.min_level_cost()
+	var have := state.player(pid).reserve_cores + state.player(pid).reserve_soul
+	if not is_flash or _main_ok(pid):
+		for fu in state.player(pid).field:
+			have += state.cards[fu].cores
+	if have < need_all:
+		return _err("not enough cores for its cost (%d) and its LV1 (%d)" % [compute_cost(pid, ci.data), ci.data.min_level_cost()])
 	return do_summon(pid, ci, action, is_flash)
 
 
@@ -881,7 +965,7 @@ func do_summon(pid: int, ci: CardInstance, action: Dictionary = {}, swift: bool 
 			return _err("Swift may only spend cores from the reserve")
 	# Inherit (0.19.1): decide which trash cards pay before anything moves
 	var inherit_uids := _inherit_plan(pid, ci.data, _cost_icons(ci.data), _cost_symbol_groups(pid, ci.data))
-	if not _pay_cost(pid, cost, payment):
+	if not _pay_cost(pid, cost, payment, bool(action.get("use_soul", false))):
 		return _err("cannot pay the summoning cost (%d)" % cost)
 	_pay_summon_cost(pid, ci, action)
 	for iu in inherit_uids:
@@ -934,9 +1018,11 @@ func do_summon(pid: int, ci: CardInstance, action: Dictionary = {}, swift: bool 
 		if effects._depth == 0:
 			run_checkpoints()
 	effects.trigger("on_summon", {"uid": ci.uid, "player": pid})
-	# "[Burst: When Opponent Resolves a Spirit's When Summoned Effect]" (0.11.0)
-	if ci.has_timing("on_summon") and state.pending_choice.is_empty():
-		keywords.offer_bursts(state.opponent_of(pid), "opponent_summon_effect")
+	# "[Burst: When Opponent Resolves a When Summoned]" is offered when that
+	# effect has RESOLVED (EffectSystem._finish_frame, 0.24.0, R-158).
+	# Before, it was offered here, as the effect triggered -- and skipped
+	# altogether when the effect first asked its player to choose a target
+	# (Nebula Dragon Andromeda), so Starblessed Draw never came.
 	return _ok()
 
 
@@ -949,7 +1035,7 @@ func _act_place(pid: int, action: Dictionary) -> Dictionary:
 	if ci.zone != BSS.Zone.HAND or ci.controller_id != pid:
 		return _err("card is not in your hand")
 	var cost := compute_cost(pid, ci.data)             # 10-7-5
-	if not _pay_cost(pid, cost, action.get("payment", [])):
+	if not _pay_cost(pid, cost, action.get("payment", []), bool(action.get("use_soul", false))):
 		return _err("cannot pay the placing cost (%d)" % cost)
 	state.move_card(ci.uid, BSS.Zone.FIELD, pid)
 	state.move_cores(GameState.pool(pid, BSS.Zone.RESERVE), GameState.on_card(ci.uid),
@@ -989,7 +1075,7 @@ func _act_use_magic(pid: int, action: Dictionary) -> Dictionary:
 		return _err("you must discard %d card(s) to use magic" % tax)
 	var souls_before := _soul_count(pid)
 	cost += magic_core_tax(pid)                        # BSS05-100 (0.15.0)
-	if not _pay_cost(pid, cost, action.get("payment", [])):
+	if not _pay_cost(pid, cost, action.get("payment", []), bool(action.get("use_soul", false))):
 		return _err("cannot pay the use cost (%d)" % cost)
 	var soul_spent := _soul_count(pid) < souls_before
 	if tax > 0:
@@ -1219,7 +1305,9 @@ func _act_declare_attack(pid: int, action: Dictionary) -> Dictionary:
 	# 11-2 Confront is a constant effect evaluated at block declaration.
 	state.battle["forced_block"] = ci.has_keyword(BSS.Keyword.CONFRONT)
 
-	_open_flash_window(BSS.BattlePhase.FLASH_BEFORE_BLOCK, state.battle["defending_player"])
+	# 10-10-1: a When Attacks effect may already have made the attacked spirit block
+	if int(state.battle.get("blocker", -1)) < 0:
+		_open_flash_window(BSS.BattlePhase.FLASH_BEFORE_BLOCK, state.battle["defending_player"])
 	return _ok()
 
 
@@ -1258,11 +1346,10 @@ func _close_flash_window() -> void:
 	state.flash_priority = -1
 	if ph == BSS.BattlePhase.FLASH_BEFORE_BLOCK:
 		# "You may attack that spirit" (0.14.0): it battles as if blocking.
+		# (attack_spirit_now normally made the block already, 10-10-1)
 		var ft: CardInstance = state.card(int(state.battle.get("forced_target", -1)))
-		if ft != null and ft.zone == BSS.Zone.FIELD:
-			state.battle["blocker"] = ft.uid
-			state.log_event("attacked_spirit", {"uid": ft.uid})
-			_open_flash_window(BSS.BattlePhase.FLASH_AFTER_BLOCK, int(state.battle["defending_player"]))
+		if ft != null and ft.zone == BSS.Zone.FIELD and int(state.battle.get("blocker", -1)) < 0:
+			attack_spirit_now(ft)
 			return
 		state.battle["phase"] = BSS.BattlePhase.BLOCK_DECLARATION
 		var defender := int(state.battle["defending_player"])
@@ -1366,7 +1453,30 @@ func _act_declare_block(pid: int, action: Dictionary) -> Dictionary:
 	ci.orientation = BSS.Orientation.EXHAUSTED
 	state.battle["blocker"] = ci.uid
 	state.log_event("block_declared", {"uid": ci.uid})
+	_begin_block(ci, pid)
+	return _ok()
 
+
+## 10-10-1 (0.24.0, R-152): "When a spirit is instructed to attack another
+## spirit, the spirit being attacked immediately blocks the attacking spirit."
+## Called by the attack_spirit effect (Dark Knight Palomides, Flame Crystal,
+## Viper Dragon Hsuan Falung). It is not exhausted; its block effects, Curse
+## and Gale apply as for a declared block, then the flash window after
+## blocking opens. Before, the battle waited for the flash window before
+## blocking to end, and no block effect fired.
+func attack_spirit_now(ft: CardInstance) -> void:
+	if state.battle.is_empty() or ft == null or ft.zone != BSS.Zone.FIELD:
+		return
+	if int(state.battle.get("blocker", -1)) >= 0:
+		return
+	state.battle["forced_target"] = ft.uid
+	state.battle["blocker"] = ft.uid
+	state.log_event("attacked_spirit", {"uid": ft.uid})
+	_begin_block(ft, ft.controller_id)
+
+
+## 7-1-3-2 and 7-1-4: what follows a block, declared or made by 10-10-1.
+func _begin_block(ci: CardInstance, pid: int) -> void:
 	effects.set_active_window("while_blocking", ci.uid, true)   # 7-1-3-2
 	# '"When This Spirit Blocks" effects of your opponent's spirits blocking
 	# your Ancient Dragon spirits are not triggered' (0.15.0, BSS04-004)
@@ -1384,7 +1494,6 @@ func _act_declare_block(pid: int, action: Dictionary) -> Dictionary:
 	if ci.zone == BSS.Zone.FIELD and effects.rule_applies(ci, "link_on_block"):
 		state.battle["link_offer"] = ci.uid
 		keywords.offer_pending_links()
-	return _ok()
 
 
 func _act_decline_block(pid: int) -> Dictionary:
@@ -1405,12 +1514,19 @@ func _battle_resolution() -> void:
 	effects.refresh_constants()                        # "while attacking" constants (0.14.0)
 	var atk: CardInstance = state.card(int(state.battle.get("attacker", -1)))
 	var blk: CardInstance = state.card(int(state.battle.get("blocker", -1)))
-	var blocked := blk != null and blk.zone == BSS.Zone.FIELD
+	# 7-1-5-1: a declared block makes the attack blocked, whether or not the
+	# blocking spirit is still on the field (0.24.0, R-151). Before, a blocker
+	# removed by a flash effect turned the attack into an unblocked one and
+	# the defender lost life.
+	var blocked := int(state.battle.get("blocker", -1)) >= 0
 
 	if blocked:
-		# 7-1-5-2-1 compare BP; ties destroy both.
-		if atk == null or atk.zone != BSS.Zone.FIELD:
-			pass                                       # attacker already gone
+		# 7-1-5-2-1 compare BP; ties destroy both. "If either the attacking or
+		# the blocking spirit has already been removed from the field by this
+		# time, do nothing."
+		if not battling(atk) or not battling(blk):
+			state.log_event("block_held", {"attacker": atk.uid if atk != null else -1,
+					"blocker": int(state.battle.get("blocker", -1))})
 		else:
 			effects.refresh_constants()
 			var a := atk.current_bp()
@@ -1442,7 +1558,7 @@ func _battle_resolution() -> void:
 					effects.trigger("lost_battle", {"uid": lost.uid, "player": lost.owner_id})
 	else:
 		# 7-1-5-3-1 apply damage equal to the attacker's symbol count.
-		if atk != null and atk.zone == BSS.Zone.FIELD:
+		if battling(atk):
 			var defender := int(state.battle["defending_player"])
 			var n := atk.symbol_count()
 			# "Neither player's life can be reduced by an attack from a spirit
@@ -1491,6 +1607,31 @@ func _battle_resolution() -> void:
 	_end_battle()
 
 
+## True when `ci` is the attacker or blocker of the current battle and has
+## stayed on the field since the battle began (a card that left and came back
+## is a new card, 7-1-5-2-1).
+func battling(ci: CardInstance) -> bool:
+	if ci == null or ci.zone != BSS.Zone.FIELD or state.battle.is_empty():
+		return false
+	if ci.uid == int(state.battle.get("blocker", -1)) and bool(state.battle.get("blocker_left", false)):
+		return false
+	if ci.uid == int(state.battle.get("attacker", -1)) and bool(state.battle.get("attacker_left", false)):
+		return false
+	return true
+
+
+## "When this battle ends, the attack step ends" (Absolute Ice Shield): close
+## the turn player's attack step; _close_ended_attack_step then moves the turn
+## to the end step once nothing waits for an answer (R-150).
+func end_attack_step_by_flag() -> void:
+	state.set_turn_flag(state.turn_player, "end_attack_after_battle", false)
+	state.set_turn_flag(state.turn_player, "attack_step_closed")
+	# "When an effect of your opponent ends your attack step" (0.15.0, BSS05-072)
+	var eab := int(state.turn_flags.get("%d:end_attack_after_battle:by" % state.turn_player, -1))
+	if eab >= 0 and eab != state.turn_player:
+		effects.trigger("attack_step_ended_by_opponent", {"player": state.turn_player, "by_player": eab})
+
+
 ## 7-1-6 -- end of battle.
 func _end_battle() -> void:
 	state.battle["phase"] = BSS.BattlePhase.BATTLE_END
@@ -1498,20 +1639,15 @@ func _end_battle() -> void:
 	var blk: CardInstance = state.card(int(state.battle.get("blocker", -1)))
 
 	# "destroy your opponent's blocking spirit when the battle ends" (0.14.0)
-	if blk != null and blk.zone == BSS.Zone.FIELD and bool(blk.flags.get("doomed", false)):
+	if battling(blk) and bool(blk.flags.get("doomed", false)):
 		destroy(blk, atk.uid if atk != null else -1)
 	# "Destroy it when the battle ends" on the attacking spirit (0.15.0, BSS03-124)
-	if atk != null and atk.zone == BSS.Zone.FIELD and bool(atk.flags.get("doomed", false)):
+	if battling(atk) and bool(atk.flags.get("doomed", false)):
 		destroy(atk, int(atk.flags.get("doomed_by", blk.uid if blk != null else -1)))
 	keywords.on_battle_end(atk, blk)                   # 11-3 Curse, 11-6 Luster
 	# "When this battle ends, end the attack step" (0.14.0)
 	if state.turn_flag(state.turn_player, "end_attack_after_battle"):
-		state.set_turn_flag(state.turn_player, "end_attack_after_battle", false)
-		state.set_turn_flag(state.turn_player, "attack_step_closed")
-		# "When an effect of your opponent ends your attack step" (0.15.0, BSS05-072)
-		var eab := int(state.turn_flags.get("%d:end_attack_after_battle:by" % state.turn_player, -1))
-		if eab >= 0 and eab != state.turn_player:
-			effects.trigger("attack_step_ended_by_opponent", {"player": state.turn_player, "by_player": eab})
+		end_attack_step_by_flag()
 	# uid/player name the attacker, so "when a battle with one of your NERV
 	# spirits ends" can filter on it (0.12.0)
 	effects.trigger("battle_end", {"battle": state.battle.duplicate(true),
@@ -1996,7 +2132,10 @@ func legal_actions(pid: int) -> Array:
 		for uid in state.player(pid).hand:
 			var ci: CardInstance = state.cards[uid]
 			var cost := compute_cost(pid, ci.data) + (magic_core_tax(pid) if ci.data.is_magic() else 0)
-			var affordable := _affordable(pid, cost)
+			# 10-6-7 (0.24.0, R-155): a spirit also needs the cores of its
+			# lowest level -- a cost-0 spirit with no core to put on it is
+			# not playable
+			var affordable := _affordable(pid, cost + (ci.data.min_level_cost() if ci.data.is_spirit() else 0))
 			# Ascend needs a qualifying spirit to strip (0.14.0)
 			if ci.data.is_spirit() and affordable and ci.has_keyword(BSS.Keyword.ASCEND) \
 					and not keywords.can_ascend(pid, ci):
@@ -2052,7 +2191,8 @@ func legal_actions(pid: int) -> Array:
 							and not magic_locked(pid, ci.data):
 							out.append({"verb": BSS.Action.USE_MAGIC, "uid": uid, "effect": i})
 				elif ci.data.is_spirit() and ci.has_keyword(BSS.Keyword.SWIFT):
-					if state.player(pid).reserve_cores >= compute_cost(pid, ci.data) \
+					if state.player(pid).reserve_cores + state.player(pid).reserve_soul \
+							>= compute_cost(pid, ci.data) + ci.data.min_level_cost() \
 							and not summon_blocked(pid, ci.data) and summon_cost_payable(pid, ci):
 						out.append({"verb": BSS.Action.SUMMON, "uid": uid})
 	out.append({"verb": BSS.Action.CONCEDE})
