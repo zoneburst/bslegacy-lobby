@@ -492,6 +492,61 @@ func gems(from_g: Vector2, to_g: Vector2, n: int, soul: bool = false,
 	return last
 
 
+## 0.24.0 -- Link: a beam of light grows from the lending spirit to the
+## attacker and sparks of its power stream along it; returns when the last
+## spark has arrived.
+func link_beam(from_g: Vector2, to_g: Vector2, col: Color, sparks: int = 9, dur: float = 0.9) -> Signal:
+	var p0 := local_point(from_g)
+	var p1 := local_point(to_g)
+	var line := Line2D.new()
+	line.width = 10.0
+	line.default_color = Color(col, 0.0)
+	line.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	line.end_cap_mode = Line2D.LINE_CAP_ROUND
+	line.points = PackedVector2Array([p0, p0])
+	var glow := Line2D.new()
+	glow.width = 26.0
+	glow.default_color = Color(col, 0.0)
+	glow.begin_cap_mode = Line2D.LINE_CAP_ROUND
+	glow.end_cap_mode = Line2D.LINE_CAP_ROUND
+	glow.points = line.points
+	add_child(glow)
+	add_child(line)
+	var t := tw()
+	t.set_parallel(true)
+	t.tween_method(func(k: float) -> void:
+		if is_instance_valid(line):
+			var pts := PackedVector2Array([p0, p0.lerp(p1, k)])
+			line.points = pts
+			glow.points = pts, 0.0, 1.0, d(0.28)).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	t.tween_property(line, "default_color:a", 0.95, d(0.12))
+	t.tween_property(glow, "default_color:a", 0.35, d(0.12))
+	var last: Signal = t.finished
+	for i in sparks:
+		var sp := Ring.new()
+		sp.colour = Color(1, 1, 1)
+		sp.width = 5.0
+		sp.radius = 5.0
+		sp.position = p0
+		sp.alpha = 0.0
+		add_child(sp)
+		var ts := tw()
+		ts.tween_interval(d(0.22 + 0.07 * i))
+		ts.tween_property(sp, "alpha", 1.0, d(0.04))
+		ts.tween_property(sp, "position", p1, d(0.34)).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		ts.tween_property(sp, "alpha", 0.0, d(0.05))
+		ts.tween_callback(sp.queue_free)
+		last = ts.finished
+	var tf := tw()
+	tf.tween_interval(d(dur))
+	tf.set_parallel(true)
+	tf.tween_property(line, "default_color:a", 0.0, d(0.3))
+	tf.tween_property(glow, "default_color:a", 0.0, d(0.3))
+	tf.chain().tween_callback(line.queue_free)
+	tf.chain().tween_callback(glow.queue_free)
+	return last
+
+
 ## 0.22.0 -- cores flying one after another, each a real gem picture on an
 ## arc, a little larger mid-flight. `on_launch(i)` runs as gem i leaves and
 ## `on_land(i)` as it arrives (the board steps the source and target rows

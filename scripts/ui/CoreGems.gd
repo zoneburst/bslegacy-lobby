@@ -52,6 +52,14 @@ static var _soul_tex: Texture2D
 		sockets = v
 		_resize()
 
+## When > 0 (0.24.0), the row must fit in this width: the gems get smaller
+## on a small card instead of running off it. Up to `max_drawn` gems are drawn
+## on one row; past that the row ends with the count ("x6").
+@export var fit_width: float = 0.0:
+	set(v):
+		fit_width = v
+		_resize()
+
 ## Shown = real count + offset (an animation in progress); 0 = the real count.
 var offset: int = 0
 ## 1 -> 0 while the newest gem pops in.
@@ -105,7 +113,7 @@ func hold_add(delta: int) -> void:
 func landing_points(k: int) -> Array:
 	var out: Array = []
 	var start := _shown()
-	var last := maxi(0, maxi(_slots(), mini(start + k, max_drawn)) - 1)
+	var last := maxi(0, maxi(_slots(), mini(start + k, _cap())) - 1)
 	for i in k:
 		out.append(get_global_transform() * slot_center(mini(start + i, last)))
 	return out
@@ -136,26 +144,44 @@ func _shown() -> int:
 
 
 func _slots() -> int:
-	return maxi(sockets, mini(maxi(_total(), _shown()), max_drawn))
+	return maxi(sockets, mini(maxi(_total(), _shown()), _cap()))
 
 
 func _gap() -> float:
-	return radius * 0.42
+	return _r() * 0.42
+
+
+## Gems drawn at most (the rest are the count).
+func _cap() -> int:
+	return max_drawn
+
+
+## The radius the gems are drawn at: `radius`, or smaller so the row (and its
+## count) fits `fit_width`.
+func _r() -> float:
+	if fit_width <= 0.0:
+		return radius
+	var n := maxi(1, _slots())
+	var label := show_count and _total() > _cap()
+	var units := n * 2.0 + (n - 1) * 0.42 + (3.4 if label else 0.0)
+	return minf(radius, fit_width / units)
 
 
 func _resize() -> void:
-	var gap := _gap()
+	var r := _r()
+	var gap := r * 0.42
 	var n := maxi(1, _slots())
-	var w := n * radius * 2.0 + (n - 1) * gap
-	if show_count and _total() > max_drawn:
-		w += radius * 3.4
-	custom_minimum_size = Vector2(w, radius * 2.0 + 2.0)
+	var w := n * r * 2.0 + (n - 1) * gap
+	if show_count and _total() > _cap():
+		w += r * 3.4
+	custom_minimum_size = Vector2(w, r * 2.0 + 2.0)
 	queue_redraw()
 
 
 ## Centre of gem slot `i` in this control's coordinates.
 func slot_center(i: int) -> Vector2:
-	return Vector2(radius + i * (radius * 2.0 + _gap()), size.y * 0.5)
+	var r := _r()
+	return Vector2(r + i * (r * 2.0 + r * 0.42), maxf(size.y, r * 2.0 + 2.0) * 0.5)
 
 
 ## Where the next arriving core lands (the first empty slot), in global coordinates.
@@ -167,9 +193,9 @@ func landing_point() -> Vector2:
 ## "soul" or "core" for the gem under `local_pos`, "" for none (used to pick
 ## which core a drag takes).
 func gem_at(local_pos: Vector2) -> String:
-	var drawn := mini(_shown(), max_drawn)
+	var drawn := mini(_shown(), _cap())
 	for i in drawn:
-		if slot_center(i).distance_to(local_pos) <= radius * 1.25 + slop() * 0.5:
+		if slot_center(i).distance_to(local_pos) <= _r() * 1.25 + slop() * 0.5:
 			return "soul" if i < soul else "core"
 	if drawn > 0 and Rect2(Vector2.ZERO, size).grow(slop()).has_point(local_pos):
 		return "core" if cores > 0 else "soul"
@@ -178,15 +204,15 @@ func gem_at(local_pos: Vector2) -> String:
 
 func _draw() -> void:
 	var shown := _shown()
-	var drawn := mini(shown, max_drawn)
+	var drawn := mini(shown, _cap())
 	var slots := _slots()
 	var y := size.y * 0.5
 	for i in slots:
 		var c := slot_center(i)
 		if i >= drawn:
 			# Empty socket.
-			draw_circle(c, radius, Color(1, 1, 1, 0.05))
-			draw_arc(c, radius - 0.5, 0.0, TAU, 28, Color(1, 1, 1, 0.22), 1.2, true)
+			draw_circle(c, _r(), Color(1, 1, 1, 0.05))
+			draw_arc(c, _r() - 0.5, 0.0, TAU, 28, Color(1, 1, 1, 0.22), 1.2, true)
 			continue
 		# Soul cores are drawn first so a single red gem is always visible even
 		# when the row is truncated.
@@ -194,21 +220,22 @@ func _draw() -> void:
 		var k := 1.0
 		if pop > 0.0 and i == drawn - 1 and offset >= 0:
 			k = 1.0 + 0.45 * pop
-			draw_arc(c, radius * (1.2 + 0.9 * (1.0 - pop)), 0.0, TAU, 32,
+			draw_arc(c, _r() * (1.2 + 0.9 * (1.0 - pop)), 0.0, TAU, 32,
 					Color(UITheme.SOUL if is_soul else UITheme.CORE, 0.7 * pop), 2.0, true)
 		_gem(c, is_soul, k)
-	if show_count and _total() > max_drawn:
+	if show_count and _total() > _cap():
 		var font := get_theme_default_font()
-		var x := slots * (radius * 2.0 + _gap())
-		draw_string(font, Vector2(x, y + radius * 0.55), "x%d" % shown,
-				HORIZONTAL_ALIGNMENT_LEFT, -1, int(radius * 1.5), UITheme.TEXT)
+		var rr := _r()
+		var x := slots * (rr * 2.0 + _gap())
+		draw_string(font, Vector2(x, y + rr * 0.55), "x%d" % shown,
+				HORIZONTAL_ALIGNMENT_LEFT, -1, maxi(8, int(rr * 1.5)), UITheme.TEXT)
 
 
 func _gem(c: Vector2, is_soul: bool, k: float = 1.0) -> void:
 	var tex := core_texture(is_soul)
 	if tex == null:
 		var col := UITheme.SOUL if is_soul else UITheme.CORE
-		draw_circle(c, radius * k, col)
+		draw_circle(c, _r() * k, col)
 		return
-	var s := radius * 2.0 * TEX_SCALE * k
+	var s := _r() * 2.0 * TEX_SCALE * k
 	draw_texture_rect(tex, Rect2(c - Vector2(s, s) * 0.5, Vector2(s, s)), false)

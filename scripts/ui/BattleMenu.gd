@@ -41,6 +41,9 @@ var _diff_blurb: Label
 var _opp_choice := 0       # 0 = random starter, 1 = mirror, 2+ = deck index
 var _opp_option: OptionButton
 
+# 0.24.0: best of 1 or best of 3 (CPU, Quick Match, Custom Room)
+static var _best_of := 1
+
 # Quick match
 var _searching := false
 var _elapsed := 0.0
@@ -380,6 +383,9 @@ func _build_ai(v: VBoxContainer) -> void:
 	_opp_option.item_selected.connect(func(i: int): _opp_choice = i)
 	v.add_child(_opp_option)
 	_fill_opponents()
+	v.add_child(UITheme.spacer(4))
+	_format_row(v, "Best of 3: first to two wins. Between games you may swap cards with your sideboard, "
+			+ "and the loser of each game chooses who goes first.")
 
 	v.add_child(UITheme.grow())
 	var start := UITheme.hero_button("Start match", _start_ai)
@@ -387,6 +393,14 @@ func _build_ai(v: VBoxContainer) -> void:
 	start.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	v.add_child(start)
 	Motion.stagger_in(v.get_children())
+
+
+## "Best of 1 | Best of 3" (0.24.0), shared by the three ways to play.
+func _format_row(v: VBoxContainer, note: String) -> void:
+	v.add_child(UITheme.eyebrow("Match format"))
+	v.add_child(UITheme.segmented(["Best of 1", "Best of 3"], 1 if _best_of >= 3 else 0, func(idx: int):
+		_best_of = 3 if idx == 1 else 1, UITheme.CORE, 130.0))
+	v.add_child(UITheme.paragraph(note, true, UITheme.FS_SMALL))
 
 
 func _fill_opponents() -> void:
@@ -413,7 +427,7 @@ func _start_ai() -> void:
 			opp = others[randi() % others.size()]
 	elif _opp_choice >= 2 and _opp_choice - 2 < playable.size():
 		opp = playable[_opp_choice - 2]
-	var res := MatchService.start_bot_match(deck, _difficulty, opp, true)
+	var res := MatchService.start_bot_match(deck, _difficulty, opp, true, _best_of)
 	if not bool(res.get("ok", false)):
 		set_status(str(res.get("reason", "Could not start the match")), true)
 		return
@@ -431,6 +445,7 @@ func _build_random(v: VBoxContainer) -> void:
 	v.add_child(UITheme.body(("Online lobby: %s" % GameConfig.lobby_label())
 			if GameConfig.has_online_lobby() else "No online lobby is set up yet (Settings → Connection).",
 			true, UITheme.FS_SMALL))
+	_format_row(v, "You are paired with a player who chose the same format.")
 	_search_status = UITheme.body("Not searching", true)
 	v.add_child(_search_status)
 	v.add_child(UITheme.grow())
@@ -483,7 +498,7 @@ func _toggle_queue() -> void:
 		Net.connect_to_server(GameConfig.lobby_host, GameConfig.lobby_port)
 		return   # the queue request is sent from _on_conn once connected
 	MatchService.my_deck = deck             # recorded on the profile when it ends (0.16.0)
-	Net.queue_random(deck)
+	Net.queue_random(deck, {"best_of": _best_of})
 
 
 # --- Custom room --------------------------------------------------------------
@@ -518,6 +533,11 @@ func _build_room(v: VBoxContainer) -> void:
 	_stop_button = UITheme.button("Close room", _stop_hosting)
 	opts.add_child(_stop_button)
 	hv.add_child(opts)
+	var fmt := UITheme.hbox(UITheme.SP_S)
+	fmt.add_child(UITheme.body("Format:", true, UITheme.FS_SMALL))
+	fmt.add_child(UITheme.segmented(["Best of 1", "Best of 3"], 1 if _best_of >= 3 else 0, func(idx: int):
+		_best_of = 3 if idx == 1 else 1, UITheme.CORE, 110.0))
+	hv.add_child(fmt)
 	var code_row := UITheme.hbox(UITheme.SP_S)
 	code_row.add_child(UITheme.body("Room code:", true))
 	_room_code = UITheme.number("------", UITheme.FS_HEAD, UITheme.GOLD_HI)
@@ -619,7 +639,8 @@ func _create() -> void:
 		if not await _connect_to_lobby():
 			return
 	MatchService.my_deck = deck
-	Net.create_room(deck, {"public": false, "allow_spectators": _spectator_check.button_pressed})
+	Net.create_room(deck, {"public": false, "allow_spectators": _spectator_check.button_pressed,
+			"best_of": _best_of})
 	_refresh_host_ui()
 
 
@@ -700,7 +721,7 @@ func _spectate() -> void:
 func _on_conn(ok: bool) -> void:
 	if ok and _searching:
 		MatchService.my_deck = _current_deck()
-		Net.queue_random(MatchService.my_deck)
+		Net.queue_random(MatchService.my_deck, {"best_of": _best_of})
 	if not ok and _searching:
 		_searching = false
 		if _search_button != null:
@@ -734,6 +755,8 @@ func _on_room(data: Dictionary) -> void:
 	_members.add_child(UITheme.eyebrow("In this room"))
 	for m in data.get("members", []):
 		_members.add_child(UITheme.body("%s  ·  %s" % [m.get("name", "?"), m.get("role", "?")]))
+	if int(data.get("best_of", 1)) >= 3:
+		_members.add_child(UITheme.body("Best of 3", true, UITheme.FS_SMALL))
 	if bool(data.get("in_progress", false)):
 		set_status("Room %s · game in progress" % data.get("code", ""))
 	elif (data.get("members", []) as Array).filter(func(m): return str(m.get("role", "")) == "player").size() >= 2:

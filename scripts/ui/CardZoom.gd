@@ -19,7 +19,7 @@ var _ids: Array = []
 var _index: int = 0
 var _count_source: Callable
 
-var _art: TextureRect
+var _art: SharpCardArt
 var _title: Label
 var _subtitle: Label
 var _count_label: Label
@@ -56,17 +56,19 @@ func _ready() -> void:
 	sb.set_content_margin_all(UITheme.SP_L)
 	panel.add_theme_stylebox_override("panel", sb)
 	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.offset_left = -560
-	panel.offset_right = 560
-	panel.offset_top = -330
-	panel.offset_bottom = 330
+	# 0.24.0 (R-154): the card is shown about as large as bssdb.dev shows it
+	# (its picture is ~600 px wide), so the panel is taller
+	panel.offset_left = -600
+	panel.offset_right = 600
+	panel.offset_top = -405
+	panel.offset_bottom = 405
 	add_child(panel)
 
 	var row := UITheme.hbox(UITheme.SP_L)
 	panel.add_child(row)
 
-	_art = TextureRect.new()
-	_art.custom_minimum_size = Vector2(430, 602)
+	_art = SharpCardArt.new()            # drawn at its exact screen size (0.24.0)
+	_art.custom_minimum_size = Vector2(530, 740)
 	_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	row.add_child(_art)
@@ -149,7 +151,7 @@ func _refresh() -> void:
 	var cd: CardData = CardDB.get_card(id)
 	if cd == null:
 		return
-	_art.texture = CardDB.get_card_texture(id)
+	_art.show_card(id, CardDB.get_card_texture(id))
 	_title.text = cd.name
 	var type_name: String = str(BSS.CARD_TYPE_NAMES[cd.card_type]).capitalize()
 	var sub_types: String = "-"

@@ -35,7 +35,7 @@ var live: Dictionary = {}
 var face_down := false
 
 var _frame: StyleBoxFlat
-var _art: TextureRect
+var _art: SharpCardArt
 var _name_label: Label
 var _badges: Control
 var _highlight := Color(0, 0, 0, 0)
@@ -49,7 +49,7 @@ func setup(id: String, card_size: Vector2 = SIZE_MEDIUM, live_state: Dictionary 
 	uid = int(live_state.get("uid", -1))
 	face_down = false
 	_build(card_size)
-	_art.texture = CardDB.get_card_texture(id)
+	_art.show_card(id, CardDB.get_card_texture(id))
 	_refresh()
 
 
@@ -57,7 +57,7 @@ func setup_back(card_size: Vector2 = SIZE_SMALL) -> void:
 	card_id = ""
 	face_down = true
 	_build(card_size)
-	_art.texture = back_texture()
+	_art.show_card("", back_texture())
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
@@ -159,7 +159,7 @@ func _build(card_size: Vector2) -> void:
 	_frame.anti_aliasing = true
 	add_theme_stylebox_override("panel", _frame)
 
-	_art = TextureRect.new()
+	_art = SharpCardArt.new()            # exact-size sharp face when large (0.24.0)
 	_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	# Card faces are 600 x 838 and are shown as small as 52 px wide; sampling
@@ -253,7 +253,10 @@ func _build_live_badges(cd: CardData) -> void:
 	# be grabbed and dragged).
 	var gems := CoreGems.new()
 	gems.radius = clampf(custom_minimum_size.x * 0.095, 6.5, 10.0)
-	gems.max_drawn = 5
+	# 0.24.0: one row of up to four gems, then the count ("x6"); the row
+	# shrinks to stay on the card
+	gems.max_drawn = 4
+	gems.fit_width = maxf(custom_minimum_size.x - 10.0, 20.0)
 	gems.set_counts(int(live.get("cores", 0)), int(live.get("soul", 0)))
 	gems.position = Vector2(5, 5)
 	_badges.add_child(gems)

@@ -181,7 +181,7 @@ func _build_showcase(deck: Dictionary) -> void:
 	var head := UITheme.hbox(UITheme.SP_S)
 	var titles := UITheme.vbox(0)
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	titles.add_child(UITheme.eyebrow("Active deck", UITheme.GOLD))
+	titles.add_child(UITheme.eyebrow("Your active deck", UITheme.GOLD))
 	var name_label := UITheme.truncating(str(deck.get("name", "No deck yet")), false, UITheme.FS_TITLE - 4)
 	if UITheme.font("display") != null:
 		name_label.add_theme_font_override("font", UITheme.font("display"))
@@ -243,6 +243,13 @@ func _build_showcase(deck: Dictionary) -> void:
 	edit.custom_minimum_size = Vector2(130, 48)
 	edit.disabled = deck.is_empty()
 	actions.add_child(edit)
+	# 0.24.0: pick another deck here, before Quick Play, without going
+	# through the Battle screen
+	var change := UITheme.button("Change deck", _pick_deck)
+	change.custom_minimum_size = Vector2(150, 48)
+	change.disabled = DeckManager.visible_playable_decks().size() < 2 and not deck.is_empty()
+	change.tooltip_text = "Choose which of your decks Quick Play uses"
+	actions.add_child(change)
 	v.add_child(actions)
 
 	# "What's new": the latest release, one line, linking to the full notes.
@@ -398,6 +405,70 @@ func _showcase_cards(deck: Dictionary, n: int) -> Array[String]:
 	for id in ids.slice(0, n):
 		out.append(str(id))
 	return out
+
+
+## The deck picker (0.24.0): every playable deck with its colours and size;
+## the one chosen becomes the active deck everywhere (Quick Play, Battle).
+func _pick_deck() -> void:
+	var m := Modal.open(self, "Choose your active deck", 560.0)
+	var current := str(_active_deck().get("id", ""))
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(0, 360)
+	m.body.add_child(scroll)
+	var list := UITheme.vbox(UITheme.SP_XS)
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(list)
+	var decks := DeckManager.visible_playable_decks()
+	if decks.is_empty():
+		list.add_child(UITheme.paragraph("No playable decks yet. Open Decks to build one, or import a list.", true))
+	for d: Dictionary in decks:
+		list.add_child(_deck_choice(d, str(d.get("id", "")) == current, m))
+	m.buttons.add_child(UITheme.ghost_button("Deck builder ›", func():
+		m.close()
+		SceneRouter.go("deck_list")))
+	m.buttons.add_child(UITheme.grow())
+	m.buttons.add_child(UITheme.button("Cancel", m.close))
+
+
+func _deck_choice(d: Dictionary, selected: bool, m: Modal) -> Control:
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(0, 46)
+	b.focus_mode = Control.FOCUS_NONE
+	b.tooltip_text = str(d.get("name", "Untitled"))
+	var sb := UITheme._box(Color(UITheme.SURFACE_HI, 0.98), UITheme.RADIUS, UITheme.GOLD, 2) if selected \
+			else UITheme._box(Color(UITheme.SURFACE, 0.6), UITheme.RADIUS, Color(UITheme.LINE, 0.9))
+	b.add_theme_stylebox_override("normal", sb)
+	b.add_theme_stylebox_override("hover", UITheme._box(Color(UITheme.SURFACE_HI, 0.98), UITheme.RADIUS, UITheme.GOLD_HI, 2))
+	var id := str(d.get("id", ""))
+	b.pressed.connect(func():
+		AudioManager.play_sfx("ui_click")
+		GameConfig.default_deck_id = id
+		GameConfig.save_settings()
+		m.close()
+		SceneRouter.go("main"))
+	var row := UITheme.hbox(UITheme.SP_XS)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	row.offset_left = 12
+	row.offset_right = -12
+	for c in _deck_colors(d):
+		var dot := UITheme.color_dot(int(c), 14)
+		dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(dot)
+	row.add_child(UITheme.spacer(4))
+	var nm := UITheme.truncating(str(d.get("name", "Untitled")), not selected, UITheme.FS_BODY)
+	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	nm.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	nm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(nm)
+	var info := UITheme.number("%d cards%s" % [(d.get("main", []) as Array).size(),
+			"  ·  active" if selected else ""], UITheme.FS_SMALL, UITheme.GOLD if selected else UITheme.TEXT_DIM)
+	info.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	info.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(info)
+	b.add_child(row)
+	return b
 
 
 ## One click from the hub into a game: your active deck against a different

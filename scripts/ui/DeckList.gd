@@ -314,11 +314,20 @@ func _deck_colors(deck: Dictionary) -> Array:
 
 func _import() -> void:
 	Modal.text_input(self, "Import a decklist",
-		"One line per card, e.g.\n4 PH-001 Ember Drake\n3 PH-002 Cinder Hound",
+		"Paste a list, one line per card, e.g.\n4 ST01-009 Dragron Trooper\n4x BSS01-001: Supernova Dragon Siegwurm Nova\n\n=== Sideboard ===\n2 BSS01-122 Deadly Balance",
 		func(text: String):
 			if text.strip_edges().is_empty():
 				return
 			var d := DeckManager.from_text(text, "Imported Deck")
-			set_status("Imported %d cards" % (d.get("main", []) as Array).size())
-			SceneRouter.go("deck_editor", {"deck_id": str(d["id"])}),
+			var rep: Dictionary = DeckManager.last_import
+			var msg := "Imported %d cards" % int(rep.get("main", 0))
+			if int(rep.get("side", 0)) > 0:
+				msg += " and a %d-card sideboard" % int(rep.get("side", 0))
+			var unknown: Array = rep.get("unknown", [])
+			if not unknown.is_empty():
+				msg += " · not found: %s%s" % [", ".join(unknown.slice(0, 4)), "…" if unknown.size() > 4 else ""]
+			if int(rep.get("dropped", 0)) > 0:
+				msg += " · %d over the limits left out" % int(rep.get("dropped", 0))
+			set_status(msg, not unknown.is_empty())
+			SceneRouter.go("deck_editor", {"deck_id": str(d["id"]), "status": msg}),
 		"Import")

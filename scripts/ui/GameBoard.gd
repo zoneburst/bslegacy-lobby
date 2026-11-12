@@ -92,6 +92,11 @@ var _last_serial := -1              # last engine event already presented
 var _presenting := false
 var _dirty := false
 var _pending_end: Dictionary = {}
+# 0.24.0 (R-136): cards that left the field in this update stay drawn where
+# they were until the presentation reaches the moment they leave (destroyed,
+# returned to the deck, trashed) -- before, they vanished as the update began
+var _leaving: Dictionary = {}       # uid -> {"entry": prev field entry, "owner": pid}
+var _leaving_nodes: Dictionary = {} # uid -> slot holder on the board
 
 
 func _ready() -> void:
@@ -197,6 +202,7 @@ func _build() -> void:
 	_build_side()
 
 	_menu = PopupMenu.new()
+	_menu.hide_on_checkable_item_selection = false     # the soul-core switch keeps the menu open
 	_menu.id_pressed.connect(_on_menu)
 	add_child(_menu)
 
@@ -273,6 +279,10 @@ func _field_panel(opponent: bool) -> Control:
 	else:
 		_my_field = row
 		_my_nexus = nrow
+		# 0.24.0 (R-146): a core dropped anywhere on your field goes to the
+		# nearest card that can take it, so a drop just beside a small nexus
+		# (or between two spirits) is not lost
+		_core_area(whole)
 	return p
 
 
@@ -350,6 +360,15 @@ func _build_side() -> void:
 	var title := UITheme.eyebrow("Card", UITheme.ACCENT)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(title)
+	# 0.24.0: settings (sound, animations) without leaving the battle
+	var gear := UITheme.button("", func(): QuickSettings.open(self))
+	gear.icon = QuickSettings.gear_icon()
+	gear.expand_icon = true
+	gear.custom_minimum_size = Vector2(44, 40)
+	gear.tooltip_text = "Settings: sound, animations, play aids"
+	gear.add_theme_constant_override("icon_max_width", 22)
+	gear.name = "SettingsButton"
+	head.add_child(gear)
 	head.add_child(UITheme.danger_button("Concede", _confirm_concede))
 	v.add_child(head)
 
@@ -475,6 +494,9 @@ func _present() -> void:
 	if not _anims_on() or events.is_empty():
 		_drop_pending = {}
 		_hidden.clear()
+		_leaving.clear()
+		_leaving_nodes.clear()
+		_actions.visible = true
 		_pending_orient.clear()
 		_render()
 		_shown_snap = _snap
@@ -485,8 +507,12 @@ func _present() -> void:
 	var before := _capture_rects()
 	var prev := _shown_snap
 	_hidden = BattleDirector.incoming_uids(events)
+	_leaving = _find_leaving(prev, _snap)
 	_render()
 	_shown_snap = _snap
+	# a decision (a burst to activate, a target) is offered once what led to
+	# it has been shown, not while it plays (0.24.0)
+	_actions.visible = false
 	_fx.begin()
 	await _fx.wait(0.0)           # let containers lay the new board out
 	await _director.play(events, before, prev)
@@ -495,6 +521,10 @@ func _present() -> void:
 
 func _finish_presentation() -> void:
 	_drop_pending = {}
+	for uid: int in _leaving_nodes.keys():
+		release_leaving(uid)
+	_leaving.clear()
+	_actions.visible = true
 	for uid: int in _hidden.keys():
 		reveal(uid)
 	_hidden.clear()
@@ -557,10 +587,11 @@ func _render() -> void:
 	_render_zone(_opp_left, opp, false, false)
 	_render_zone(_my_left, me, true, true)
 	_render_zone(_my_right, me, false, true)
-	_render_field(_opp_field, _only(opp.get("field", []), false), false)
-	_render_field(_opp_nexus, _only(opp.get("field", []), true), false, true)
-	_render_field(_my_field, _only(me.get("field", []), false), true)
-	_render_field(_my_nexus, _only(me.get("field", []), true), true, true)
+	_leaving_nodes.clear()
+	_render_field(_opp_field, _only(_with_leaving(opp, opp_seat), false), false)
+	_render_field(_opp_nexus, _only(_with_leaving(opp, opp_seat), true), false, true)
+	_render_field(_my_field, _only(_with_leaving(me, my_seat), false), true)
+	_render_field(_my_nexus, _only(_with_leaving(me, my_seat), true), true, true)
 	_render_hand(me.get("hand", []))
 	_render_centre()
 	_render_log()
@@ -599,8 +630,74 @@ func node_of(uid: int) -> Control:
 
 
 func rect_of(uid: int) -> Rect2:
+	var ln: Variant = _leaving_nodes.get(uid)
+	if ln is Control and is_instance_valid(ln) and (ln as Control).is_inside_tree():
+		var lc := (ln as Control).get_child(0) as Control if (ln as Control).get_child_count() > 0 else (ln as Control)
+		return BattleFX.visual_rect(lc)
 	var n := node_of(uid)
 	return BattleFX.visual_rect(n) if n != null and n.is_inside_tree() else Rect2()
+
+
+## Cards on a field in `prev` that are on no field and in no hand in `now`
+## (destroyed, trashed, returned to the deck): they stay drawn until the
+## presentation shows them leaving (release_leaving), 0.24.0.
+func _find_leaving(prev: Dictionary, now: Dictionary) -> Dictionary:
+	var out := {}
+	if prev.is_empty():
+		return out
+	var still := {}
+	for p: Dictionary in now.get("players", []):
+		for zone in ["field", "hand"]:
+			for e: Dictionary in p.get(zone, []):
+				still[int(e.get("uid", -1))] = true
+	var pi := 0
+	for p: Dictionary in prev.get("players", []):
+		var idx := 0
+		for e: Dictionary in p.get("field", []):
+			var uid := int(e.get("uid", -1))
+			if uid >= 0 and not still.has(uid):
+				out[uid] = {"entry": e, "owner": int(p.get("id", pi)), "index": idx}
+			idx += 1
+		pi += 1
+	return out
+
+
+## A side's field with its leaving cards put back where they stood.
+func _with_leaving(side: Dictionary, pid: int) -> Array:
+	var cards: Array = (side.get("field", []) as Array).duplicate()
+	if _leaving.is_empty():
+		return cards
+	var mine: Array = []
+	for uid: int in _leaving.keys():
+		var l: Dictionary = _leaving[uid]
+		if int(l["owner"]) == pid:
+			mine.append(l)
+	mine.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["index"]) < int(b["index"]))
+	for l2: Dictionary in mine:
+		var e: Dictionary = (l2["entry"] as Dictionary).duplicate()
+		e["_leaving"] = true
+		cards.insert(mini(int(l2["index"]), cards.size()), e)
+	return cards
+
+
+## The presentation has reached the moment this card leaves the field.
+func release_leaving(uid: int) -> void:
+	_leaving.erase(uid)
+	var n: Variant = _leaving_nodes.get(uid)
+	_leaving_nodes.erase(uid)
+	if n is Control and is_instance_valid(n):
+		var row := (n as Control).get_parent()
+		if row != null:
+			row.remove_child(n)
+		(n as Control).queue_free()
+		if row is HBoxContainer and (row as HBoxContainer).get_child_count() == 0:
+			var l := UITheme.body("No spirits", true, UITheme.FS_SMALL)
+			l.modulate.a = 0.5
+			row.add_child(l)
+
+
+func is_leaving(uid: int) -> bool:
+	return _leaving_nodes.has(uid)
 
 
 func anchor(pid: int, zone: String) -> Control:
@@ -696,6 +793,11 @@ func _sync_arrow() -> void:
 		return
 	var src := node_of(int(battle.get("attacker", -1)))
 	var blk := node_of(int(battle.get("blocker", -1)))
+	# 7-1-5-1 (0.24.0, R-151): once a block is declared the attack never turns
+	# back to the defender's life, even when the blocker has left the field
+	if blk == null and int(battle.get("blocker", -1)) >= 0:
+		_fx.arrow.clear()
+		return
 	var dst: Control = blk if blk != null else anchor(int(battle.get("defending_player", 1)), "life_panel")
 	if src == null or dst == null:
 		_fx.arrow.clear()
@@ -777,6 +879,7 @@ func _render_zone(col: VBoxContainer, side: Dictionary, life_side: bool, mine: b
 			var rloc := GameState.pool(MatchService.my_seat, BSS.Zone.RESERVE)
 			_core_source(res, rloc)
 			_core_target(res_head, rloc)
+			_core_target(col, rloc)         # the whole life/reserve panel (0.24.0)
 
 		var burst_row := UITheme.hbox(UITheme.SP_S)
 		var bl := UITheme.eyebrow("Burst", UITheme.ACCENT)
@@ -974,6 +1077,16 @@ func _render_field(row: HBoxContainer, cards: Array, mine: bool, nexus_row: bool
 				var core_moved := int(pn["cores"]) != int(entry.get("cores", 0)) + int(entry.get("soul", 0))
 				# a dragged core is already in place, so its numbers move at once
 				entry["_anim_delay"] = 0.05 if not _drop_pending.is_empty() else (0.45 if core_moved else 0.15)
+		if bool(entry.get("_leaving", false)):
+			# on its way out (destroyed, trashed): drawn where it stood, not
+			# playable, removed by the presentation (release_leaving)
+			var lw := CardWidget.new()
+			lw.setup(str(entry.get("card_id", "")), card_size, entry)
+			lw.hovered.connect(func(id: String): _preview(id, entry))
+			var lh := _slot(lw, int(entry.get("orient", 0)) == BSS.Orientation.EXHAUSTED, card_size)
+			row.add_child(lh)
+			_leaving_nodes[uid] = lh
+			continue
 		var w := CardWidget.new()
 		w.setup(str(entry.get("card_id", "")), card_size, entry)
 		w.hovered.connect(func(id: String): _preview(id, entry))
@@ -996,9 +1109,12 @@ func _render_field(row: HBoxContainer, cards: Array, mine: bool, nexus_row: bool
 		var holder := _slot(w, shown, card_size)
 		row.add_child(holder)
 		_register(uid, w, holder)
-		if mine and not nexus_row:
+		if mine:
+			# 0.24.0 (R-146): nexuses too -- cores can be dragged onto and off
+			# a nexus like a spirit; the slot around a turned card counts
 			var cloc := GameState.on_card(uid)
 			_core_target(w, cloc)
+			_core_target(holder, cloc)
 			if w.core_gems() != null:
 				_core_source(w.core_gems(), cloc, func() -> void: _on_field_clicked(uid, mine))
 
@@ -1160,7 +1276,9 @@ func _render_centre() -> void:
 		return
 	if not pc.is_empty():
 		if str(pc.get("type", "")) == "turn_order":
-			_prompt.text = "Your opponent won the coin toss and is choosing whether to go first or second…"
+			_prompt.text = ("Your opponent lost the last game and is choosing whether to go first or second…"
+					if str(pc.get("reason", "")) == "lost_last"
+					else "Your opponent won the coin toss and is choosing whether to go first or second…")
 		else:
 			_prompt.text = "Waiting for your opponent to decide…"
 		return
@@ -1236,7 +1354,8 @@ func _render_choice(pc: Dictionary) -> void:
 	_prompt.text = str(pc.get("prompt", "Choose"))
 	match str(pc.get("type", "")):
 		"turn_order":
-			_prompt.text = "You won the coin toss! Look at your hand, then choose: go first, " \
+			_prompt.text = ("You lost the last game, so you choose. " if str(pc.get("reason", "")) == "lost_last"
+					else "You won the coin toss! ") + "Look at your hand, then choose: go first, " \
 				+ "or go second (the player going first does not draw on their first turn)."
 			_actions.add_child(UITheme.button("Go second", func():
 				_act({"verb": BSS.Action.CHOOSE_ORDER, "first": false})))
@@ -1426,6 +1545,8 @@ func _describe(e: Dictionary) -> String:
 		"game_over": return "Game over: %s." % str(d.get("reason", ""))
 		"setup": return "The game begins."
 		"coin_toss": return "%s won the coin toss." % _who(int(d.get("player", -1)))
+		"block_held": return "The attack was blocked, so it deals no damage, even though a battling spirit has left the field."
+		"attack_step_ended": return "The attack step ended with that battle (an effect ended it)."
 		"turn_order":
 			var f := int(d.get("first", -1))
 			return "%s %s first." % [_who(f), "go" if f == MatchService.my_seat else "goes"]
@@ -1543,6 +1664,40 @@ func _core_target(node: Control, loc: Dictionary) -> void:
 	node.set_drag_forwarding(Callable(),
 		func(_at: Vector2, data: Variant) -> bool: return _core_can_drop(loc, data),
 		func(_at: Vector2, data: Variant) -> void: _core_drop(loc, data))
+
+
+## The field as a drop area: the card nearest the pointer that can take the core.
+func _core_area(node: Control) -> void:
+	node.set_drag_forwarding(Callable(),
+		func(at: Vector2, data: Variant) -> bool:
+			return not _nearest_drop(node.get_global_transform() * at, data).is_empty(),
+		func(at: Vector2, data: Variant) -> void:
+			var loc := _nearest_drop(node.get_global_transform() * at, data)
+			if not loc.is_empty():
+				_core_drop(loc, data))
+
+
+const DROP_REACH := 80.0
+
+
+func _nearest_drop(gp: Vector2, data: Variant) -> Dictionary:
+	var best := {}
+	var best_d := INF
+	for uid: int in _widgets.keys():
+		var w: CardWidget = _widgets[uid]
+		if not is_instance_valid(w) or w.live.is_empty() or not w.is_visible_in_tree():
+			continue
+		var loc := GameState.on_card(uid)
+		if not _core_can_drop(loc, data):
+			continue
+		var r := BattleFX.visual_rect(w)
+		var dx := maxf(0.0, maxf(r.position.x - gp.x, gp.x - r.end.x))
+		var dy := maxf(0.0, maxf(r.position.y - gp.y, gp.y - r.end.y))
+		var dist := sqrt(dx * dx + dy * dy)
+		if dist < best_d:
+			best_d = dist
+			best = loc
+	return best if best_d <= DROP_REACH else {}
 
 
 func _core_drag(gems: CoreGems, loc: Dictionary, at: Vector2) -> Variant:
@@ -1750,7 +1905,52 @@ func _on_hand_clicked(uid: int) -> void:
 		_toast.text = "That card cannot be played right now."
 		AudioManager.play_sfx("error")
 		return
-	_open_menu(acts)
+	_open_menu(_with_level_choices(acts))
+
+
+## Summon at a chosen level (0.24.0): a spirit can arrive with more cores than
+## its LV1 needs, straight at LV2 or LV3. Each level the cores allow becomes
+## its own line: "Summon at LV2 -- 5 cores (cost 2 + 3 on it)".
+func _with_level_choices(acts: Array) -> Array:
+	var eng := MatchService.engine
+	if eng == null:
+		return acts
+	var out: Array = []
+	for a: Dictionary in acts:
+		if str(a.get("verb", "")) != BSS.Action.SUMMON:
+			out.append(a)
+			continue
+		var ci: CardInstance = eng.state.cards.get(int(a.get("uid", -1)))
+		if ci == null or ci.data == null or ci.data.levels.size() < 2:
+			out.append(a)
+			continue
+		var cost := eng.compute_cost(MatchService.my_seat, ci.data)
+		var have := _cores_available(not eng.state.battle.is_empty())
+		var base := ci.data.min_level_cost()
+		for lv: Dictionary in ci.data.levels:
+			var on_it := int(lv.get("core_cost", 1))
+			if on_it > base and cost + on_it > have:
+				break                     # higher levels cost even more
+			var b := a.duplicate()
+			b["level"] = int(lv.get("level", 1))
+			b["extra_cores"] = on_it - base
+			out.append(b)
+	return out
+
+
+## Cores this player could spend on a play: the reserve, plus the cores on
+## their field beyond each card's LV1 need (not during a battle: Swift pays
+## from the reserve only, 11-9-1).
+func _cores_available(reserve_only: bool) -> int:
+	var eng := MatchService.engine
+	var p := eng.state.player(MatchService.my_seat)
+	var n := p.reserve_cores + p.reserve_soul
+	if reserve_only:
+		return n
+	for uid in p.field:
+		var c: CardInstance = eng.state.cards[uid]
+		n += maxi(0, c.total_cores() - c.data.min_level_cost())
+	return n
 
 
 func _on_field_clicked(uid: int, mine: bool) -> void:
@@ -1801,23 +2001,138 @@ func _guess_hand_actions(uid: int) -> Array:
 	if cd.is_nexus():
 		return [{"verb": BSS.Action.PLACE, "uid": uid}]
 	if cd.is_magic():
-		return [{"verb": BSS.Action.USE_MAGIC, "uid": uid, "effect": 0}]
+		# every effect, not just the first (0.24.0, R-156)
+		var outm: Array = []
+		for i in cd.effects.size():
+			if str(cd.effects[i].get("kind", "")) == "magic":
+				outm.append({"verb": BSS.Action.USE_MAGIC, "uid": uid, "effect": i})
+		return outm if not outm.is_empty() else [{"verb": BSS.Action.USE_MAGIC, "uid": uid, "effect": 0}]
 	return [{"verb": BSS.Action.SUMMON, "uid": uid}]
 
 
 func _open_menu(acts: Array) -> void:
+	acts = _group_effects(acts)
 	_menu.clear()
 	_menu_actions = acts
 	for i in acts.size():
-		_menu.add_item(_label_for(acts[i]), i)
+		_menu.add_item(_label_for(_with_soul(acts[i])), i)
+	# 0.24.0 (R-149): pay a card's cost with the soul core, by choice. Shown
+	# when a play here has a cost and the soul core is in the reserve.
+	if _soul_choice_applies(acts):
+		_menu.add_separator()
+		_menu.add_check_item("Pay with my soul core (it goes to the trash as part of the cost)", SOUL_ITEM)
+		_menu.set_item_checked(_menu.get_item_index(SOUL_ITEM), _use_soul)
 	_menu.reset_size()
 	_menu.position = Vector2i(get_global_mouse_position()) + Vector2i(8, -_menu.size.y - 8)
 	_menu.popup()
 
 
+const SOUL_ITEM := 1000
+var _use_soul := false
+
+
+## 0.24.0 (R-156): a magic card with two usable effects (Burning Force,
+## Big Bang Energy...) is ONE menu line, "Use magic -- choose an effect...",
+## which opens a prompt showing each effect in full. Before, each effect was
+## its own long menu line, easy to take for the only one.
+func _group_effects(acts: Array) -> Array:
+	var by_uid: Dictionary = {}
+	for a: Dictionary in acts:
+		if str(a.get("verb", "")) == BSS.Action.USE_MAGIC:
+			var k := int(a.get("uid", -1))
+			by_uid[k] = int(by_uid.get(k, 0)) + 1
+	var out: Array = []
+	var done: Dictionary = {}
+	for a: Dictionary in acts:
+		var k2 := int(a.get("uid", -1))
+		if str(a.get("verb", "")) == BSS.Action.USE_MAGIC and int(by_uid.get(k2, 0)) > 1:
+			if done.has(k2):
+				continue
+			done[k2] = true
+			var group: Array = []
+			for b: Dictionary in acts:
+				if str(b.get("verb", "")) == BSS.Action.USE_MAGIC and int(b.get("uid", -1)) == k2:
+					group.append(b)
+			out.append({"verb": "choose_effect", "uid": k2, "group": group})
+			continue
+		out.append(a)
+	return out
+
+
+## The prompt: each usable effect, its timing and its full text.
+func _choose_effect(group: Array) -> void:
+	var eng := MatchService.engine
+	var uid := int((group[0] as Dictionary).get("uid", -1))
+	var ci: CardInstance = eng.state.cards.get(uid) if eng != null else null
+	var cname := ci.data.name if ci != null and ci.data != null else "This card"
+	var m := Modal.open(self, "%s — choose an effect" % cname, 620.0)
+	m.name = "ChooseEffect"
+	m.body.add_child(UITheme.paragraph("This card has more than one effect you can use now. Pick one: only that effect resolves.", true))
+	for a: Dictionary in group:
+		var idx := int(a.get("effect", 0))
+		var head := "Effect %d" % (idx + 1)
+		var txt := ""
+		if ci != null and idx < ci.data.effects.size():
+			var e: Dictionary = ci.data.effects[idx]
+			head = str(e.get("header", head))
+			txt = str(e.get("text", ""))
+		var b := UITheme.button("%s:  %s" % [head, txt])
+		b.name = "Effect%d" % idx
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		b.custom_minimum_size = Vector2(580, 64)
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		var aa: Dictionary = a
+		b.pressed.connect(func():
+			m.close()
+			_do(_with_soul(aa)))
+		m.body.add_child(b)
+	m.buttons.add_child(UITheme.grow())
+	m.buttons.add_child(UITheme.button("Cancel", m.close))
+
+
 func _on_menu(id: int) -> void:
+	if id == SOUL_ITEM:
+		_use_soul = not _use_soul
+		_menu.set_item_checked(_menu.get_item_index(SOUL_ITEM), _use_soul)
+		for i in _menu_actions.size():
+			_menu.set_item_text(_menu.get_item_index(i), _label_for(_with_soul(_menu_actions[i])))
+		_menu.reset_size()
+		return
 	if id >= 0 and id < _menu_actions.size():
-		_do(_menu_actions[id])
+		var ma: Dictionary = _menu_actions[id]
+		if str(ma.get("verb", "")) == "choose_effect":
+			_choose_effect(ma.get("group", []))
+			return
+		_do(_with_soul(ma))
+
+
+## A play that pays a cost carries the soul-core choice (0.24.0).
+func _with_soul(a: Dictionary) -> Dictionary:
+	if not _use_soul or not _pays_cost(a) or int(MatchService.my_state().get("reserve_soul", 0)) <= 0:
+		return a
+	var b := a.duplicate()
+	b["use_soul"] = true
+	return b
+
+
+func _pays_cost(a: Dictionary) -> bool:
+	var verb := str(a.get("verb", ""))
+	if not verb in [BSS.Action.SUMMON, BSS.Action.PLACE, BSS.Action.USE_MAGIC, "choose_effect"]:
+		return false
+	var eng := MatchService.engine
+	if eng == null:
+		return true
+	var ci: CardInstance = eng.state.cards.get(int(a.get("uid", -1)))
+	return ci != null and ci.data != null and eng.compute_cost(MatchService.my_seat, ci.data) > 0
+
+
+func _soul_choice_applies(acts: Array) -> bool:
+	if int(MatchService.my_state().get("reserve_soul", 0)) <= 0:
+		return false
+	for a: Dictionary in acts:
+		if _pays_cost(a):
+			return true
+	return false
 
 
 func _do(a: Dictionary) -> void:
@@ -1835,6 +2150,9 @@ func _do(a: Dictionary) -> void:
 			"soul_off": _act({"verb": verb, "from": on_card, "to": reserve, "n": 1, "soul": true})
 			_: _act({"verb": verb, "from": on_card, "to": reserve, "n": 1})
 		return
+	# 11-8 Ascend (0.24.0, R-159): choose the spirit(s) whose cores pay it
+	if verb == BSS.Action.SUMMON and not a.has("ascend_uids") and _ascend_choice(a):
+		return
 	if verb in [BSS.Action.SUMMON, BSS.Action.PLACE, BSS.Action.USE_MAGIC] and _reserve_short(a) > 0:
 		_open_payment(a)              # pay from your field's cores (0.16.6)
 		return
@@ -1843,6 +2161,74 @@ func _do(a: Dictionary) -> void:
 			func(): _act(a), "Attack")
 		return
 	_act(a)
+
+
+# --- Ascend (0.24.0, R-159) ----------------------------------------------------
+
+## A summon with Ascend and more qualifying spirits than it needs: ask which
+## (returns true when the prompt is open). With exactly enough, they are used
+## without asking; the play carries "ascend_uids" either way.
+func _ascend_choice(a: Dictionary) -> bool:
+	var eng := MatchService.engine
+	if eng == null:
+		return false
+	var ci: CardInstance = eng.state.cards.get(int(a.get("uid", -1)))
+	if ci == null or ci.data == null or not ci.has_keyword(BSS.Keyword.ASCEND):
+		return false
+	var opt: Dictionary = eng.keywords.ascend_options(MatchService.my_seat, ci)
+	if bool(opt["waived"]):
+		return false
+	var cands: Array = opt["candidates"]
+	var need := int(opt["count"])
+	if cands.size() <= need:
+		var all_uids: Array = []
+		for c: CardInstance in cands:
+			all_uids.append(c.uid)
+		var b0 := a.duplicate()
+		b0["ascend_uids"] = all_uids
+		_do(b0)
+		return true
+	var picked: Dictionary = {}
+	var m := Modal.open(self, "Ascend — choose %s" % ("a spirit" if need == 1 else "%d spirits" % need), 640.0)
+	m.name = "AscendChoice"
+	m.body.add_child(UITheme.paragraph("%s needs Ascend: all the cores of %s go to your reserve as an extra cost. Choose which." % [
+			ci.data.name, "one of these spirits" if need == 1 else "%d of these spirits" % need], true))
+	var row := UITheme.hbox(UITheme.SP_S)
+	m.body.add_child(row)
+	var confirm := UITheme.primary_button("Confirm (0/%d)" % need)
+	confirm.name = "AscendConfirm"
+	confirm.disabled = true
+	for c2: CardInstance in cands:
+		var col := UITheme.vbox(UITheme.SP_XS)
+		var w := CardWidget.new()
+		w.setup(c2.data.id, Vector2(110, 154), {"uid": c2.uid, "cores": c2.cores, "soul": c2.soul_cores,
+				"level": c2.current_level(), "bp": c2.current_bp()})
+		w.name = "Ascend%d" % c2.uid
+		w.hovered.connect(_preview)
+		var cu := c2.uid
+		var cw := w
+		w.clicked.connect(func(_id: String):
+			if picked.has(cu):
+				picked.erase(cu)
+				cw.set_highlight(Color(0, 0, 0, 0))
+			elif picked.size() < need:
+				picked[cu] = true
+				cw.set_highlight(UITheme.CORE)
+			confirm.text = "Confirm (%d/%d)" % [picked.size(), need]
+			confirm.disabled = picked.size() != need)
+		col.add_child(w)
+		col.add_child(UITheme.body("%s · %d core%s" % [c2.data.name, c2.total_cores(), "" if c2.total_cores() == 1 else "s"],
+				true, UITheme.FS_SMALL))
+		row.add_child(col)
+	confirm.pressed.connect(func():
+		var b := a.duplicate()
+		b["ascend_uids"] = picked.keys()
+		m.close()
+		_do(b))
+	m.buttons.add_child(UITheme.grow())
+	m.buttons.add_child(UITheme.button("Cancel", m.close))
+	m.buttons.add_child(confirm)
+	return true
 
 
 # --- Paying with field cores (0.16.6) ------------------------------------------
@@ -1858,7 +2244,7 @@ func _cores_needed(a: Dictionary) -> int:
 		return 0
 	var n := eng.compute_cost(MatchService.my_seat, ci.data)
 	if str(a.get("verb", "")) != BSS.Action.USE_MAGIC:
-		n += ci.data.min_level_cost()
+		n += ci.data.min_level_cost() + int(a.get("extra_cores", 0))
 	return n
 
 
@@ -1872,6 +2258,11 @@ func _reserve_short(a: Dictionary) -> int:
 	var p := eng.state.player(MatchService.my_seat)
 	var need := _cores_needed(a)
 	var short := need - (p.reserve_cores + p.reserve_soul)
+	# the Ascend spirits' cores go to the reserve first (0.24.0)
+	for au: Variant in a.get("ascend_uids", []):
+		var ac: CardInstance = eng.state.cards.get(int(au))
+		if ac != null:
+			short -= ac.total_cores()
 	if short <= 0:
 		return 0
 	if str(a.get("verb", "")) == BSS.Action.SUMMON and not eng.state.battle.is_empty():
@@ -1910,7 +2301,8 @@ func _open_payment(a: Dictionary) -> void:
 	_pay_modal = m
 	var what := "%s needs %d core%s" % [ci.data.name if ci != null else "This card", need, "" if need == 1 else "s"]
 	if str(a.get("verb", "")) == BSS.Action.SUMMON and ci != null:
-		what += " (cost %d + %d for LV1)" % [need - ci.data.min_level_cost(), ci.data.min_level_cost()]
+		var on_it := ci.data.min_level_cost() + int(a.get("extra_cores", 0))
+		what += " (cost %d + %d for LV%d)" % [need - on_it, on_it, int(a.get("level", 1))]
 	m.body.add_child(UITheme.paragraph("%s, and your reserve has %d. Choose which of your cards the other cores come from." % [what, reserve_n], true))
 	var list := UITheme.vbox(UITheme.SP_XS)
 	m.body.add_child(list)
@@ -1979,7 +2371,8 @@ func _open_payment(a: Dictionary) -> void:
 func _with_payment(a: Dictionary, need: int) -> Dictionary:
 	var act := a.duplicate(true)
 	var ci: CardInstance = MatchService.engine.state.cards.get(int(a.get("uid", -1)))
-	var lv1 := ci.data.min_level_cost() if ci != null and str(a.get("verb", "")) != BSS.Action.USE_MAGIC else 0
+	var lv1 := ci.data.min_level_cost() + int(a.get("extra_cores", 0)) \
+			if ci != null and str(a.get("verb", "")) != BSS.Action.USE_MAGIC else 0
 	var cost_left := need - lv1
 	var pay: Array = []
 	var lv1_from: Array = []
@@ -1997,6 +2390,17 @@ func _with_payment(a: Dictionary, need: int) -> Dictionary:
 			var l2: Dictionary = (r["loc"] as Dictionary).duplicate()
 			l2["n"] = n - to_cost
 			lv1_from.append(l2)
+	# 0.24.0: the soul core pays first when the player chose so
+	if bool(act.get("use_soul", false)) and not pay.is_empty() and int(MatchService.my_state().get("reserve_soul", 0)) > 0:
+		var first: Dictionary = pay[0]
+		if str(first.get("kind", "")) == "pool" and int(first.get("n", 0)) > 0:
+			first["n"] = int(first["n"]) - 1
+			var soul_loc := first.duplicate()
+			soul_loc["n"] = 1
+			soul_loc["soul"] = true
+			if int(first["n"]) <= 0:
+				pay.remove_at(0)
+			pay.insert(0, soul_loc)
 	act["payment"] = pay
 	if not lv1_from.is_empty():
 		act["lv1_from"] = lv1_from
@@ -2004,6 +2408,13 @@ func _with_payment(a: Dictionary, need: int) -> Dictionary:
 
 
 func _label_for(a: Dictionary) -> String:
+	var base := _label_base(a)
+	if bool(a.get("use_soul", false)):
+		base += "  \u00b7 soul core pays 1"
+	return base
+
+
+func _label_base(a: Dictionary) -> String:
 	var uid := int(a.get("uid", -1))
 	var cost := -1
 	if MatchService.engine != null and uid >= 0:
@@ -2012,7 +2423,16 @@ func _label_for(a: Dictionary) -> String:
 			cost = MatchService.engine.compute_cost(MatchService.my_seat, ci.data)
 	var cost_txt := (" (cost %d)" % cost) if cost >= 0 else ""
 	match str(a.get("verb", "")):
+		"choose_effect":
+			return "Use magic%s \u2014 choose one of its %d effects\u2026" % [cost_txt, (a.get("group", []) as Array).size()]
 		BSS.Action.SUMMON:
+			if a.has("level") and MatchService.engine != null and uid >= 0 \
+					and not (int(a.get("extra_cores", 0)) == 0 and _summon_would_die(uid, cost)):
+				var sc: CardInstance = MatchService.engine.state.cards.get(uid)
+				if sc != null:
+					var on_it := sc.data.min_level_cost() + int(a.get("extra_cores", 0))
+					return "Summon at LV%d \u2014 %d core%s (cost %d + %d on it, %d BP)" % [int(a["level"]),
+							cost + on_it, "" if cost + on_it == 1 else "s", cost, on_it, sc.data.base_bp(int(a["level"]))]
 			if _summon_would_die(uid, cost):
 				return "Summon%s — no core left for it, it would be destroyed" % cost_txt
 			return "Summon%s" % cost_txt
@@ -2149,19 +2569,165 @@ func _show_end(data: Dictionary) -> void:
 		line = "Your opponent left the game, so you win."
 	elif result == "win" and reason == "concession":
 		line = "Your opponent conceded."
-	var m := Modal.open(self, title, 520.0)
+	# 0.24.0: the match around the game -- best of 3, rematch
+	var srs: Dictionary = data.get("series", MatchService.series)
+	var playing := result in ["win", "loss", "draw"] and not MatchService.is_spectator \
+			and MatchService.kind in [MatchService.Kind.BOT, MatchService.Kind.ONLINE]
+	var bo3 := int(srs.get("best_of", 1)) >= 3
+	var me := maxi(0, MatchService.my_seat)
+	var wins: Array = srs.get("wins", [0, 0])
+	var mine := int(wins[me]) if wins.size() > me else 0
+	var theirs := int(wins[1 - me]) if wins.size() > 1 else 0
+	var next_game := playing and bo3 and not bool(srs.get("over", true)) and reason != "opponent disconnected"
+	if bo3 and playing:
+		if next_game:
+			title = "Game %d: %s" % [int(srs.get("game", 1)), title]
+		elif mine != theirs:
+			title = "Match won" if mine > theirs else "Match lost"
+	if bo3 and not next_game and playing:
+		line += " You %s the match %d–%d." % ["won" if mine > theirs else ("lost" if theirs > mine else "drew"),
+				maxi(mine, theirs), mini(mine, theirs)]
+	var m := Modal.open(self, title, 560.0)
+	m.name = "EndDialog"
 	m.body.add_child(UITheme.paragraph(line, true))
+	if next_game:
+		var score := "You lead the match %d–%d." % [mine, theirs] if mine > theirs else (
+			"You trail the match %d–%d." % [mine, theirs] if theirs > mine else "The match is level, %d–%d." % [mine, theirs])
+		m.body.add_child(UITheme.body(score + " First to two wins.", false))
+		var chooser := int(srs.get("chooser", -1))
+		if chooser == me:
+			m.body.add_child(UITheme.body("You lost this game, so you choose who goes first in game %d." % (int(srs.get("game", 1)) + 1),
+					true, UITheme.FS_SMALL))
+		elif chooser >= 0:
+			m.body.add_child(UITheme.body("Your opponent lost this game and chooses who goes first in game %d." % (int(srs.get("game", 1)) + 1),
+					true, UITheme.FS_SMALL))
 	if MatchService.engine != null:
 		var st := MatchService.engine.state
 		m.body.add_child(UITheme.body("Turns played: %d" % st.turn_number, true, UITheme.FS_SMALL))
+	_end_note = UITheme.body("", true, UITheme.FS_SMALL)
+	_end_note.add_theme_color_override("font_color", UITheme.GOLD_HI)
+	m.body.add_child(_end_note)
+	_between_deadline = Time.get_unix_time_from_system() + float(data.get("between_seconds", 0.0))
+	if not MatchService.series_changed.is_connected(_on_series_changed):
+		MatchService.series_changed.connect(_on_series_changed)
 	m.buttons.add_child(UITheme.grow())
+	if next_game:
+		m.buttons.add_child(UITheme.danger_button("Leave match", func():
+			Modal.confirm(self, "Leave the match?", "Your opponent wins the match.", func():
+				MatchService.end_match()
+				SceneRouter.go("battle_menu"), "Leave", true)))
+		var nxt := UITheme.primary_button("Next game ›", func():
+			m.close()
+			_prepare_next(false))
+		nxt.name = "NextGame"
+		m.buttons.add_child(nxt)
+		return
 	m.buttons.add_child(UITheme.button("Main menu", func():
 		MatchService.end_match()
 		SceneRouter.go("main")))
-	var again := UITheme.primary_button("Back to Battle", func():
+	m.buttons.add_child(UITheme.button("Back to Battle", func():
 		MatchService.end_match()
-		SceneRouter.go("battle_menu"))
-	m.buttons.add_child(again)
+		SceneRouter.go("battle_menu")))
+	if playing:
+		_rematch_button = UITheme.primary_button("Rematch", func():
+			m.close()
+			_prepare_next(true))
+		_rematch_button.name = "Rematch"
+		m.buttons.add_child(_rematch_button)
+		_on_series_changed(MatchService.series_info)
+
+
+var _end_note: Label = null
+var _rematch_button: Button = null
+var _between_deadline := 0.0
+var _wait_modal: Modal = null
+var _wait_label: Label = null
+
+
+## The other player became ready, asked for a rematch, or left (online).
+func _on_series_changed(info: Dictionary) -> void:
+	if info.is_empty():
+		return
+	var me := maxi(0, MatchService.my_seat)
+	var opp := MatchService.opponent_name
+	var text := ""
+	if bool(info.get("opponent_left", false)):
+		text = "%s has left the match." % opp
+		if _rematch_button != null and is_instance_valid(_rematch_button):
+			_rematch_button.disabled = true
+	else:
+		var again: Array = info.get("rematch", [])
+		var rdy: Array = info.get("ready", [])
+		if again.size() > 1 and bool(again[1 - me]) and not bool(again[me]):
+			text = "%s wants a rematch." % opp
+			if _rematch_button != null and is_instance_valid(_rematch_button):
+				_rematch_button.text = "Accept rematch"
+		elif rdy.size() > 1 and bool(rdy[1 - me]) and not bool(rdy[me]):
+			text = "%s is ready for the next game." % opp
+	if _end_note != null and is_instance_valid(_end_note) and text != "":
+		_end_note.text = text
+	if _wait_label != null and is_instance_valid(_wait_label) and text != "":
+		_wait_label.text = text
+
+
+## Next game of the best of 3 (`fresh` false) or a rematch (true). With a
+## sideboard, the player is asked whether to use it first (0.24.0).
+func _prepare_next(fresh: bool) -> void:
+	var deck := MatchService.match_deck()
+	var current: Array = MatchService.current_main if not MatchService.current_main.is_empty() \
+			else (deck.get("main", []) as Array)
+	if fresh:
+		current = (deck.get("main", []) as Array)      # a new match starts from the saved deck
+	var go := func(main: Array) -> void: _go_next(main, fresh)
+	if (deck.get("side", []) as Array).is_empty():
+		go.call(current)
+		return
+	var q := Modal.open(self, "Use your sideboard?", 520.0)
+	q.name = "SideboardQuestion"
+	q.body.add_child(UITheme.paragraph(
+		"Before the %s you can swap cards between your deck and your %d-card sideboard. "
+		% ["rematch" if fresh else "next game", (deck.get("side", []) as Array).size()]
+		+ "Your saved deck is not changed.", true))
+	q.buttons.add_child(UITheme.grow())
+	q.buttons.add_child(UITheme.button("Keep my deck", func():
+		q.close()
+		go.call(current)))
+	var use := UITheme.primary_button("Use sideboard", func():
+		q.close()
+		var secs := 0.0
+		if MatchService.kind == MatchService.Kind.ONLINE and not fresh:
+			secs = maxf(5.0, _between_deadline - Time.get_unix_time_from_system())
+		var label := "Before the rematch" if fresh else "Game %d" % (int(MatchService.series.get("game", 1)) + 1)
+		SideboardPanel.open(self, deck, current, label, secs, go))
+	use.name = "UseSideboard"
+	q.buttons.add_child(use)
+
+
+func _go_next(main: Array, fresh: bool) -> void:
+	if MatchService.kind == MatchService.Kind.BOT:
+		var res := MatchService.next_bot_game(main, fresh)
+		if bool(res.get("ok", false)):
+			SceneRouter.go("game", {"mode": "bot"})
+		else:
+			_toast.text = str(res.get("reason", "Could not start the next game"))
+		return
+	if MatchService.kind != MatchService.Kind.ONLINE:
+		return
+	if fresh:
+		MatchService.request_rematch(main)
+	else:
+		MatchService.ready_next_game(main)
+	_wait_modal = Modal.open(self, "Rematch requested" if fresh else "Ready", 520.0)
+	_wait_label = UITheme.paragraph("Waiting for %s%s…" % [MatchService.opponent_name,
+			" to accept" if fresh else " to finish sideboarding"], true)
+	_wait_modal.body.add_child(_wait_label)
+	_wait_modal.buttons.add_child(UITheme.grow())
+	_wait_modal.buttons.add_child(UITheme.button("Leave", func():
+		if fresh:
+			MatchService.request_rematch(main, true)
+		MatchService.end_match()
+		SceneRouter.go("battle_menu")))
+	_on_series_changed(MatchService.series_info)
 
 
 func _confirm_concede() -> void:

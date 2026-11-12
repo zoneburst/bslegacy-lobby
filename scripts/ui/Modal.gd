@@ -55,7 +55,10 @@ static func text_input(host: Node, title: String, placeholder: String,
 		m.close()
 		on_ok.call(t))
 	m.buttons.add_child(ok)
-	edit.grab_focus.call_deferred()
+	# in the browser a real browser text box goes over the TextEdit, so
+	# pasting works inside the itch.io page too (0.24.0, R-135)
+	if WebTextOverlay.attach(edit) == null:
+		edit.grab_focus.call_deferred()
 	return m
 
 

@@ -189,8 +189,17 @@ func _beat(events: Array, i: int) -> void:
 	var dd: Dictionary = e.get("data", {})
 	match str(e.get("kind", "")):
 		"setup":
-			await fx.banner("BATTLE START", "%s   VS   %s" % [GameConfig.player_name, MatchService.opponent_name],
-					UITheme.ACCENT, 0.45)
+			var srs: Dictionary = MatchService.game_series
+			if int(srs.get("best_of", 1)) >= 3:
+				# 0.24.0: which game of the best of 3, and the score so far
+				var w: Array = srs.get("wins", [0, 0])
+				var me := board.seat()
+				await fx.banner("GAME %d" % int(srs.get("game", 1)), "%s   %d – %d   %s" % [GameConfig.player_name,
+						int(w[me]) if w.size() > me else 0, int(w[1 - me]) if w.size() > 1 else 0, MatchService.opponent_name],
+						UITheme.ACCENT, 0.5)
+			else:
+				await fx.banner("BATTLE START", "%s   VS   %s" % [GameConfig.player_name, MatchService.opponent_name],
+						UITheme.ACCENT, 0.45)
 		"coin_toss":
 			# 0.20.0: who won the toss (and will choose the turn order)
 			var won := int(dd.get("player", -1)) == board.seat()
@@ -243,7 +252,7 @@ func _beat(events: Array, i: int) -> void:
 		"awaken", "crush", "blessed", "luster":
 			await _keyword(int(dd.get("uid", -1)), str(e.get("kind", "")).to_upper())
 		"link":
-			await _keyword(int(dd.get("from", -1)), "LINK")
+			await _link(dd)
 		"ascend":
 			await _keyword(int(dd.get("to", -1)), "ASCEND")
 		"cores_removed":
@@ -251,6 +260,12 @@ func _beat(events: Array, i: int) -> void:
 			await _keyword(int(dd.get("uid", -1)), "CORE BREAK")
 		"raid_refresh":
 			await _keyword(int(dd.get("uid", -1)), "RAID")
+		"attack_step_ended":
+			# Absolute Ice Shield (0.24.0): the attack step ends with the battle
+			await fx.callout("ATTACK STEP ENDS", UITheme.CORE, fx.global_position + fx.centre(), 40, 0.35)
+		"block_held":
+			# 7-1-5-2-1 (0.24.0, R-151): the blocker left, the block still holds
+			await fx.callout("BLOCKED · NO DAMAGE", UITheme.SUCCESS, fx.global_position + fx.centre(), 34, 0.3)
 		"gale":
 			await fx.callout("GALE", UITheme.SUCCESS, fx.global_position + fx.centre(), 40, 0.25)
 		"destruction_substituted":
@@ -761,6 +776,10 @@ func _clash(events: Array, i: int) -> void:
 	var br := _rect(_blk)
 	var ga := fx.ghost(atk_cid, Rect2(ar.get_center() - size * 0.5, size))
 	var gb := fx.ghost(blk_cid, Rect2(br.get_center() - size * 0.5, size))
+	# a loser still standing on the board (0.24.0) flies out as the ghost
+	for lu: int in [_atk, _blk]:
+		if board.is_leaving(lu):
+			board.release_leaving(lu)
 	ga.z_index = 6
 	gb.z_index = 6
 	fx.dim(0.62, 0.2)
@@ -849,6 +868,14 @@ func _clash(events: Array, i: int) -> void:
 func _destroyed(uid: int) -> void:
 	var r := _rect(uid)
 	var cid := _cid(uid)
+	if board.is_leaving(uid) and r.size.x > 0.0:
+		# 0.24.0: the card stood on the field until now; it breaks here
+		fx.callout("DESTROYED", UITheme.DANGER, r.get_center() + Vector2(0, -r.size.y * 0.5 - 16.0), 30, 0.3)
+		AudioManager.play_sfx("destroy")
+		board.release_leaving(uid)
+		await fx.shatter(r, cid, _colour(cid))
+		fx.pulse(board.anchor(board.owner_of(uid), "trash"), Color.WHITE, 0.4)
+		return
 	if r.size.x <= 0.0 or cid == "":
 		return
 	AudioManager.play_sfx("destroy")
@@ -992,6 +1019,8 @@ func _to_pile(uid: int, who: int, pile: String) -> void:
 	var src := _rect(uid)
 	var dst := board.anchor_rect(who, pile)
 	var cid := _cid(uid)
+	if board.is_leaving(uid):
+		board.release_leaving(uid)            # 0.24.0: it leaves the field now
 	if src.size.x <= 0.0 or dst.size.x <= 0.0:
 		return
 	var g := fx.ghost(cid, src, cid == "" or pile == "deck")
@@ -1032,6 +1061,49 @@ func _keyword(uid: int, word: String) -> void:
 		return
 	fx.ring(r.get_center(), UITheme.ACCENT, 16.0, 90.0, 0.35, 4.0)
 	await fx.callout(word, UITheme.ACCENT, r.get_center(), 30, 0.25)
+
+
+## 11-18 Link (0.24.0): the lending spirit turns sideways, a beam of its
+## colour runs to the attacking spirit and its power streams along it; the
+## attacker takes it in ("+3000 BP", LINKED).
+func _link(dd: Dictionary) -> void:
+	var from := int(dd.get("from", -1))
+	var to := int(dd.get("to", -1))
+	var fr := _rect(from)
+	var to_r := _rect(to)
+	if fr.size.x <= 0.0 or to_r.size.x <= 0.0:
+		await _keyword(from, "LINK")
+		return
+	if from in board.pending_orient_uids():
+		board.animate_orient(from)
+		await fx.wait(0.26)
+		fr = _rect(from)
+	var col := _colour(_cid(from))
+	AudioManager.play_sfx("magic")
+	fx.ring(fr.get_center(), col, 16.0, 90.0, 0.35, 4.0)
+	fx.callout("LINK", col, fr.get_center() + Vector2(0, -fr.size.y * 0.5 - 14.0), 28, 0.2)
+	await fx.link_beam(fr.get_center(), to_r.get_center(), col)
+	AudioManager.play_sfx("summon")
+	fx.ring(to_r.get_center(), col, 20.0, 130.0, 0.45, 6.0)
+	var tn := board.node_of(to)
+	if tn != null:
+		fx.pulse(tn, col, 0.5)
+	var lent := _lender_bp(from)
+	if lent > 0:
+		fx.float_text("+%d BP" % lent, to_r.get_center() + Vector2(0, -to_r.size.y * 0.25), UITheme.SUCCESS, 30)
+	await fx.callout("LINKED", col, to_r.get_center(), 32, 0.3)
+
+
+func _lender_bp(uid: int) -> int:
+	if MatchService.engine != null:
+		var ci: CardInstance = MatchService.engine.state.card(uid)
+		if ci != null:
+			return ci.current_bp()
+	for p: Dictionary in board.snapshot().get("players", []):
+		for e: Dictionary in p.get("field", []):
+			if int(e.get("uid", -1)) == uid:
+				return int(e.get("bp", 0))
+	return 0
 
 
 func _game_over(dd: Dictionary) -> void:

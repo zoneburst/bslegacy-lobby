@@ -59,6 +59,10 @@ var _bp_max := 99999
 var _facet_opts := {}          # kind -> OptionButton
 var _spin_boxes: Array = []     # every range SpinBox, for Reset all
 var _last_count := 0            # for the card-count tick (0.16.0)
+var _list_scroll: ScrollContainer = null
+var _to_side := false           # 0.24.0: + adds to the sideboard instead of the deck
+var _tab_main: Button
+var _tab_side: Button
 const SORTS := [["Sort: Type · Set", "type_set"], ["Sort: Cost", "cost"], ["Sort: Name", "name"], ["Sort: BP", "bp"], ["Sort: Number", "id"],
 		["Sort: Type", "type"], ["Sort: Colour", "color"], ["Sort: Rarity", "rarity"], ["Sort: Set", "set"],
 		["Sort: Spirit type", "spirit_type"]]
@@ -92,7 +96,9 @@ func build_content(parent: VBoxContainer) -> void:
 	_deck = DeckManager.get_deck(deck_id).duplicate(true) if deck_id != "" else {}
 	if _deck.is_empty():
 		_deck = DeckManager.new_deck()
-	_saved_snapshot = JSON.stringify(_deck.get("main", [])) + str(_deck.get("name", ""))
+	_saved_snapshot = _snapshot()
+	if not _deck.has("side"):
+		_deck["side"] = []
 	if deck_id == "":
 		_saved_snapshot = ""   # a brand-new deck counts as unsaved once it has cards
 
@@ -121,6 +127,9 @@ func build_content(parent: VBoxContainer) -> void:
 
 	_run_search()
 	_refresh_deck()
+	var st := str(SceneRouter.payload.get("status", ""))
+	if st != "":
+		set_status(st)
 
 
 ## Back, but it asks before throwing away unsaved work.
@@ -133,8 +142,12 @@ func _add_back_button() -> void:
 	_header.move_child(back, 0)
 
 
+func _snapshot() -> String:
+	return JSON.stringify(_deck.get("main", [])) + JSON.stringify(_deck.get("side", [])) + str(_deck.get("name", ""))
+
+
 func _dirty() -> bool:
-	var now := JSON.stringify(_deck.get("main", [])) + str(_deck.get("name", ""))
+	var now := _snapshot()
 	if _saved_snapshot == "":
 		return not (_deck.get("main", []) as Array).is_empty()
 	return now != _saved_snapshot
@@ -420,12 +433,34 @@ func _show_page() -> void:
 	_build_pager()
 
 
+## 0.24.0 (R-145): after + or −, only that card's tile is rebuilt, in its
+## place. Rebuilding the whole page made the grid jump back to the top when
+## it was scrolled (a card near the bottom of the list).
+func _refresh_tile(card_id: String) -> void:
+	if _grid == null:
+		return
+	for i in _grid.get_child_count():
+		var old := _grid.get_child(i)
+		if str(old.get_meta("cid", "")) != card_id:
+			continue
+		var cd: CardData = CardDB.get_card(card_id)
+		if cd == null:
+			continue
+		var tile := _grid_tile(cd, int(old.get_meta("index", 0)))
+		_grid.remove_child(old)
+		old.queue_free()
+		_grid.add_child(tile)
+		_grid.move_child(tile, i)
+
+
 ## The card plus a "− n/4 +" strip beneath it, as in the reference: the count
 ## is visible without opening anything, and adding never leaves the grid.
 func _grid_tile(cd: CardData, index: int) -> Control:
 	var tile_size: Vector2 = _eff_tile()
 	var box := UITheme.vbox(4)
 	box.custom_minimum_size = Vector2(tile_size.x, tile_size.y + 32)
+	box.set_meta("cid", cd.id)
+	box.set_meta("index", index)
 
 	var card := CardWidget.new()
 	card.setup(cd.id, tile_size)
@@ -578,7 +613,16 @@ func _build_deck_pane() -> Control:
 	v.add_child(_curve_box)
 	v.add_child(UITheme.rule())
 
+	# Deck | Sideboard (0.24.0): which list the + buttons fill, and which is shown
+	var tabs := UITheme.hbox(4)
+	_tab_main = _tab_button("Deck", false)
+	_tab_side = _tab_button("Sideboard", true)
+	tabs.add_child(_tab_main)
+	tabs.add_child(_tab_side)
+	v.add_child(tabs)
+
 	var list_scroll := ScrollContainer.new()
+	_list_scroll = list_scroll
 	list_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	list_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(list_scroll)
@@ -592,9 +636,10 @@ func _build_deck_pane() -> Control:
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(copy)
 	var clear := UITheme.danger_button("Clear", func():
-		Modal.confirm(self, "Clear this deck?", "Removes every card from the list.",
+		var what := "sideboard" if _to_side else "deck"
+		Modal.confirm(self, "Clear the %s?" % what, "Removes every card from the %s list." % what,
 			func():
-				_deck["main"] = []
+				_deck["side" if _to_side else "main"] = []
 				_refresh_deck()
 				_show_page(), "Clear", true))
 	actions.add_child(clear)
@@ -602,16 +647,43 @@ func _build_deck_pane() -> Control:
 	return p
 
 
+func _tab_button(text: String, side: bool) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.toggle_mode = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.custom_minimum_size = Vector2(0, 34)
+	b.add_theme_font_size_override("font_size", UITheme.FS_SMALL + 1)
+	b.add_theme_stylebox_override("normal", UITheme._box(Color(UITheme.SURFACE, 0.6), 6, Color(UITheme.LINE, 0.9)))
+	b.add_theme_stylebox_override("hover", UITheme._box(Color(UITheme.SURFACE_HI, 0.9), 6, UITheme.GOLD_HI))
+	b.add_theme_stylebox_override("pressed", UITheme._box(Color(UITheme.SURFACE_HI, 1.0), 6, UITheme.GOLD, 2))
+	b.add_theme_color_override("font_pressed_color", UITheme.GOLD_HI)
+	b.tooltip_text = "Cards you can swap in between the games of a best of 3 or a rematch (up to %d)" % BSS.SIDE_MAX \
+			if side else "The cards you play with (50 to 60)"
+	b.pressed.connect(func():
+		AudioManager.play_sfx("ui_click")
+		_to_side = side
+		_refresh_deck()
+		_show_page())
+	return b
+
+
+## Copies of a card in the deck AND the sideboard (they share the 4-copy limit).
 func _count_of(card_id: String) -> int:
 	var n := 0
-	for id in _deck.get("main", []):
+	for id in (_deck.get("main", []) as Array) + (_deck.get("side", []) as Array):
 		if str(id) == card_id:
 			n += 1
 	return n
 
 
+func _count_in(card_id: String, side: bool) -> int:
+	return (_deck.get("side" if side else "main", []) as Array).count(card_id)
+
+
 func _add(card_id: String) -> void:
-	var res: Dictionary = DeckManager.add_card(_deck, card_id)
+	var res: Dictionary = DeckManager.add_card(_deck, card_id, _to_side)
 	if not bool(res.get("ok", false)):
 		AudioManager.play_sfx("error")
 		set_status(str(res.get("reason", "Cannot add that card")), true)
@@ -619,23 +691,48 @@ func _add(card_id: String) -> void:
 		AudioManager.play_sfx("card_play")
 		set_status("")
 	_refresh_deck()
-	_show_page()
+	_refresh_tile(card_id)
 
 
+## Takes a copy out of the list on show, or the other list when it has none.
 func _remove(card_id: String) -> void:
-	DeckManager.remove_card(_deck, card_id)
+	var side := _to_side if _count_in(card_id, _to_side) > 0 else not _to_side
+	DeckManager.remove_card(_deck, card_id, side)
 	_refresh_deck()
-	_show_page()
+	_refresh_tile(card_id)
+
+
+func _move(card_id: String, to_side: bool) -> void:
+	var res: Dictionary = DeckManager.move_card(_deck, card_id, to_side)
+	if not bool(res.get("ok", false)):
+		AudioManager.play_sfx("error")
+		set_status(str(res.get("reason", "")), true)
+	else:
+		AudioManager.play_sfx("card_play")
+		set_status("Moved to the %s" % ("sideboard" if to_side else "deck"))
+	_refresh_deck()
+	_refresh_tile(card_id)
 
 
 ## Grouped by card type with a header per group, as the reference does.
 func _refresh_deck() -> void:
+	# 0.24.0 (R-145): the list keeps its scroll position while it is rebuilt
+	var keep := _list_scroll.scroll_vertical if _list_scroll != null else 0
+	if _list_scroll != null and keep > 0:
+		_restore_list_scroll.call_deferred(keep)
 	for c in _deck_list.get_children():
-		c.queue_free()
+		_deck_list.remove_child(c)          # out of the layout now (R-145: a moment of
+		c.queue_free()                  # old + new rows made the card grid jump)
 
 	var main: Array = _deck.get("main", [])
+	var side: Array = _deck.get("side", [])
+	_tab_main.text = "Deck  %d" % main.size()
+	_tab_side.text = "Sideboard  %d / %d" % [side.size(), BSS.SIDE_MAX]
+	_tab_main.set_pressed_no_signal(not _to_side)
+	_tab_side.set_pressed_no_signal(_to_side)
+	var shown: Array = side if _to_side else main
 	var counts := {}
-	for id in main:
+	for id in shown:
 		counts[id] = int(counts.get(id, 0)) + 1
 
 	var groups := {"spirit": [], "nexus": [], "magic": []}
@@ -644,7 +741,12 @@ func _refresh_deck() -> void:
 		if cd != null:
 			groups[BSS.CARD_TYPE_NAMES[cd.card_type]].append(id)
 
-	if main.is_empty():
+	if _to_side and side.is_empty():
+		_deck_list.add_child(UITheme.paragraph(
+			"The sideboard is empty. While this tab is open, + under a card adds it here. Up to %d cards; " % BSS.SIDE_MAX
+			+ "between the games of a best of 3, or before a rematch, you can swap them with cards in your deck. "
+			+ "Copies here count towards the 4 per card.", true, UITheme.FS_SMALL))
+	elif not _to_side and main.is_empty():
 		_deck_list.add_child(UITheme.paragraph(
 			"Your deck is empty. Click + under any card on the left to add it, "
 			+ "or click a card to inspect it first. A deck needs 50 to 60 cards, "
@@ -676,7 +778,8 @@ func _refresh_deck() -> void:
 			_deck_list.add_child(_deck_row(str(id), int(counts[id])))
 
 	for c in _legality_slot.get_children():
-		c.queue_free()
+		_legality_slot.remove_child(c)          # out of the layout now (R-145: a moment of
+		c.queue_free()                  # old + new rows made the card grid jump)
 	var val: Dictionary = DeckManager.validate(_deck)
 	var ok := bool(val.get("ok", false))
 	var counter := UITheme.number("%d / 50" % main.size(), UITheme.FS_HEAD,
@@ -695,6 +798,14 @@ func _refresh_deck() -> void:
 	_deck_summary.text = "%d spirit  ·  %d nexus  ·  %d magic" % [
 		int(types.get("spirit", 0)), int(types.get("nexus", 0)), int(types.get("magic", 0))]
 	_draw_curve(st.get("curve", {}))
+
+
+func _restore_list_scroll(v: int) -> void:
+	if _list_scroll == null:
+		return
+	await get_tree().process_frame
+	if is_instance_valid(_list_scroll):
+		_list_scroll.scroll_vertical = v
 
 
 func _short_reason(r: String) -> String:
@@ -760,10 +871,16 @@ func _deck_row(id: String, n: int) -> Control:
 	var btns := UITheme.vbox(0)
 	btns.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var plus := _tiny_button("+", UITheme.SUCCESS, func(): _add(id))
-	plus.disabled = n >= BSS.MAX_COPIES
+	plus.disabled = _count_of(id) >= BSS.MAX_COPIES
 	btns.add_child(plus)
 	btns.add_child(_tiny_button("−", UITheme.DANGER, func(): _remove(id)))
 	row.add_child(btns)
+	# one copy to the other list (0.24.0)
+	var mv := _tiny_button("↑" if _to_side else "↓", UITheme.CORE, func(): _move(id, not _to_side))
+	mv.custom_minimum_size = Vector2(24, 40)
+	mv.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	mv.tooltip_text = "Move one to the deck" if _to_side else "Move one to the sideboard"
+	row.add_child(mv)
 	row.add_child(UITheme.spacer(0))
 	return strip
 
@@ -817,7 +934,7 @@ func _tiny_button(text: String, tint: Color, on_press: Callable) -> Button:
 func _zoom_deck_card(card_id: String) -> void:
 	var ids: Array = []
 	var seen := {}
-	for id in _deck.get("main", []):
+	for id in _deck.get("side" if _to_side else "main", []):
 		if not seen.has(id):
 			seen[id] = true
 			ids.append(str(id))
@@ -826,7 +943,8 @@ func _zoom_deck_card(card_id: String) -> void:
 
 func _draw_curve(curve: Dictionary) -> void:
 	for c in _curve_box.get_children():
-		c.queue_free()
+		_curve_box.remove_child(c)          # out of the layout now (R-145: a moment of
+		c.queue_free()                  # old + new rows made the card grid jump)
 	var peak := 1
 	for k in curve:
 		peak = maxi(peak, int(curve[k]))
@@ -888,7 +1006,7 @@ func _save() -> void:
 		set_status("Add some cards before saving.", true)
 		return
 	DeckManager.save(_deck)
-	_saved_snapshot = JSON.stringify(_deck.get("main", [])) + str(_deck.get("name", ""))
+	_saved_snapshot = _snapshot()
 	var legal := bool(DeckManager.validate(_deck).get("ok", false))
 	set_status("Saved \"%s\"%s" % [_deck["name"],
 			"" if legal else " · not legal yet, so it will not appear in Battle"])
