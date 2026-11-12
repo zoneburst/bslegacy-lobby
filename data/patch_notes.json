@@ -1,6 +1,50 @@
 {
  "releases": [
   {
+   "version": "0.24.0",
+   "date": "2026-11-11",
+   "codename": "Best of 3",
+   "added": [
+    "Best of 3: online (Quick Match and Custom Room) and against the CPU. The loser of each game chooses who goes first in the next.",
+    "Rematch: one button at the end of a game or match. Online, your opponent sees that you want one and accepts with the same button.",
+    "A sideboard of up to 10 cards for every deck: a Sideboard tab in the deck editor, and lists with a \"Sideboard\" section (as bssdb.dev exports them) import and copy with it.",
+    "Between the games of a best of 3, and before a rematch, you are asked whether to use your sideboard: swap cards on the sideboard screen (online there is a time limit). Your saved deck is not changed.",
+    "Summon a spirit at a higher level straight away: clicking a card lists each level your cores allow (for example Dragron Trooper at LV1 for 3 cores or LV2 for 4).",
+    "A settings button (gear) on the battle screen: music, sound, animations and play aids without leaving the game.",
+    "The home screen says \"Your active deck\" and has a Change deck button to pick the deck for Quick Play.",
+    "Pay a card's cost with your soul core if you choose: tick \"Pay with my soul core\" in the play menu.",
+    "Link has an animation: the linked spirit's power streams into the attacking spirit.",
+    "Cores can be dragged onto and off nexuses, and a core dropped just beside a card goes to it.",
+    "A rules audit of attacking, blocking and battles against the comprehensive rules runs with every test run.",
+    "Magic with two effects (Burning Force...) asks which effect to use, showing both in full.",
+    "Choose which spirit(s) pay a card's Ascend.",
+    "The card viewer shows cards larger, about bssdb.dev's size."
+   ],
+   "changed": [
+    "Sharper Battle Spirits Saga card pictures: about twice the resolution (600 x 838, from bssdb.dev)."
+   ],
+   "fixed": [
+    "Pasting a decklist into Import list works in the itch.io version (Ctrl+V, right-click Paste, and paste on phones).",
+    "A spirit that is destroyed stays on the board until its destruction is shown; a choice it leads to (such as a burst) appears after that.",
+    "Cores on a card stay on one row: up to four, then the count (x5, x6), always inside the card.",
+    "The deck editor no longer jumps back up when you add a card low in the list, or use + / − in the deck list.",
+    "Two Volcanic Canyons now draw 2 and then discard 2 (both at once).",
+    "Absolute Ice Shield: when that battle ends, the turn moves on to the end step.",
+    "A blocked attack stays blocked even if the blocking spirit leaves the field: no life is lost (rule 7-1-5-2-1).",
+    "\"Attack that spirit\" effects (Dark Knight Palomides, Flame Crystal, Viper Dragon Hsuan Falung): the spirit blocks at once and block effects apply (rule 10-10-1).",
+    "A choice that asks for two cards (Gale: 2, say) needs two; a short answer is refused.",
+    "Card pictures are bssdb.dev's enlarged pictures, pixel for pixel, and large views draw them at their exact screen size: as crisp as bssdb.dev.",
+    "A spirit you cannot keep at LV1 (no core left to put on it) is no longer playable, even when its cost is 0.",
+    "Absolute Ice Shield set as a burst: after its burst, you are offered its other effect (paid from your reserve or field), and the attack step then ends.",
+    "Starblessed Draw is offered when your opponent's When Summoned effect has resolved (Nebula Dragon Andromeda included), and not when it did not apply.",
+    "Every effect of every card was played in a test game: none stalls or errors."
+   ],
+   "known_issues": [
+    "The web download is about 145 MB the first time (the sharper pictures).",
+    "In the browser, right-click Paste does not work in one-line boxes such as the room code (Ctrl+V does)."
+   ]
+  },
+  {
    "version": "0.23.1",
    "date": "2026-11-09",
    "codename": "BSS cards included",
@@ -8,7 +52,8 @@
     "The Battle Spirits Saga cards come with the game: the seven starter decks and Sets 1 to 6 (917 cards), with their pictures and the official starter decks. Nothing to import."
    ],
    "changed": [
-    "The AI-generated cards are off by default now that the real cards are included (Settings → Gameplay → Show AI-generated cards)."
+    "The AI-generated cards are off by default now that the real cards are included (Settings → Gameplay → Show AI-generated cards).",
+    "The web version (itch.io) starts with the seven official starter decks only; the AI-generated starter decks are no longer included there."
    ],
    "fixed": [
     "Your active deck switches to a deck you can see when the AI-generated decks are hidden."
