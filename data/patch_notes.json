@@ -1,6 +1,49 @@
 {
  "releases": [
   {
+   "version": "0.25.0",
+   "date": "2026-11-13",
+   "codename": "Replays",
+   "added": [
+    "Replays: your last 10 matches (against the CPU, on one screen or online) are kept. Main menu > REPLAYS: watch one again on the board, move by move, with pause, step, restart and 1x/2x/4x.",
+    "Export a replay as an MP4 video. On desktop a second window plays and records it, then the video is saved in your Videos folder (BSLegacy). Windows: FFmpeg comes with the game. macOS/Linux: uses your installed ffmpeg (otherwise an AVI is saved).",
+    "On the web, Export MP4 records the replay in your browser and downloads it: MP4 in Chrome, Edge and Safari, WebM in Firefox (no sound on the web).",
+    "All Battle Spirits Saga promo cards, PR-001 to PR-074 (D-08 Axebiter, Ferrarl Slash, Comet Dragon Sungrazer and the rest), and the six Battle Spirits Legacy Project cards of set BSS07A (Darkest Plague: Chain Draw and five spirits), with their pictures and effects.",
+    "An empty deck is shown: a red EMPTY slot, a red card count (amber at 3 or fewer) and a notice that the player loses at the start of their next turn.",
+    "Right-click a card in your hand or on the field during a battle to see it large."
+   ],
+   "changed": [
+    "Effects that summon a spirit from your trash or hand (Reanimate and others) let you choose which spirit, and its level when your cores allow more than LV1.",
+    "Immortal: every Immortal spirit in your trash whose condition is met is offered, one after another, and you choose the level to summon it at.",
+    "A spirit destroyed by having its cores removed has no level: its level-gated When Destroyed effects (Dark Iberix) do not activate; effects with no level (Naumanngard) still do.",
+    "Awaken: choose how many cores to move and from which of your other spirits (the soul core too; not nexuses, as the card says); use it again as often as you like.",
+    "Quick Play vs AI is always a single game, and Play vs CPU has its own match format (Best of 1 unless you change it)."
+   ],
+   "fixed": [
+    "Supernova Dragon Siegwurm Nova: its When Summoned works when the soul core was spent on its cost or is in your life; the question warns when the soul core is a spirit's last core.",
+    "Ruby Sanctuary (and every When Destroyed effect): spirits destroyed at the same time trigger it once, not once per spirit.",
+    "Scroll of Binding was checked on Link spirits: it works (the Link spirit goes to the bottom of the deck and the link ends).",
+    "A concession is now recorded in the game's log; a malformed mulligan answer is refused instead of causing an error.",
+    "Choices appear only after the card that caused them has been shown (Reanimate's choice came while the card was still being played).",
+    "The board no longer shows two soul cores during Ascend: the soul core stays on the stripped spirit until it lands in your reserve.",
+    "A destroyed spirit whose When Destroyed effect resolves (Naumanngard) is shown going to the trash once, not twice.",
+    "Magic cards with a cost line (Scroll of Binding, Key of Intrusion, Chain Draw and 7 more) no longer offer that line as an effect to choose; only their Main / Flash effects can be used.",
+    "Card pictures: an old workbook import's small pictures no longer replace the sharp bundled ones (the same pictures as bssdb.dev).",
+    "A card played from your hand stays there until it flies to the field (Siegwurm Nova vanished and came back during Ascend).",
+    "Doubly Deadly: your opponent loses two spirits only if one of yours was destroyed; when the opponent chooses for an effect, the question says whose effect it is.",
+    "The Ascend window with many spirits no longer runs off the screen; every window now fits the screen.",
+    "A magic card being used is no longer drawn in your hand while its effect waits (Doubly Deadly); the CPU's played cards stay in its hand until they fly.",
+    "Miser Glutvault: a yellow spirit's Curse no longer destroys the blocker if Glutvault left the field before the battle was resolved.",
+    "Questions where you pick cards now name the card and quote its effect (Dualgun Mechlord Dirm Dyna: \"select 2 of your spirits\").",
+    "A summoned spirit no longer flies back into the hand before landing on the field.",
+    "Frost Tiger Heavy Armor Form and Tankmobile Maus get their core from the void at the end of the opponent's turn; with two or more on the field, each one at LV2 gets its own core."
+   ],
+   "known_issues": [
+    "The Windows MP4 export uses Windows' own H.264 encoder and was tested here only through the identical Linux build; if that encoder is missing, MPEG-4 is used.",
+    "Web exports have no sound; Firefox saves WebM."
+   ]
+  },
+  {
    "version": "0.24.0",
    "date": "2026-11-11",
    "codename": "Best of 3",
@@ -35,9 +78,9 @@
     "A choice that asks for two cards (Gale: 2, say) needs two; a short answer is refused.",
     "Card pictures are bssdb.dev's enlarged pictures, pixel for pixel, and large views draw them at their exact screen size: as crisp as bssdb.dev.",
     "A spirit you cannot keep at LV1 (no core left to put on it) is no longer playable, even when its cost is 0.",
-    "Absolute Ice Shield set as a burst: after its burst, you are offered its other effect (paid from your reserve or field), and the attack step then ends.",
     "Starblessed Draw is offered when your opponent's When Summoned effect has resolved (Nebula Dragon Andromeda included), and not when it did not apply.",
-    "Every effect of every card was played in a test game: none stalls or errors."
+    "Every effect of every card was played in a test game: none stalls or errors.",
+    "Absolute Ice Shield (and every burst with \"then you may pay this card's cost\"): the follow-up is offered whenever your reserve and field cores can pay, even if paying destroys spirits; you choose which cards pay."
    ],
    "known_issues": [
     "The web download is about 145 MB the first time (the sharper pictures).",

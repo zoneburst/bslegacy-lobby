@@ -1,0 +1,499 @@
+{
+ "set": "BSS07A",
+ "note": "Mechanics for the official BSS07A (Darkest Plague, Battle Spirits Legacy Project) cards, used only by the spreadsheet importer. No card names, card text or art.",
+ "rules": {
+  "BSS07A-PR01": {
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "spirit_types": [
+    "Nightling"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "life_once_per_turn",
+       "attacker": {
+        "cores_max": 1
+       }
+      }
+     ],
+     "header": "",
+     "text": "Neither player's life can be reduced more than once per turn by attacks of spirits with only one core on them."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Draw a card if this spirit has a soul core on it.",
+     "condition": {
+      "type": "soul_on_self"
+     }
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Neither player's life can be reduced more than once per turn by attacks of spirits with only one core on them.\n[LV2][LV3] When Attacks: Draw a card if this spirit has a soul core on it.",
+   "flavor": ""
+  },
+  "BSS07A-PR02": {
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "spirit_types": [
+    "Lyric Bird",
+    "Wanderfae"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "discarded_from_deck",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay 1 to summon this spirit from your trash?",
+       "labels": [
+        "Summon",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "summon_self_from_trash",
+           "cost": 1
+          },
+          {
+           "op": "set_player_flag",
+           "flag": "deck_protect",
+           "player": "self",
+           "if": {
+            "type": "frame_flag",
+            "flag": "summoned"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "Can't Stack",
+     "text": "(Can't Stack) When this card is discarded from your deck by your opponent's effect, you may pay one cost to summon it. If you do, this turn your deck cannot be discarded by your opponent's effects.",
+     "by": "opponent",
+     "from_trash": true
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "During Either Attack Step",
+     "text": "When one of your Pentan spirits is destroyed by your opponent's effect, draw a card.",
+     "trigger_filter": {
+      "name_contains": "Pentan"
+     },
+     "during": "either_attack_step",
+     "condition": {
+      "type": "destroyed_by_effect"
+     }
+    }
+   ],
+   "text": "Can't Stack: (Can't Stack) When this card is discarded from your deck by your opponent's effect, you may pay one cost to summon it. If you do, this turn your deck cannot be discarded by your opponent's effects.\n[LV1][LV2] During Either Attack Step: When one of your Pentan spirits is destroyed by your opponent's effect, draw a card.",
+   "flavor": ""
+  },
+  "BSS07A-PR03": {
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 4,
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "spirit_types": [
+    "Mecha"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "life_once_per_turn",
+       "attacker": {
+        "cost_max": 2
+       },
+       "total": 1
+      }
+     ],
+     "header": "",
+     "text": "Each player's life can only be reduced by a total of one each turn by attacks of spirits that cost 2 or fewer."
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      2
+     ],
+     "directives": [],
+     "header": "Armor: Red / Green",
+     "text": "This spirit cannot be selected by your opponent's Red or Green effects.",
+     "keyword_value": [
+      "red",
+      "green"
+     ]
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Each player's life can only be reduced by a total of one each turn by attacks of spirits that cost 2 or fewer.\n[LV2] Armor: Red / Green (This spirit cannot be selected by your opponent's Red or Green effects.)",
+   "flavor": ""
+  },
+  "BSS07A-PR04": {
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Preybird"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "discarded_from_deck",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay 1 to summon this spirit from your trash?",
+       "labels": [
+        "Summon",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "summon_self_from_trash",
+           "cost": 1
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "Can't Stack",
+     "text": "(Can't Stack) When this card is discarded from your deck by your opponent's effect, you may summon it by paying one cost.",
+     "by": "opponent",
+     "from_trash": true
+    },
+    {
+     "kind": "triggered",
+     "timing": "card_discarded",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay 1 to summon this spirit from your trash?",
+       "labels": [
+        "Summon",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "summon_self_from_trash",
+           "cost": 1
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "Can't Stack",
+     "text": "(The same, when it is discarded from your hand by your green effect.)",
+     "from_hand": true,
+     "from_trash": true,
+     "by": "your_effect"
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "deck_mill_cap",
+       "amount": 4
+      }
+     ],
+     "header": "",
+     "text": "At most four cards can be discarded from each player's deck each turn."
+    }
+   ],
+   "text": "Can't Stack: (Can't Stack) When this card is discarded from your deck by your opponent's effect, you may summon it by paying one cost.\nCan't Stack: (The same, when it is discarded from your hand by your green effect.)\n[LV2] At most four cards can be discarded from each player's deck each turn.",
+   "flavor": ""
+  },
+  "BSS07A-PR05": {
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "spirit_types": [
+    "Bladebeast"
+   ],
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "life_once_per_turn",
+       "attacker": {
+        "symbols_exactly": 2
+       }
+      }
+     ],
+     "header": "",
+     "text": "Neither player's life can be reduced more than once per turn by attacks from spirits with two symbols."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": false,
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's refreshed spirits with 3000 or fewer BP and exhaust it."
+    }
+   ],
+   "text": "[LV1][LV2][LV3] Neither player's life can be reduced more than once per turn by attacks from spirits with two symbols.\n[LV2][LV3] When Attacks: Select one of your opponent's refreshed spirits with 3000 or fewer BP and exhaust it.",
+   "flavor": ""
+  },
+  "BSS07A-PR06": {
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "symbols": [],
+   "spirit_types": [],
+   "levels": [],
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "cost",
+     "levels": [],
+     "directives": [],
+     "header": "",
+     "text": "This magic's reduction symbols are treated as purple, white, yellow, green and blue as well as red.",
+     "reduction_any_color": true
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "search_top",
+       "amount": 3,
+       "take": 2,
+       "card_type": "spirit",
+       "filters": {
+        "has_chain": true
+       },
+       "rest": "bottom"
+      }
+     ],
+     "header": "Main",
+     "text": "Draw a card. Then reveal the top three cards of your deck, add two spirit cards with Chain from among them to your hand, and put the rest on the bottom of your deck in any order."
+    }
+   ],
+   "text": "This magic's reduction symbols are treated as purple, white, yellow, green and blue as well as red.\nMain: Draw a card. Then reveal the top three cards of your deck, add two spirit cards with Chain from among them to your hand, and put the rest on the bottom of your deck in any order.",
+   "flavor": ""
+  }
+ }
+}

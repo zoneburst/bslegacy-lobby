@@ -3462,7 +3462,7 @@
     {
      "kind": "triggered",
      "timing": "end_of_opponent_turn",
-     "scope": "self",
+     "scope": "you",
      "levels": [
       2
      ],
@@ -8032,7 +8032,11 @@
          "symbols_exactly": 1
         }
        },
-       "chooser": "opponent"
+       "chooser": "opponent",
+       "if": {
+        "type": "frame_flag",
+        "flag": "destroyed"
+       }
       }
      ],
      "header": "Flash",

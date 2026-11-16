@@ -25077,9 +25077,7 @@
             "card_type": "spirit",
             "controller": "self",
             "count": 1.0,
-            "filters": {
-
-            },
+            "filters": {},
             "zone": "trash"
            }
           }
@@ -31772,7 +31770,7 @@
      "levels": [
       2.0
      ],
-     "scope": "self",
+     "scope": "you",
      "text": "If your life is the same as or higher than it was at the start of the turn, put a core from the void on this spirit.",
      "timing": "end_of_opponent_turn"
     }
@@ -41673,7 +41671,7 @@
      "levels": [
       2.0
      ],
-     "scope": "self",
+     "scope": "you",
      "text": "If your life total is the same as or higher than at the start of the turn, put a core from the void on this spirit.",
      "timing": "end_of_opponent_turn"
     }
@@ -46719,6 +46717,10 @@
          "symbols_exactly": 1.0
         },
         "zone": "field"
+       },
+       "if": {
+        "type": "frame_flag",
+        "flag": "destroyed"
        }
       }
      ],
@@ -48308,9 +48310,7 @@
          "card_type": "nexus",
          "controller": "self",
          "count": 1.0,
-         "filters": {
-
-         },
+         "filters": {},
          "zone": "trash"
         }
        }
@@ -54736,9 +54736,7 @@
      "scope": "opponent",
      "text": "When a magic card is discarded from your opponent's deck, select one of your Skybinder spirits. It is treated as its highest level this turn.",
      "timing": "discarded_from_deck",
-     "trigger_filter": {
-
-     },
+     "trigger_filter": {},
      "trigger_type": "magic"
     },
     {
@@ -61124,9 +61122,7 @@
      "scope": "any",
      "text": "Draw a card when a spirit is destroyed.",
      "timing": "when_destroyed",
-     "trigger_filter": {
-
-     },
+     "trigger_filter": {},
      "trigger_type": "spirit"
     }
    ],
@@ -68937,9 +68933,7066 @@
     "red|purple|white|yellow|green|blue"
    ],
    "text": "[LV1][LV2][LV3] When Summoned: You may summon a spirit card with Link from your hand without paying its cost. If you summon a spirit with this effect, draw a card.\n[LV2][LV3] During Your Attack Step: When one of your spirits is linked, place a core from the void onto this spirit.\n[LV3] While This Spirit Attacks: When this spirit destroys one of your opponent's spirits in battle, put a core from your opponent's life into their reserve."
+  },
+  {
+   "based_on": "BSS07A-PR01",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "life_once_per_turn",
+       "attacker": {
+        "cores_max": 1
+       }
+      }
+     ],
+     "header": "",
+     "text": "Neither player's life can be reduced more than once per turn by attacks of spirits with only one core on them."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Draw a card if this spirit has a soul core on it.",
+     "condition": {
+      "type": "soul_on_self"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "BSS07A-PR01",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "name": "Divine Scythe Bat Zamba",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "set_code": "BSS07A",
+   "source": "imported",
+   "spirit_types": [
+    "Nightling"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2][LV3] Neither player's life can be reduced more than once per turn by attacks of spirits with only one core on them.\n[LV2][LV3] When Attacks: Draw a card if this spirit has a soul core on it."
+  },
+  {
+   "based_on": "BSS07A-PR02",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "discarded_from_deck",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay 1 to summon this spirit from your trash?",
+       "labels": [
+        "Summon",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "summon_self_from_trash",
+           "cost": 1
+          },
+          {
+           "op": "set_player_flag",
+           "flag": "deck_protect",
+           "player": "self",
+           "if": {
+            "type": "frame_flag",
+            "flag": "summoned"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "Can't Stack",
+     "text": "(Can't Stack) When this card is discarded from your deck by your opponent's effect, you may pay one cost to summon it. If you do, this turn your deck cannot be discarded by your opponent's effects.",
+     "by": "opponent",
+     "from_trash": true
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "During Either Attack Step",
+     "text": "When one of your Pentan spirits is destroyed by your opponent's effect, draw a card.",
+     "trigger_filter": {
+      "name_contains": "Pentan"
+     },
+     "during": "either_attack_step",
+     "condition": {
+      "type": "destroyed_by_effect"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "BSS07A-PR02",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "name": "Butler Pentan",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "set_code": "BSS07A",
+   "source": "imported",
+   "spirit_types": [
+    "Lyric Bird",
+    "Wanderfae"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "Can't Stack: (Can't Stack) When this card is discarded from your deck by your opponent's effect, you may pay one cost to summon it. If you do, this turn your deck cannot be discarded by your opponent's effects.\n[LV1][LV2] During Either Attack Step: When one of your Pentan spirits is destroyed by your opponent's effect, draw a card."
+  },
+  {
+   "based_on": "BSS07A-PR03",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "life_once_per_turn",
+       "attacker": {
+        "cost_max": 2
+       },
+       "total": 1
+      }
+     ],
+     "header": "",
+     "text": "Each player's life can only be reduced by a total of one each turn by attacks of spirits that cost 2 or fewer."
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      2
+     ],
+     "directives": [],
+     "header": "Armor: Red / Green",
+     "text": "This spirit cannot be selected by your opponent's Red or Green effects.",
+     "keyword_value": [
+      "red",
+      "green"
+     ]
+    }
+   ],
+   "flavor": "",
+   "id": "BSS07A-PR03",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Heavenbow Mecha Ullr",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "set_code": "BSS07A",
+   "source": "imported",
+   "spirit_types": [
+    "Mecha"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2][LV3] Each player's life can only be reduced by a total of one each turn by attacks of spirits that cost 2 or fewer.\n[LV2] Armor: Red / Green (This spirit cannot be selected by your opponent's Red or Green effects.)"
+  },
+  {
+   "based_on": "BSS07A-PR04",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "discarded_from_deck",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay 1 to summon this spirit from your trash?",
+       "labels": [
+        "Summon",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "summon_self_from_trash",
+           "cost": 1
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "Can't Stack",
+     "text": "(Can't Stack) When this card is discarded from your deck by your opponent's effect, you may summon it by paying one cost.",
+     "by": "opponent",
+     "from_trash": true
+    },
+    {
+     "kind": "triggered",
+     "timing": "card_discarded",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay 1 to summon this spirit from your trash?",
+       "labels": [
+        "Summon",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "summon_self_from_trash",
+           "cost": 1
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "Can't Stack",
+     "text": "(The same, when it is discarded from your hand by your green effect.)",
+     "from_hand": true,
+     "from_trash": true,
+     "by": "your_effect"
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "deck_mill_cap",
+       "amount": 4
+      }
+     ],
+     "header": "",
+     "text": "At most four cards can be discarded from each player's deck each turn."
+    }
+   ],
+   "flavor": "",
+   "id": "BSS07A-PR04",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Armored Crow",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "set_code": "BSS07A",
+   "source": "imported",
+   "spirit_types": [
+    "Preybird"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "Can't Stack: (Can't Stack) When this card is discarded from your deck by your opponent's effect, you may summon it by paying one cost.\nCan't Stack: (The same, when it is discarded from your hand by your green effect.)\n[LV2] At most four cards can be discarded from each player's deck each turn."
+  },
+  {
+   "based_on": "BSS07A-PR05",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "life_once_per_turn",
+       "attacker": {
+        "symbols_exactly": 2
+       }
+      }
+     ],
+     "header": "",
+     "text": "Neither player's life can be reduced more than once per turn by attacks from spirits with two symbols."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": false,
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's refreshed spirits with 3000 or fewer BP and exhaust it."
+    }
+   ],
+   "flavor": "",
+   "id": "BSS07A-PR05",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "name": "Heavensword Wolf Volza",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "set_code": "BSS07A",
+   "source": "imported",
+   "spirit_types": [
+    "Bladebeast"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "[LV1][LV2][LV3] Neither player's life can be reduced more than once per turn by attacks from spirits with two symbols.\n[LV2][LV3] When Attacks: Select one of your opponent's refreshed spirits with 3000 or fewer BP and exhaust it."
+  },
+  {
+   "based_on": "BSS07A-PR06",
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "cost",
+     "levels": [],
+     "directives": [],
+     "header": "",
+     "text": "This magic's reduction symbols are treated as purple, white, yellow, green and blue as well as red.",
+     "reduction_any_color": true
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "search_top",
+       "amount": 3,
+       "take": 2,
+       "card_type": "spirit",
+       "filters": {
+        "has_chain": true
+       },
+       "rest": "bottom"
+      }
+     ],
+     "header": "Main",
+     "text": "Draw a card. Then reveal the top three cards of your deck, add two spirit cards with Chain from among them to your hand, and put the rest on the bottom of your deck in any order."
+    }
+   ],
+   "flavor": "",
+   "id": "BSS07A-PR06",
+   "levels": [],
+   "name": "Chain Draw",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "set_code": "BSS07A",
+   "source": "imported",
+   "spirit_types": [],
+   "symbols": [],
+   "text": "This magic's reduction symbols are treated as purple, white, yellow, green and blue as well as red.\nMain: Draw a card. Then reveal the top three cards of your deck, add two spirit cards with Chain from among them to your hand, and put the rest on the bottom of your deck in any order."
+  },
+  {
+   "based_on": "PR-001",
+   "card_type": "magic",
+   "colors": [
+    "red"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "burst",
+     "burst_condition": "life_decreased",
+     "window": "burst",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "Burst: When You Lose Life",
+     "text": "Select one of your opponent's spirits with 3000 or fewer BP and destroy it. Then you may pay this card's cost to use its other effect."
+    },
+    {
+     "kind": "magic",
+     "timing": "magic",
+     "window": "main",
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 1,
+        "filters": {
+         "cost_max": 4
+        }
+       }
+      }
+     ],
+     "header": "Main",
+     "text": "Select one of your opponent's nexuses that costs 4 or fewer and destroy it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-001",
+   "levels": [],
+   "name": "Ferrarl Slash",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [],
+   "symbols": [],
+   "text": "Burst: When You Lose Life: Select one of your opponent's spirits with 3000 or fewer BP and destroy it. Then you may pay this card's cost to use its other effect.\nMain: Select one of your opponent's nexuses that costs 4 or fewer and destroy it."
+  },
+  {
+   "based_on": "PR-002",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "turn",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "All of your spirits get +2000 BP this turn."
+    },
+    {
+     "kind": "triggered",
+     "timing": "awaken_zeroed",
+     "scope": "you",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "If this spirit has a soul core on it, draw a card when you reduce one of your spirits' cores to zero with an Awaken effect.",
+     "during": "your_attack_step",
+     "condition": {
+      "type": "soul_on_self"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-002",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 9000
+    }
+   ],
+   "name": "Comet Dragon Sungrazer",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Star Dragon"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: All of your spirits get +2000 BP this turn.\n[LV2][LV3] During Your Attack Step: If this spirit has a soul core on it, draw a card when you reduce one of your spirits' cores to zero with an Awaken effect."
+  },
+  {
+   "based_on": "PR-003",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "This spirit gets +2000 BP."
+    },
+    {
+     "kind": "triggered",
+     "timing": "blocked",
+     "scope": "your_spirits",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "Refresh this spirit when one of your other Terrasaur spirits is blocked.",
+     "trigger_filter": {
+      "spirit_type": "Terrasaur",
+      "not_self_uid": true
+     },
+     "during": "your_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-003",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 7000
+    }
+   ],
+   "name": "Swordosaurus",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Terrasaur"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2][LV3] While This Spirit Attacks: This spirit gets +2000 BP.\n[LV2][LV3] During Your Attack Step: Refresh this spirit when one of your other Terrasaur spirits is blocked."
+  },
+  {
+   "based_on": "PR-004",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Curse",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Curse",
+     "text": "If an opposing spirit blocks this spirit, destroy that blocker when the battle ends."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 2
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Draw two cards."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-004",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 9000
+    }
+   ],
+   "name": "Blacklance",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "purple",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Serpent"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2][LV3] Curse (If an opposing spirit blocks this spirit, destroy that blocker when the battle ends.)\n[LV2][LV3] When Summoned: Draw two cards."
+  },
+  {
+   "based_on": "PR-005",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Destroy one of your spirits to remove a core from one of your opponent's spirits?",
+       "labels": [
+        "Destroy",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "destroy",
+           "target": {
+            "controller": "self",
+            "zone": "field",
+            "card_type": "spirit",
+            "count": 1
+           }
+          },
+          {
+           "op": "remove_cores",
+           "amount": 1,
+           "target": {
+            "controller": "opponent",
+            "zone": "field",
+            "card_type": "spirit",
+            "count": 1
+           },
+           "if": {
+            "type": "frame_flag",
+            "flag": "last_target"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your spirits. You may destroy it to select one of your opponent's spirits; remove a core from it and place it into their reserve.",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "spirit"
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-005",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "name": "Crimson Mail",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Shadow"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2] When Summoned: Select one of your spirits. You may destroy it to select one of your opponent's spirits; remove a core from it and place it into their reserve."
+  },
+  {
+   "based_on": "PR-006",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [],
+     "header": "Armor: Purple / Yellow",
+     "text": "This spirit cannot be selected by your opponent's Purple or Yellow effects.",
+     "keyword_value": [
+      "purple",
+      "yellow"
+     ]
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "no_destroy_by_effect",
+       "target": {
+        "zone": "self"
+       }
+      },
+      {
+       "op": "no_destroy_by_effect",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 0,
+        "filters": {
+         "color": "white",
+         "has_soul": true
+        }
+       }
+      },
+      {
+       "op": "battle_indestructible",
+       "target": {
+        "zone": "self"
+       }
+      },
+      {
+       "op": "battle_indestructible",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 0,
+        "filters": {
+         "color": "white",
+         "has_soul": true
+        }
+       }
+      },
+      {
+       "op": "core_lock",
+       "target": {
+        "zone": "self"
+       }
+      },
+      {
+       "op": "core_lock",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 0,
+        "filters": {
+         "color": "white",
+         "has_soul": true
+        }
+       }
+      }
+     ],
+     "header": "",
+     "text": "Neither this spirit nor any of your white nexuses with a soul core on it can be destroyed by your opponent's destruction effects or as the result of battle, and your opponent's effects cannot remove their cores."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-006",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "D-08 Axebiter",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Mecha"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2] Armor: Purple / Yellow (This spirit cannot be selected by your opponent's Purple or Yellow effects.)\n[LV2] Neither this spirit nor any of your white nexuses with a soul core on it can be destroyed by your opponent's destruction effects or as the result of battle, and your opponent's effects cannot remove their cores."
+  },
+  {
+   "based_on": "PR-007",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "to_deck_bottom",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 2,
+        "filters": {
+         "bp_max": 2000
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select two of your opponent's spirits with 2000 or fewer BP and return them to the bottom of their deck."
+    },
+    {
+     "kind": "triggered",
+     "timing": "extra_draw",
+     "scope": "opponent",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Opponent's Attack Step",
+     "text": "Refresh this spirit when your opponent draws a card.",
+     "during": "opponent_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-007",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    }
+   ],
+   "name": "Black Jaguard",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Machine Beast"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2] When Summoned: Select two of your opponent's spirits with 2000 or fewer BP and return them to the bottom of their deck.\n[LV2] During Opponent's Attack Step: Refresh this spirit when your opponent draws a card."
+  },
+  {
+   "based_on": "PR-008",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "opponent_spirits",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "treat_as_level",
+       "level": 3,
+       "duration": "turn",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When one of your opponent's spirits is destroyed by having its BP reduced to 0, this spirit is treated as LV3 this turn.",
+     "during": "your_attack_step",
+     "condition": {
+      "type": "destroyed_by_zero_bp"
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Luster",
+     "levels": [
+      3
+     ],
+     "directives": [],
+     "header": "Luster",
+     "text": "When this spirit's battle ends, return every magic card you used in it from your trash to your hand."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-008",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "name": "War Angel Mace Knight",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Angel"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV1][LV2][LV3] During Your Attack Step: When one of your opponent's spirits is destroyed by having its BP reduced to 0, this spirit is treated as LV3 this turn.\n[LV3] Luster (When this spirit's battle ends, return every magic card you used in it from your trash to your hand.)"
+  },
+  {
+   "based_on": "PR-009",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Blessed",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Blessed",
+     "text": "When this spirit's attack reduces your opponent's life, put a core from the void on your life."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      3
+     ],
+     "directives": [
+      {
+       "op": "unblockable_by",
+       "attacker": {
+        "keyword": "Blessed"
+       },
+       "blocker": {
+        "level_max": 1
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "Your spirits with Blessed cannot be blocked by your opponent's LV1 spirits.",
+     "during": "your_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-009",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 3,
+     "bp": 6000
+    }
+   ],
+   "name": "Dual Eagle",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Fabled Beast"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV2][LV3] Blessed (When this spirit's attack reduces your opponent's life, put a core from the void on your life.)\n[LV3] During Your Attack Step: Your spirits with Blessed cannot be blocked by your opponent's LV1 spirits."
+  },
+  {
+   "based_on": "PR-010",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "activated",
+     "timing": "keyword",
+     "keyword": "Awaken",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [],
+     "header": "Awaken",
+     "text": "Move any number of cores from your other spirits onto this spirit."
+    },
+    {
+     "kind": "triggered",
+     "timing": "battle_destroy",
+     "scope": "your_spirits",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 1
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When one of your other spirits with Awaken destroys one of your opponent's spirits by comparing BP, select one of your opponent's nexuses and destroy it.",
+     "trigger_filter": {
+      "keyword": "Awaken",
+      "not_self_uid": true
+     },
+     "during": "your_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-010",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    }
+   ],
+   "name": "Ancient Fiend Dragonoid Ba-Gwo",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Dragonoid",
+    "Ancient Dragon"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2] Awaken (Move any number of cores from your other spirits onto this spirit.)\n[LV2] During Your Attack Step: When one of your other spirits with Awaken destroys one of your opponent's spirits by comparing BP, select one of your opponent's nexuses and destroy it."
+  },
+  {
+   "based_on": "PR-011",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "This spirit gets +2000 BP."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Confront",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "If this spirit has 10000 or more BP, it gains Confront.",
+     "during": "your_attack_step",
+     "condition": {
+      "all": [
+       {
+        "type": "self_bp_at_least",
+        "amount": 10000
+       },
+       {
+        "type": "self_attacking"
+       }
+      ]
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-011",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 5000
+    }
+   ],
+   "name": "Horned Dragonoid Tricero",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Dragonoid",
+    "Terrasaur"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2][LV3] While This Spirit Attacks: This spirit gets +2000 BP.\n[LV2][LV3] During Your Attack Step: If this spirit has 10000 or more BP, it gains Confront."
+  },
+  {
+   "based_on": "PR-012",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "any",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": true,
+         "cost_max": 7
+        }
+       },
+       "optional": true
+      }
+     ],
+     "header": "When Attacks",
+     "text": "If this spirit has a soul core on it, you may select an exhausted spirit that costs 7 or fewer and destroy it.",
+     "condition": {
+      "type": "soul_on_self"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-012",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    }
+   ],
+   "name": "Dark Queen Guinevere",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Nightling"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV2] When Attacks: If this spirit has a soul core on it, you may select an exhausted spirit that costs 7 or fewer and destroy it."
+  },
+  {
+   "based_on": "PR-013",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       },
+       "chooser": "opponent"
+      },
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Your opponent selects one of their spirits. Then you select one of your spirits. Destroy both."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-013",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "name": "Skullion",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Undead"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Your opponent selects one of their spirits. Then you select one of your spirits. Destroy both."
+  },
+  {
+   "based_on": "PR-014",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [],
+     "header": "Armor: Red / Yellow",
+     "text": "This spirit cannot be selected by your opponent's Red or Yellow effects.",
+     "keyword_value": [
+      "red",
+      "yellow"
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "life_gained",
+     "scope": "opponent",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "",
+     "text": "If this spirit has a soul core on it, refresh it when a core is added to your opponent's life.",
+     "condition": {
+      "type": "soul_on_self"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-014",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 9000
+    }
+   ],
+   "name": "Frostree Dragon Silverime",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Armored Dragon"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2] Armor: Red / Yellow (This spirit cannot be selected by your opponent's Red or Yellow effects.)\n[LV2] If this spirit has a soul core on it, refresh it when a core is added to your opponent's life."
+  },
+  {
+   "based_on": "PR-015",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 2,
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "Select one of your spirits that costs 2 or fewer and refresh it."
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Armor: Red",
+     "text": "This spirit cannot be selected by your opponent's Red effects.",
+     "keyword_value": [
+      "red"
+     ]
+    }
+   ],
+   "flavor": "",
+   "id": "PR-015",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "name": "Shieldmobile",
+   "our_version": "",
+   "reduction_symbols": [
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Mecha"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2][LV3] When Blocks: Select one of your spirits that costs 2 or fewer and refresh it.\n[LV2][LV3] Armor: Red (This spirit cannot be selected by your opponent's Red effects.)"
+  },
+  {
+   "based_on": "PR-016",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 0,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "set_flag",
+       "flag": "doomed",
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Destroy this spirit when the battle ends."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-016",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Tin Soldiers",
+   "our_version": "",
+   "reduction_symbols": [],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Toy"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV1][LV2] When Attacks: Destroy this spirit when the battle ends."
+  },
+  {
+   "based_on": "PR-017",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "treat_as_level",
+       "level": 1,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 4
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed By Opponent",
+     "text": "Select one of your opponent's spirits that costs 4 or fewer. It is treated as LV1 this turn."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      3
+     ],
+     "directives": [
+      {
+       "op": "unblockable_by",
+       "attacker": {
+        "is_source": true,
+        "is_attacking": true
+       },
+       "blocker": {
+        "cost_min": 8
+       }
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "If this spirit has a soul core on it, it cannot be blocked by spirits that cost 8 or more.",
+     "condition": {
+      "type": "soul_on_self"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-017",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Calydon",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Fabled Beast"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "When Destroyed By Opponent: Select one of your opponent's spirits that costs 4 or fewer. It is treated as LV1 this turn.\n[LV3] While This Spirit Attacks: If this spirit has a soul core on it, it cannot be blocked by spirits that cost 8 or more."
+  },
+  {
+   "based_on": "PR-018",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "activated",
+     "timing": "keyword",
+     "keyword": "Swift",
+     "levels": [],
+     "directives": [],
+     "header": "Swift",
+     "text": "You may summon this spirit during flash timing, paying only with cores from your reserve."
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": false
+        }
+       },
+       "chooser": "opponent"
+      }
+     ],
+     "header": "When Destroyed By Opponent",
+     "text": "Your opponent selects one of their refreshed spirits and exhausts it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-018",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "name": "Scopowl",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Preybird"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "Swift (You may summon this spirit during flash timing, paying only with cores from your reserve.)\nWhen Destroyed By Opponent: Your opponent selects one of their refreshed spirits and exhausts it."
+  },
+  {
+   "based_on": "PR-019",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "If you spent a soul core as part of this spirit's summoning cost, select one of your opponent's spirits and exhaust it.",
+     "condition": {
+      "type": "soul_paid"
+     }
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "core_lock",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "spirit_type": "Carapite",
+         "not_self_uid": true
+        }
+       }
+      }
+     ],
+     "header": "During Opponent's Turn",
+     "text": "If this spirit has a soul core on it, your opponent's effects cannot remove cores from your other Carapite spirits.",
+     "during": "opponent_turn",
+     "condition": {
+      "type": "soul_on_self"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-019",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 9000
+    }
+   ],
+   "name": "Koju Kamakiro",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Carapite"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: If you spent a soul core as part of this spirit's summoning cost, select one of your opponent's spirits and exhaust it.\n[LV2][LV3] During Opponent's Turn: If this spirit has a soul core on it, your opponent's effects cannot remove cores from your other Carapite spirits."
+  },
+  {
+   "based_on": "PR-020",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 7,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "set_level",
+       "level": 3,
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "If two or more of your opponent's spirits have been destroyed this turn, this spirit is treated as LV3.",
+     "during": "your_attack_step",
+     "condition": {
+      "type": "destroyed_this_turn",
+      "player": "opponent",
+      "amount": 2
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      3
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": [
+         "spirit",
+         "nexus"
+        ],
+        "count": 1,
+        "filters": {
+         "any_of": [
+          {
+           "card_type": "spirit",
+           "filters": {
+            "bp_max": 4000
+           }
+          },
+          {
+           "card_type": "nexus",
+           "filters": {}
+          }
+         ]
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits with 4000 or fewer BP or one of their nexuses and destroy it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-020",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 7,
+     "bp": 10000
+    }
+   ],
+   "name": "Sword Dragon Emperor Ex-Calibus",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Ancient Dragon"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2][LV3] During Your Attack Step: If two or more of your opponent's spirits have been destroyed this turn, this spirit is treated as LV3.\n[LV3] When Attacks: Select one of your opponent's spirits with 4000 or fewer BP or one of their nexuses and destroy it."
+  },
+  {
+   "based_on": "PR-021",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 2,
+   "effects": [
+    {
+     "kind": "activated",
+     "timing": "keyword",
+     "keyword": "Awaken",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Awaken",
+     "text": "Move any number of cores from your other spirits onto this spirit."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 2000,
+       "duration": "constant",
+       "target": {
+        "zone": "self"
+       },
+       "per": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "cores_min": 1,
+         "cores_max": 1
+        }
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "This spirit gets +2000 BP for each of your spirits with only one core on it.",
+     "during": "your_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-021",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 6000
+    }
+   ],
+   "name": "Dsungareap",
+   "our_version": "",
+   "reduction_symbols": [
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skyfang"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2][LV3] Awaken (Move any number of cores from your other spirits onto this spirit.)\n[LV2][LV3] During Your Attack Step: This spirit gets +2000 BP for each of your spirits with only one core on it."
+  },
+  {
+   "based_on": "PR-022",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "During Your Turn",
+     "text": "When a spirit is summoned from your trash, select one of your opponent's exhausted spirits and destroy it.",
+     "trigger_filter": {
+      "summoned_from": "trash"
+     },
+     "during": "your_turn"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-022",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 7000
+    }
+   ],
+   "name": "Corpse Knight Velliam",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Undead"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2] During Your Turn: When a spirit is summoned from your trash, select one of your opponent's exhausted spirits and destroy it."
+  },
+  {
+   "based_on": "PR-023",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 2,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "core_from_void",
+     "scope": "opponent",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "",
+     "text": "When your opponent uses one of their effects to place a core from the void onto one of their spirits or into their reserve, draw a card."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-023",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "name": "Third Eye Snake",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Serpent"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV2] When your opponent uses one of their effects to place a core from the void onto one of their spirits or into their reserve, draw a card."
+  },
+  {
+   "based_on": "PR-024",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "zone": "trigger_any"
+       }
+      }
+     ],
+     "header": "When Destroyed By Opponent",
+     "text": "Return this card from your trash to your hand."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-024",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 4000
+    }
+   ],
+   "name": "Macaroni Pentan",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Lyric Bird",
+    "Wanderfae"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV2][LV3] When Destroyed By Opponent: Return this card from your trash to your hand."
+  },
+  {
+   "based_on": "PR-025",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": -2000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits. It gets -2000 BP this turn."
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      3
+     ],
+     "directives": [
+      {
+       "op": "unblockable_by",
+       "attacker": {
+        "spirit_type": "Birdfolk",
+        "level_max": 1
+       },
+       "blocker": {
+        "level_min": 2,
+        "level_max": 2
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "Your LV1 Birdfolk spirits cannot be blocked by your opponent's LV2 spirits.",
+     "during": "your_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-025",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "name": "Great Eagle Thiazi",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Fabled Beast"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Select one of your opponent's spirits. It gets -2000 BP this turn.\n[LV3] During Your Attack Step: Your LV1 Birdfolk spirits cannot be blocked by your opponent's LV2 spirits."
+  },
+  {
+   "based_on": "PR-026",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "scope": "your_turn",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "vanilla": true
+        }
+       }
+      }
+     ],
+     "header": "During Your End Step",
+     "text": "At the start of the step, refresh all of your spirits with no effects listed.",
+     "step": "end"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-026",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    }
+   ],
+   "name": "Tankmobile Hetzer",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Mecha"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV2] During Your End Step: At the start of the step, refresh all of your spirits with no effects listed."
+  },
+  {
+   "based_on": "PR-027",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 7,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "returned_to_hand",
+     "scope": "opponent_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay a soul core to refresh this spirit?",
+       "labels": [
+        "Pay",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "pay_soul"
+          },
+          {
+           "op": "refresh",
+           "target": {
+            "zone": "self"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "",
+     "text": "When one of your opponent's spirits is returned to their hand, you may pay a soul core to refresh this spirit.",
+     "condition": {
+      "type": "has_soul_core"
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 4000
+        }
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "Select one of your opponent's spirits with 4000 or fewer BP and return it to their hand."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-027",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 6000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 9000
+    }
+   ],
+   "name": "Divine Wargear Mega Tyr",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Android"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2] When one of your opponent's spirits is returned to their hand, you may pay a soul core to refresh this spirit.\n[LV2] When Blocks: Select one of your opponent's spirits with 4000 or fewer BP and return it to their hand."
+  },
+  {
+   "based_on": "PR-028",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When one of your Insectoid, Carapite or Greatbeetle spirits is destroyed, place a core from the void into your reserve.",
+     "trigger_filter": {
+      "spirit_types": [
+       "Insectoid",
+       "Carapite",
+       "Greatbeetle"
+      ]
+     },
+     "during": "your_attack_step"
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "spirit_types": [
+          "Insectoid",
+          "Carapite",
+          "Greatbeetle"
+         ]
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Refresh all of your Insectoid, Carapite and Greatbeetle spirits."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-028",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 8000
+    }
+   ],
+   "name": "Ghost Mantis",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Insectoid"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "[LV1][LV2] During Your Attack Step: When one of your Insectoid, Carapite or Greatbeetle spirits is destroyed, place a core from the void into your reserve.\n[LV2] When Destroyed: Refresh all of your Insectoid, Carapite and Greatbeetle spirits."
+  },
+  {
+   "based_on": "PR-029",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Gale",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [],
+     "header": "Gale 1",
+     "text": "When this spirit attacks, exhaust up to 1 of your opponent's spirits.",
+     "keyword_value": 1
+    },
+    {
+     "kind": "triggered",
+     "timing": "gale_exhausted",
+     "scope": "opponent_spirits",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": false
+        }
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When one of your opponent's spirits is exhausted by a Gale effect, select one of your opponent's spirits and exhaust it.",
+     "during": "your_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-029",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "name": "Air Commodore Gragn",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Preybird"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "[LV1][LV2] Gale 1 (When this spirit attacks, exhaust up to 1 of your opponent's spirits.)\n[LV2] During Your Attack Step: When one of your opponent's spirits is exhausted by a Gale effect, select one of your opponent's spirits and exhaust it."
+  },
+  {
+   "based_on": "PR-030",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Exhaust one of your nexuses to place a core from the void on it?",
+       "labels": [
+        "Do it",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "exhaust",
+           "target": {
+            "controller": "self",
+            "zone": "field",
+            "card_type": "nexus",
+            "count": 1,
+            "filters": {
+             "exhausted": false
+            }
+           }
+          },
+          {
+           "op": "add_core_from_void",
+           "amount": 1,
+           "target": {
+            "zone": "last_target"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Attacks",
+     "text": "You may exhaust one of your nexuses to place a core from the void onto the nexus you exhausted.",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "nexus",
+       "filters": {
+        "exhausted": false
+       }
+      }
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "battle_destroy",
+     "scope": "self",
+     "levels": [
+      3
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 1,
+        "filters": {
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "When this spirit destroys one of your opponent's spirits by comparing BP, select one of your nexuses and refresh it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-030",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 6000
+    }
+   ],
+   "name": "Galadbolg",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Golem"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "text": "[LV2][LV3] When Attacks: You may exhaust one of your nexuses to place a core from the void onto the nexus you exhausted.\n[LV3] While This Spirit Attacks: When this spirit destroys one of your opponent's spirits by comparing BP, select one of your nexuses and refresh it."
+  },
+  {
+   "based_on": "PR-031",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Crush +1",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.",
+     "keyword_value": 1
+    },
+    {
+     "kind": "triggered",
+     "timing": "crush_milled_magic",
+     "scope": "you",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      },
+      {
+       "op": "discard",
+       "amount": 1
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When a magic card is discarded by your Crush effect, draw a card. Then, discard a card.",
+     "during": "your_attack_step"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-031",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 8000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 10000
+    }
+   ],
+   "name": "Explosive Giant Douglas",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "blue",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "War God"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "text": "[LV1][LV2][LV3] Crush +1 (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.)\n[LV2][LV3] During Your Attack Step: When a magic card is discarded by your Crush effect, draw a card. Then, discard a card."
+  },
+  {
+   "based_on": "PR-032",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 7,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "bp_max": 3000
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Destroy all of your opponent's spirits with 3000 or fewer BP."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "bp_max": 5000
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits with 5000 or fewer BP and destroy it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-032",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 9000
+    }
+   ],
+   "name": "Overlord Dragon Vandalizer",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Ancient Dragon"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2] When Summoned: Destroy all of your opponent's spirits with 3000 or fewer BP.\n[LV2] When Attacks: Select one of your opponent's spirits with 5000 or fewer BP and destroy it."
+  },
+  {
+   "based_on": "PR-033",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 1,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "keyword": "Ascend"
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Select a spirit card with Ascend from your trash and return it to your hand."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-033",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "name": "Shamshirsar",
+   "our_version": "",
+   "reduction_symbols": [],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Reptoid"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV2] When Destroyed: Select a spirit card with Ascend from your trash and return it to your hand."
+  },
+  {
+   "based_on": "PR-034",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "exhausted": true,
+         "cost_max": 2
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Destroy all of your opponent's exhausted spirits that cost 2 or fewer."
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Curse",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Curse",
+     "text": "If an opposing spirit blocks this spirit, destroy that blocker when the battle ends."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-034",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "name": "Dark Knight Kay",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Shadow"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2][LV3] When Destroyed: Destroy all of your opponent's exhausted spirits that cost 2 or fewer.\n[LV2][LV3] Curse (If an opposing spirit blocks this spirit, destroy that blocker when the battle ends.)"
+  },
+  {
+   "based_on": "PR-035",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 0,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "cannot_attack",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "This spirit cannot attack unless one of your spirits has been destroyed this turn.",
+     "during": "your_attack_step",
+     "condition": {
+      "not": {
+       "type": "turn_flag",
+       "flag": "spirit_destroyed"
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-035",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    }
+   ],
+   "name": "Gemhead Pigeon",
+   "our_version": "",
+   "reduction_symbols": [],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Undead"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2] During Your Attack Step: This spirit cannot attack unless one of your spirits has been destroyed this turn."
+  },
+  {
+   "based_on": "PR-036",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "unblockable_by",
+       "attacker": {
+        "is_source": true,
+        "is_attacking": true
+       },
+       "blocker": {}
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "This spirit cannot be blocked if you control a spirit with Ascend.",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "spirit",
+       "filters": {
+        "keyword": "Ascend"
+       }
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-036",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "name": "Nekomatador",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Fabled Beast"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV2][LV3] While This Spirit Attacks: This spirit cannot be blocked if you control a spirit with Ascend."
+  },
+  {
+   "based_on": "PR-037",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 2,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Luster",
+       "target": {
+        "zone": "self"
+       },
+       "duration": "turn"
+      }
+     ],
+     "header": "When Summoned",
+     "text": "This spirit gains Luster this turn."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-037",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "name": "Unwise Scarecrow",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Toy"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV1][LV2] When Summoned: This spirit gains Luster this turn."
+  },
+  {
+   "based_on": "PR-038",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "symbols_exactly": 1
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits with one symbol and return it to their hand."
+    },
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "scope": "your_turn",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your End Step",
+     "text": "At the start of the step, refresh this spirit if you control a spirit with Ascend.",
+     "step": "end",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "spirit",
+       "filters": {
+        "keyword": "Ascend"
+       }
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-038",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 7000
+    }
+   ],
+   "name": "Mecharmor Fortress Sawback Turtle",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Machine Beast",
+    "Armored Beast"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2] When Summoned: Select one of your opponent's spirits with one symbol and return it to their hand.\n[LV2] During Your End Step: At the start of the step, refresh this spirit if you control a spirit with Ascend."
+  },
+  {
+   "based_on": "PR-039",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 2,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Armor: Red / White",
+     "text": "This spirit cannot be selected by your opponent's Red or White effects.",
+     "keyword_value": [
+      "red",
+      "white"
+     ]
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "keyword": "Armor",
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed By Opponent",
+     "text": "Select one of your spirits with Armor and refresh it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-039",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 4000
+    }
+   ],
+   "name": "Little Vicken",
+   "our_version": "",
+   "reduction_symbols": [
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Construct",
+    "Android"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2][LV3] Armor: Red / White (This spirit cannot be selected by your opponent's Red or White effects.)\n[LV2][LV3] When Destroyed By Opponent: Select one of your spirits with Armor and refresh it."
+  },
+  {
+   "based_on": "PR-040",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "activated",
+     "timing": "keyword",
+     "keyword": "Swift",
+     "levels": [],
+     "directives": [],
+     "header": "Swift",
+     "text": "You may summon this spirit during flash timing, paying only with cores from your reserve."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "If you control a spirit with Ascend, select one of your opponent's spirits and exhaust it.",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "spirit",
+       "filters": {
+        "keyword": "Ascend"
+       }
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-040",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    }
+   ],
+   "name": "Shinobi Sage Udoh",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Preybird"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "Swift (You may summon this spirit during flash timing, paying only with cores from your reserve.)\n[LV1][LV2] When Summoned: If you control a spirit with Ascend, select one of your opponent's spirits and exhaust it."
+  },
+  {
+   "based_on": "PR-041",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Gale",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [],
+     "header": "Gale 1",
+     "text": "When this spirit attacks, exhaust up to 1 of your opponent's spirits.",
+     "keyword_value": 1
+    },
+    {
+     "kind": "triggered",
+     "timing": "dealt_damage",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1,
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "Place a core from the void onto this spirit when its attack reduces your opponent's life."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-041",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Saizogrizz",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Bladebeast"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "[LV1][LV2] Gale 1 (When this spirit attacks, exhaust up to 1 of your opponent's spirits.)\n[LV2] While This Spirit Attacks: Place a core from the void onto this spirit when its attack reduces your opponent's life."
+  },
+  {
+   "based_on": "PR-042",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 7,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Raid",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "is_token": true,
+         "name_contains": "Golem"
+        }
+       },
+       "value": 1
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "All of your Golem Tokens gain Raid 1.",
+     "during": "your_attack_step"
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "destroy",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 3
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits that costs 3 or fewer and destroy it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-042",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 10000
+    }
+   ],
+   "name": "Wizened General Dogu Golem",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "blue",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Golem"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "text": "[LV1][LV2][LV3] During Your Attack Step: All of your Golem Tokens gain Raid 1.\n[LV2][LV3] When Attacks: Select one of your opponent's spirits that costs 3 or fewer and destroy it."
+  },
+  {
+   "based_on": "PR-043",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "mill",
+       "amount": 5,
+       "player": "opponent"
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When one of your spirits with Ascend attacks, discard the top five cards of your opponent's deck.",
+     "trigger_filter": {
+      "keyword": "Ascend"
+     },
+     "during": "your_attack_step"
+    },
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Crush",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Crush +1",
+     "text": "When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.",
+     "keyword_value": 1
+    }
+   ],
+   "flavor": "",
+   "id": "PR-043",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "name": "Tsathoggua",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Aberration"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "text": "[LV1][LV2][LV3] During Your Attack Step: When one of your spirits with Ascend attacks, discard the top five cards of your opponent's deck.\n[LV2][LV3] Crush +1 (When this spirit attacks, send cards from the top of your opponent's deck to their trash equal to this spirit's level +1.)"
+  },
+  {
+   "based_on": "PR-044",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "set_level",
+       "level": 3,
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "",
+     "text": "If you have two or fewer spirits, this spirit is treated as LV3.",
+     "condition": {
+      "not": {
+       "type": "controls",
+       "amount": 3,
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit"
+       }
+      }
+     }
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Astral",
+     "levels": [
+      3
+     ],
+     "directives": [],
+     "header": "During Your Turn: Astral",
+     "text": "This spirit cannot be blocked by your opponent's spirits without Astral."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-044",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 8000
+    }
+   ],
+   "name": "Drago Claw",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skybinder",
+    "Dragonoid"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2][LV3] If you have two or fewer spirits, this spirit is treated as LV3.\n[LV3] During Your Turn: Astral (This spirit cannot be blocked by your opponent's spirits without Astral.)"
+  },
+  {
+   "based_on": "PR-045",
+   "card_type": "spirit",
+   "colors": [
+    "red",
+    "purple"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "set_flag",
+       "flag": "no_block",
+       "duration": "while_attacking",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_max": 7
+        }
+       },
+       "optional": true
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When this spirit or one of your red or purple spirits with a soul core on it attacks, you may select one of your opponent's spirits that costs 7 or fewer. It cannot block during this battle. (This effect does not duplicate.)",
+     "during": "your_attack_step",
+     "trigger_filter": {
+      "any_of": [
+       {
+        "card_type": "spirit",
+        "filters": {
+         "is_source": true
+        }
+       },
+       {
+        "card_type": "spirit",
+        "filters": {
+         "color_any": [
+          "red",
+          "purple"
+         ],
+         "has_soul": true
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-045",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Venom Raptor",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Terrasaur"
+   ],
+   "symbols": [
+    "red|purple"
+   ],
+   "text": "[LV1][LV2] During Your Attack Step: When this spirit or one of your red or purple spirits with a soul core on it attacks, you may select one of your opponent's spirits that costs 7 or fewer. It cannot block during this battle. (This effect does not duplicate.)"
+  },
+  {
+   "based_on": "PR-046",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Astral",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "",
+     "text": "If one of your spirits has been destroyed this turn, this spirit gains Astral.",
+     "condition": {
+      "type": "turn_flag",
+      "flag": "spirit_destroyed"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-046",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "name": "Crestcaster Uwabami-no-Tsukasa",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skybinder",
+    "Serpent"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2] If one of your spirits has been destroyed this turn, this spirit gains Astral."
+  },
+  {
+   "based_on": "PR-047",
+   "card_type": "spirit",
+   "colors": [
+    "purple",
+    "yellow"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "keyword",
+     "keyword": "Curse",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Curse",
+     "text": "If an opposing spirit blocks this spirit, destroy that blocker when the battle ends."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "exhausted": true
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's exhausted spirits. Remove a core from it and place it into their reserve. Chain: Yellow - select a spirit card that costs 2 from your trash and summon it without paying its cost.",
+     "chain": {
+      "condition": "yellow",
+      "header": "Chain: Yellow",
+      "text": "",
+      "kind": "triggered",
+      "timing": "on_attack",
+      "levels": [
+       2,
+       3
+      ],
+      "directives": [
+       {
+        "op": "summon_from",
+        "free": true,
+        "target": {
+         "controller": "self",
+         "zone": "trash",
+         "card_type": "spirit",
+         "count": 1,
+         "filters": {
+          "cost_min": 2,
+          "cost_max": 2
+         }
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-047",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "name": "Death Swordfighter Dullabone",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Undead"
+   ],
+   "symbols": [
+    "purple|yellow"
+   ],
+   "text": "[LV1][LV2][LV3] Curse (If an opposing spirit blocks this spirit, destroy that blocker when the battle ends.)\n[LV2][LV3] When Attacks: Select one of your opponent's exhausted spirits. Remove a core from it and place it into their reserve. Chain: Yellow - select a spirit card that costs 2 from your trash and summon it without paying its cost."
+  },
+  {
+   "based_on": "PR-048",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": -3000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits. It gets -3000 BP this turn."
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Astral",
+     "levels": [
+      3
+     ],
+     "directives": [],
+     "header": "During Your Turn: Astral",
+     "text": "This spirit cannot be blocked by your opponent's spirits without Astral."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-048",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Pegasus Angel",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skybinder",
+    "Angel"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV1][LV2][LV3] When Summoned: Select one of your opponent's spirits. It gets -3000 BP this turn.\n[LV3] During Your Turn: Astral (This spirit cannot be blocked by your opponent's spirits without Astral.)"
+  },
+  {
+   "based_on": "PR-049",
+   "card_type": "spirit",
+   "colors": [
+    "yellow",
+    "white"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "magic_used",
+     "scope": "you",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": -2000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "During Your Turn",
+     "text": "When you use a white magic card from your hand, after it resolves, select one of your opponent's spirits. It gets -2000 BP this turn.",
+     "trigger_filter": {
+      "color": "white"
+     },
+     "during": "your_turn"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-049",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 1000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 2000
+    },
+    {
+     "level": 3,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "name": "Missile Squirrel",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Machine Beast"
+   ],
+   "symbols": [
+    "yellow|white"
+   ],
+   "text": "[LV2][LV3] During Your Turn: When you use a white magic card from your hand, after it resolves, select one of your opponent's spirits. It gets -2000 BP this turn."
+  },
+  {
+   "based_on": "PR-050",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "returned_to_hand",
+     "scope": "opponent_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Astral",
+       "target": {
+        "zone": "self"
+       },
+       "duration": "turn"
+      }
+     ],
+     "header": "During Either Attack Step",
+     "text": "When one of your opponent's spirits is returned to their hand or deck, this spirit gains Astral this turn.",
+     "during": "either_attack_step"
+    },
+    {
+     "kind": "triggered",
+     "timing": "returned_to_deck",
+     "scope": "opponent_spirits",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Astral",
+       "target": {
+        "zone": "self"
+       },
+       "duration": "turn"
+      }
+     ],
+     "header": "During Either Attack Step",
+     "text": "(The same, when it is returned to their deck.)",
+     "during": "either_attack_step"
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      2
+     ],
+     "directives": [],
+     "header": "Armor: White / Green / Blue",
+     "text": "This spirit cannot be selected by your opponent's White or Green or Blue effects.",
+     "keyword_value": [
+      "white",
+      "green",
+      "blue"
+     ]
+    }
+   ],
+   "flavor": "",
+   "id": "PR-050",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 8000
+    }
+   ],
+   "name": "Killer Machine Half",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skybinder",
+    "Mecha"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2] During Either Attack Step: When one of your opponent's spirits is returned to their hand or deck, this spirit gains Astral this turn.\n[LV1][LV2] During Either Attack Step: (The same, when it is returned to their deck.)\n[LV2] Armor: White / Green / Blue (This spirit cannot be selected by your opponent's White or Green or Blue effects.)"
+  },
+  {
+   "based_on": "PR-051",
+   "card_type": "spirit",
+   "colors": [
+    "white",
+    "green"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "summon_token",
+       "token": {
+        "name": "Mecha Leaf Kindred Token",
+        "card_type": "spirit",
+        "colors": [
+         "white",
+         "green"
+        ],
+        "cost": 0,
+        "spirit_types": [
+         "Mecha",
+         "Leaf Kindred",
+         "Token"
+        ],
+        "symbols": [
+         [
+          "white",
+          "green"
+         ]
+        ],
+        "levels": [
+         {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 2000
+         }
+        ]
+       },
+       "exhausted": true
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Summon a Mecha Leaf Kindred Token (white/green, cost 0, Mecha/Leaf Kindred/Token, LV1 1 core, 2000 BP), exhausted."
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1,
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "is_token": true
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Select one of your token spirits and place a core from the void onto it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-051",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "name": "Winterfae Budmium",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Leaf Kindred"
+   ],
+   "symbols": [
+    "white|green"
+   ],
+   "text": "[LV1][LV2] When Summoned: Summon a Mecha Leaf Kindred Token (white/green, cost 0, Mecha/Leaf Kindred/Token, LV1 1 core, 2000 BP), exhausted.\n[LV2] When Destroyed: Select one of your token spirits and place a core from the void onto it."
+  },
+  {
+   "based_on": "PR-052",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Astral",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Opponent's Turn",
+     "text": "This spirit gains Astral.",
+     "during": "opponent_turn"
+    },
+    {
+     "kind": "triggered",
+     "timing": "blocked",
+     "scope": "your_spirits",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "During Your Turn",
+     "text": "When one of your Skybinder spirits is blocked, select one of your opponent's spirits and exhaust it.",
+     "trigger_filter": {
+      "spirit_type": "Skybinder"
+     },
+     "during": "your_turn"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-052",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Bladewolf Gray",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skybinder",
+    "Bladebeast"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "[LV1][LV2] During Opponent's Turn: This spirit gains Astral.\n[LV2] During Your Turn: When one of your Skybinder spirits is blocked, select one of your opponent's spirits and exhaust it."
+  },
+  {
+   "based_on": "PR-053",
+   "card_type": "spirit",
+   "colors": [
+    "green",
+    "blue"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_min": 5
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your opponent's spirits that costs 5 or more and exhaust it. Chain: Blue - the spirit exhausted by this effect does not refresh during your opponent's next refresh step.",
+     "chain": {
+      "condition": "blue",
+      "header": "Chain: Blue",
+      "text": "",
+      "kind": "triggered",
+      "timing": "on_summon",
+      "levels": [
+       1,
+       2
+      ],
+      "directives": [
+       {
+        "op": "set_flag",
+        "flag": "skip_refresh",
+        "target": {
+         "zone": "last_target"
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-053",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    }
+   ],
+   "name": "Waterbug Beetlegrass",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Insectoid"
+   ],
+   "symbols": [
+    "green|blue"
+   ],
+   "text": "[LV1][LV2] When Summoned: Select one of your opponent's spirits that costs 5 or more and exhaust it. Chain: Blue - the spirit exhausted by this effect does not refresh during your opponent's next refresh step."
+  },
+  {
+   "based_on": "PR-054",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "set_level",
+       "level": 3,
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Turn",
+     "text": "If you control three or more nexuses, this spirit is treated as LV3.",
+     "during": "your_turn",
+     "condition": {
+      "type": "controls",
+      "amount": 3,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "nexus"
+      }
+     }
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Astral",
+     "levels": [
+      3
+     ],
+     "directives": [],
+     "header": "Astral",
+     "text": "This spirit cannot be blocked by your opponent's spirits without Astral."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-054",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 8000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 10000
+    }
+   ],
+   "name": "Crumbling Golem",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skybinder",
+    "Golem"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "text": "[LV1][LV2][LV3] During Your Turn: If you control three or more nexuses, this spirit is treated as LV3.\n[LV3] Astral (This spirit cannot be blocked by your opponent's spirits without Astral.)"
+  },
+  {
+   "based_on": "PR-055",
+   "card_type": "spirit",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "magic_used",
+     "scope": "opponent",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1
+      }
+     ],
+     "header": "",
+     "text": "When your opponent uses a magic card from their hand, after it resolves place a core from the void into your reserve. Chain: Red - select one of your opponent's spirits with 3000 or fewer BP and destroy it.",
+     "chain": {
+      "condition": "red",
+      "header": "Chain: Red",
+      "text": "",
+      "kind": "triggered",
+      "timing": "magic_used",
+      "levels": [
+       1,
+       2
+      ],
+      "directives": [
+       {
+        "op": "destroy",
+        "target": {
+         "controller": "opponent",
+         "zone": "field",
+         "card_type": "spirit",
+         "count": 1,
+         "filters": {
+          "bp_max": 3000
+         }
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-055",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 5000
+    }
+   ],
+   "name": "Minoctopus",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Aberration"
+   ],
+   "symbols": [
+    "blue|red"
+   ],
+   "text": "[LV1][LV2] When your opponent uses a magic card from their hand, after it resolves place a core from the void into your reserve. Chain: Red - select one of your opponent's spirits with 3000 or fewer BP and destroy it."
+  },
+  {
+   "based_on": "PR-056",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 2,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "draw",
+       "amount": 1
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Draw a card if your opponent controls no refreshed spirits.",
+     "condition": {
+      "not": {
+       "type": "controls",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "filters": {
+         "exhausted": false
+        }
+       }
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-056",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 5000
+    }
+   ],
+   "name": "Beavurn",
+   "our_version": "",
+   "reduction_symbols": [
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Emperor Beast"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV2][LV3] When Attacks: Draw a card if your opponent controls no refreshed spirits."
+  },
+  {
+   "based_on": "PR-057",
+   "card_type": "spirit",
+   "colors": [
+    "red",
+    "purple"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "delayed_trigger",
+       "timing": "when_destroyed",
+       "scope": "opponent_spirits",
+       "duration": "turn",
+       "once": true,
+       "condition": {
+        "type": "destroyer",
+        "controller": "self"
+       },
+       "directives": [
+        {
+         "op": "draw",
+         "amount": 2
+        }
+       ]
+      }
+     ],
+     "header": "When Summoned",
+     "text": "The next time you destroy one of your opponent's spirits this turn, draw two cards."
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Confront",
+     "levels": [
+      2
+     ],
+     "directives": [],
+     "header": "Confront",
+     "text": "While this spirit attacks, your opponent must block with a spirit if able."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-057",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 8000
+    }
+   ],
+   "name": "Blackblade Dragon Rexbeat Saurer",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Terrasaur"
+   ],
+   "symbols": [
+    "red|purple"
+   ],
+   "text": "[LV1][LV2] When Summoned: The next time you destroy one of your opponent's spirits this turn, draw two cards.\n[LV2] Confront (While this spirit attacks, your opponent must block with a spirit if able.)"
+  },
+  {
+   "based_on": "PR-058",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "If your opponent controls two or more spirits, select one of their spirits. Remove a core from it and place it into their reserve.",
+     "condition": {
+      "type": "controls",
+      "amount": 2,
+      "target": {
+       "controller": "opponent",
+       "zone": "field",
+       "card_type": "spirit"
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-058",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 3000
+    }
+   ],
+   "name": "Black Knight Schwart",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Shadow"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2] When Summoned: If your opponent controls two or more spirits, select one of their spirits. Remove a core from it and place it into their reserve."
+  },
+  {
+   "based_on": "PR-059",
+   "card_type": "spirit",
+   "colors": [
+    "purple",
+    "yellow"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "unblockable_by",
+       "attacker": {
+        "is_source": true,
+        "is_attacking": true
+       },
+       "blocker": {
+        "cores_max": 1
+       }
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "This spirit cannot be blocked by your opponent's spirits with only one core on them."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "remove_cores",
+       "amount": 1,
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "cost_min": 5
+        }
+       },
+       "per": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "cost_min": 2,
+         "cost_max": 2
+        }
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Select one of your opponent's spirits that costs 5 or more. For each spirit card that costs 2 in your trash, remove a core from it and place it into their reserve."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-059",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 7000
+    }
+   ],
+   "name": "Yellowsmoke Tiger",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Spirit Beast"
+   ],
+   "symbols": [
+    "purple|yellow"
+   ],
+   "text": "[LV1][LV2][LV3] While This Spirit Attacks: This spirit cannot be blocked by your opponent's spirits with only one core on them.\n[LV2][LV3] When Attacks: Select one of your opponent's spirits that costs 5 or more. For each spirit card that costs 2 in your trash, remove a core from it and place it into their reserve."
+  },
+  {
+   "based_on": "PR-060",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "opponent_spirits",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "return_to_hand",
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "magic",
+        "count": 1
+       }
+      }
+     ],
+     "header": "During Your Attack Step",
+     "text": "When one of your opponent's spirits is destroyed by having its BP reduced to 0, select a magic card from your trash and return it to your hand.",
+     "during": "your_attack_step",
+     "condition": {
+      "type": "destroyed_by_zero_bp"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-060",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 2,
+     "bp": 3000
+    },
+    {
+     "level": 3,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "name": "Stardog Pomeran",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Frolicker"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV2][LV3] During Your Attack Step: When one of your opponent's spirits is destroyed by having its BP reduced to 0, select a magic card from your trash and return it to your hand."
+  },
+  {
+   "based_on": "PR-061",
+   "card_type": "spirit",
+   "colors": [
+    "yellow",
+    "white"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_block",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": -3000,
+       "duration": "turn",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "When Blocks",
+     "text": "Select one of your opponent's spirits. It gets -3000 BP this turn."
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "summon_from",
+       "free": true,
+       "optional": true,
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "color": "white",
+         "cost_max": 4
+        }
+       }
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "You may select a white spirit card that costs 4 or fewer from your trash and summon it without paying its cost."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-061",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    },
+    {
+     "level": 3,
+     "core_cost": 4,
+     "bp": 6000
+    }
+   ],
+   "name": "Sage Beast Sphinx",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Fabled Beast"
+   ],
+   "symbols": [
+    "yellow|white"
+   ],
+   "text": "[LV1][LV2][LV3] When Blocks: Select one of your opponent's spirits. It gets -3000 BP this turn.\n[LV2][LV3] When Destroyed: You may select a white spirit card that costs 4 or fewer from your trash and summon it without paying its cost."
+  },
+  {
+   "based_on": "PR-062",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "magic_used",
+     "scope": "you",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "refresh",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Opponent's Attack Step",
+     "text": "Refresh this spirit when you use a magic card.",
+     "during": "opponent_attack_step"
+    },
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Armor",
+     "levels": [
+      2
+     ],
+     "directives": [],
+     "header": "Armor: Red / Yellow",
+     "text": "This spirit cannot be selected by your opponent's Red or Yellow effects.",
+     "keyword_value": [
+      "red",
+      "yellow"
+     ]
+    }
+   ],
+   "flavor": "",
+   "id": "PR-062",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 8000
+    }
+   ],
+   "name": "Reddeer Guard",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Android"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "[LV1][LV2] During Opponent's Attack Step: Refresh this spirit when you use a magic card.\n[LV2] Armor: Red / Yellow (This spirit cannot be selected by your opponent's Red or Yellow effects.)"
+  },
+  {
+   "based_on": "PR-063",
+   "card_type": "spirit",
+   "colors": [
+    "white",
+    "green"
+   ],
+   "cost": 7,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "add_bp",
+       "amount": 10000,
+       "duration": "turn",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true,
+        "filters": {
+         "is_token": true
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "All of your token spirits get +10000 BP this turn."
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "summon_token",
+       "token": {
+        "name": "Mecha Leaf Kindred Token",
+        "card_type": "spirit",
+        "colors": [
+         "white",
+         "green"
+        ],
+        "cost": 0,
+        "spirit_types": [
+         "Mecha",
+         "Leaf Kindred",
+         "Token"
+        ],
+        "symbols": [
+         [
+          "white",
+          "green"
+         ]
+        ],
+        "levels": [
+         {
+          "level": 1,
+          "core_cost": 1,
+          "bp": 2000
+         }
+        ]
+       },
+       "per": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "nexus",
+        "count": 0
+       }
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Summon a Mecha Leaf Kindred Token for each nexus you control."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-063",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 6000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 10000
+    }
+   ],
+   "name": "Machine Brute Mega Therium",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white",
+    "green",
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Machine Beast",
+    "Giant Beast"
+   ],
+   "symbols": [
+    "white|green"
+   ],
+   "text": "[LV1][LV2] When Summoned: All of your token spirits get +10000 BP this turn.\n[LV2] When Destroyed: Summon a Mecha Leaf Kindred Token for each nexus you control."
+  },
+  {
+   "based_on": "PR-064",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 3,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Exhaust one of your token spirits or nexuses to exhaust one of your opponent's spirits?",
+       "labels": [
+        "Do it",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "exhaust",
+           "target": {
+            "controller": "self",
+            "zone": "field",
+            "card_type": [
+             "spirit",
+             "nexus"
+            ],
+            "count": 1,
+            "filters": {
+             "exhausted": false,
+             "any_of": [
+              {
+               "card_type": "spirit",
+               "filters": {
+                "is_token": true
+               }
+              },
+              {
+               "card_type": "nexus",
+               "filters": {}
+              }
+             ]
+            }
+           }
+          },
+          {
+           "op": "exhaust",
+           "target": {
+            "controller": "opponent",
+            "zone": "field",
+            "card_type": "spirit",
+            "count": 1
+           },
+           "if": {
+            "type": "frame_flag",
+            "flag": "last_target"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Attacks",
+     "text": "You may exhaust one of your token spirits or nexuses to select one of your opponent's spirits and exhaust it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-064",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 2000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 4000
+    }
+   ],
+   "name": "Kunoichi Joro",
+   "our_version": "",
+   "reduction_symbols": [
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Insectoid"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "[LV1][LV2] When Attacks: You may exhaust one of your token spirits or nexuses to select one of your opponent's spirits and exhaust it."
+  },
+  {
+   "based_on": "PR-065",
+   "card_type": "spirit",
+   "colors": [
+    "green",
+    "blue"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Discard a nexus card to draw until your hand matches your opponent's?",
+       "labels": [
+        "Discard",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "discard",
+           "amount": 1,
+           "card_type": "nexus"
+          },
+          {
+           "op": "draw",
+           "amount": 1,
+           "until_opponent_hand": true,
+           "if": {
+            "type": "frame_flag",
+            "flag": "discarded"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Summoned",
+     "text": "You may discard a nexus card to draw cards until you have as many cards in your hand as your opponent.",
+     "condition": {
+      "type": "hand_has",
+      "card_type": "nexus"
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "exhaust",
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1
+       },
+       "chooser": "opponent"
+      }
+     ],
+     "header": "When Destroyed",
+     "text": "Your opponent selects one of their spirits. Exhaust it."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-065",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    }
+   ],
+   "name": "Lucky Cat",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Bladebeast"
+   ],
+   "symbols": [
+    "green|blue"
+   ],
+   "text": "[LV1][LV2] When Summoned: You may discard a nexus card to draw cards until you have as many cards in your hand as your opponent.\n[LV2] When Destroyed: Your opponent selects one of their spirits. Exhaust it."
+  },
+  {
+   "based_on": "PR-066",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "nexus_exhausted",
+     "scope": "your_spirits",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1,
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "During Your Turn",
+     "text": "When one of your nexuses is exhausted, place a core from the void onto this spirit.",
+     "during": "your_turn"
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Exhaust one of your nexuses to destroy one of your opponent's nexuses?",
+       "labels": [
+        "Do it",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "exhaust",
+           "target": {
+            "controller": "self",
+            "zone": "field",
+            "card_type": "nexus",
+            "count": 1,
+            "filters": {
+             "exhausted": false
+            }
+           }
+          },
+          {
+           "op": "destroy",
+           "target": {
+            "controller": "opponent",
+            "zone": "field",
+            "card_type": "nexus",
+            "count": 1
+           },
+           "if": {
+            "type": "frame_flag",
+            "flag": "last_target"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Attacks",
+     "text": "You may exhaust one of your nexuses to select one of your opponent's nexuses and destroy it.",
+     "condition": {
+      "type": "controls",
+      "amount": 1,
+      "target": {
+       "controller": "self",
+       "zone": "field",
+       "card_type": "nexus",
+       "filters": {
+        "exhausted": false
+       }
+      }
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-066",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 6000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 8000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 10000
+    }
+   ],
+   "name": "Nautilus Golem",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "blue",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Golem"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "text": "[LV1][LV2][LV3] During Your Turn: When one of your nexuses is exhausted, place a core from the void onto this spirit.\n[LV2] When Attacks: You may exhaust one of your nexuses to select one of your opponent's nexuses and destroy it."
+  },
+  {
+   "based_on": "PR-067",
+   "card_type": "spirit",
+   "colors": [
+    "blue",
+    "red"
+   ],
+   "cost": 4,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "card_discarded",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay this card's cost to summon it?",
+       "labels": [
+        "Summon",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "summon_self_from_trash"
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "",
+     "text": "When this card is discarded from your hand, you may pay its cost and summon it.",
+     "from_hand": true,
+     "from_trash": true
+    },
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      2
+     ],
+     "directives": [
+      {
+       "op": "grant_keyword",
+       "keyword": "Raid",
+       "target": {
+        "zone": "self"
+       },
+       "value": 1
+      }
+     ],
+     "header": "",
+     "text": "If your opponent has three or more magic cards in their trash, this spirit gains Raid 1.",
+     "condition": {
+      "type": "trash_count",
+      "player": "opponent",
+      "amount": 3,
+      "card_type": "magic"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-067",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 3000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 5000
+    }
+   ],
+   "name": "Bard Orphe",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "War God"
+   ],
+   "symbols": [
+    "blue|red"
+   ],
+   "text": "When this card is discarded from your hand, you may pay its cost and summon it.\n[LV2] If your opponent has three or more magic cards in their trash, this spirit gains Raid 1."
+  },
+  {
+   "based_on": "PR-069",
+   "card_type": "spirit",
+   "colors": [
+    "red"
+   ],
+   "cost": 7,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "keyword",
+     "keyword": "Astral",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [],
+     "header": "Astral",
+     "text": "This spirit cannot be blocked by your opponent's spirits without Astral."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Pay a soul core to discard the top card of your deck?",
+       "labels": [
+        "Pay",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "pay_soul"
+          },
+          {
+           "op": "mill_count",
+           "amount": 1,
+           "player": "self",
+           "card_type": "",
+           "filters": {
+            "spirit_types": [
+             "Skybinder",
+             "Star Dragon",
+             "Dragonoid",
+             "Emperor Beast"
+            ]
+           }
+          },
+          {
+           "op": "life_loss",
+           "player": "opponent",
+           "amount": 1,
+           "if": {
+            "type": "frame_flag",
+            "flag": "milled_hits"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Attacks",
+     "text": "You may pay a soul core to discard the top card of your deck. If it is a Skybinder, Star Dragon, Dragonoid or Emperor Beast card, place a core from your opponent's life into their reserve.",
+     "condition": {
+      "type": "has_soul_core"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-069",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 6000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 8000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 12000
+    }
+   ],
+   "name": "Fulldragon Skybinder Zmeitza",
+   "our_version": "",
+   "reduction_symbols": [
+    "red",
+    "red",
+    "red",
+    "red"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Skybinder",
+    "Star Dragon"
+   ],
+   "symbols": [
+    "red"
+   ],
+   "text": "[LV1][LV2][LV3] Astral (This spirit cannot be blocked by your opponent's spirits without Astral.)\n[LV2][LV3] When Attacks: You may pay a soul core to discard the top card of your deck. If it is a Skybinder, Star Dragon, Dragonoid or Emperor Beast card, place a core from your opponent's life into their reserve."
+  },
+  {
+   "based_on": "PR-070",
+   "card_type": "spirit",
+   "colors": [
+    "purple"
+   ],
+   "cost": 8,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Discard a card to use an effect?",
+       "labels": [
+        "Remove one core from each",
+        "Leave each with one core",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "discard",
+           "amount": 1
+          },
+          {
+           "op": "remove_cores",
+           "amount": 1,
+           "target": {
+            "controller": "opponent",
+            "zone": "field",
+            "card_type": "spirit",
+            "all": true
+           },
+           "if": {
+            "type": "frame_flag",
+            "flag": "discarded"
+           }
+          }
+         ]
+        },
+        {
+         "directives": [
+          {
+           "op": "discard",
+           "amount": 1
+          },
+          {
+           "op": "remove_cores",
+           "amount": 1,
+           "target": {
+            "controller": "opponent",
+            "zone": "field",
+            "card_type": "spirit",
+            "all": true
+           },
+           "leave": 1,
+           "if": {
+            "type": "frame_flag",
+            "flag": "discarded"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Attacks",
+     "text": "You may discard a card to use one of these: remove one core from each of your opponent's spirits and place them into their reserve; or remove all but one core from each of your opponent's spirits and place them into their reserve.",
+     "condition": {
+      "type": "hand_count",
+      "player": "self",
+      "amount": 1
+     }
+    },
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "scope": "opponent_turn",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "summon_from",
+       "free": true,
+       "optional": true,
+       "target": {
+        "controller": "self",
+        "zone": "trash",
+        "card_type": "spirit",
+        "count": 1
+       }
+      }
+     ],
+     "header": "During Opponent's End Step",
+     "text": "At the start of the step, you may select one spirit card from your trash and summon it without paying its cost.",
+     "step": "end"
+    }
+   ],
+   "flavor": "",
+   "id": "PR-070",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 7000
+    },
+    {
+     "level": 2,
+     "core_cost": 4,
+     "bp": 9000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 13000
+    }
+   ],
+   "name": "Mirror Deity Ouroborsha",
+   "our_version": "",
+   "reduction_symbols": [
+    "purple",
+    "purple",
+    "purple",
+    "purple",
+    "purple",
+    "purple"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Serpent"
+   ],
+   "symbols": [
+    "purple"
+   ],
+   "text": "[LV1][LV2][LV3] When Attacks: You may discard a card to use one of these: remove one core from each of your opponent's spirits and place them into their reserve; or remove all but one core from each of your opponent's spirits and place them into their reserve.\n[LV2][LV3] During Opponent's End Step: At the start of the step, you may select one spirit card from your trash and summon it without paying its cost."
+  },
+  {
+   "based_on": "PR-071",
+   "card_type": "spirit",
+   "colors": [
+    "yellow"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "constant",
+     "timing": "constant",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_spirit_type",
+       "spirit_type": "*",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "",
+     "text": "This spirit is treated as having all spirit types."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "select_target",
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "not_self_uid": true
+        }
+       }
+      },
+      {
+       "op": "add_bp",
+       "amount": -1000,
+       "duration": "turn",
+       "per": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 0,
+        "filters": {
+         "shares_family_with_last": true
+        }
+       },
+       "target": {
+        "controller": "opponent",
+        "zone": "field",
+        "card_type": "spirit",
+        "all": true
+       },
+       "if": {
+        "type": "frame_flag",
+        "flag": "last_target"
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your other spirits. This turn, all of your opponent's spirits get -1000 BP for each spirit you control that shares a spirit type with it."
+    },
+    {
+     "kind": "triggered",
+     "timing": "magic_used",
+     "scope": "you",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "retrigger_on_summon",
+       "target": {
+        "zone": "self"
+       }
+      }
+     ],
+     "header": "While This Spirit Attacks",
+     "text": "When you use a magic card from your hand, after it resolves activate this spirit's When Summoned effect.",
+     "condition": {
+      "type": "self_attacking"
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-071",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 9000
+    }
+   ],
+   "name": "Heavenly Gate Liberator Clavis",
+   "our_version": "",
+   "reduction_symbols": [
+    "yellow",
+    "yellow",
+    "yellow"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Angel"
+   ],
+   "symbols": [
+    "yellow"
+   ],
+   "text": "[LV1][LV2][LV3] This spirit is treated as having all spirit types.\n[LV1][LV2][LV3] When Summoned: Select one of your other spirits. This turn, all of your opponent's spirits get -1000 BP for each spirit you control that shares a spirit type with it.\n[LV2][LV3] While This Spirit Attacks: When you use a magic card from your hand, after it resolves activate this spirit's When Summoned effect."
+  },
+  {
+   "based_on": "PR-072",
+   "card_type": "spirit",
+   "colors": [
+    "white"
+   ],
+   "cost": 7,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "when_destroyed_by_opponent",
+     "scope": "self",
+     "levels": [],
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 3
+      },
+      {
+       "op": "trash_to_deck_bottom",
+       "player": "self"
+      }
+     ],
+     "header": "When Destroyed By Opponent",
+     "text": "Place three cores from the void into your reserve. Then, return all the cards in your trash other than this card to the bottom of your deck in any order."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "mill_count",
+       "amount": 5,
+       "player": "self",
+       "card_type": ""
+      },
+      {
+       "op": "set_symbols",
+       "colors": [
+        "white",
+        "white",
+        "white"
+       ],
+       "duration": "while_attacking",
+       "target": {
+        "zone": "self"
+       },
+       "if": {
+        "type": "frame_flag",
+        "flag": "milled_distinct"
+       }
+      }
+     ],
+     "header": "When Attacks",
+     "text": "Discard the top five cards of your deck. If they all have different card names, this spirit's symbol is treated as three white symbols during this battle."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-072",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 8000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 10000
+    }
+   ],
+   "name": "Hyperdimensional Diva Valkyries Calista & Lyra",
+   "our_version": "",
+   "reduction_symbols": [
+    "white",
+    "white",
+    "white",
+    "white"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Ice Princess"
+   ],
+   "symbols": [
+    "white"
+   ],
+   "text": "When Destroyed By Opponent: Place three cores from the void into your reserve. Then, return all the cards in your trash other than this card to the bottom of your deck in any order.\n[LV2][LV3] When Attacks: Discard the top five cards of your deck. If they all have different card names, this spirit's symbol is treated as three white symbols during this battle."
+  },
+  {
+   "based_on": "PR-073",
+   "card_type": "spirit",
+   "colors": [
+    "green"
+   ],
+   "cost": 5,
+   "effects": [
+    {
+     "kind": "activated",
+     "timing": "keyword",
+     "keyword": "Swift",
+     "levels": [],
+     "directives": [],
+     "header": "Swift",
+     "text": "You may summon this spirit during flash timing, paying only with cores from your reserve."
+    },
+    {
+     "kind": "triggered",
+     "timing": "on_summon",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "add_core_from_void",
+       "amount": 1,
+       "target": {
+        "controller": "self",
+        "zone": "field",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "not_self_uid": true
+        }
+       }
+      }
+     ],
+     "header": "When Summoned",
+     "text": "Select one of your other spirits and place a core from the void onto it."
+    },
+    {
+     "kind": "triggered",
+     "timing": "battle_end",
+     "scope": "battle_participant",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Return this spirit to your hand?",
+       "labels": [
+        "Return",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "return_to_hand",
+           "target": {
+            "zone": "self"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When This Spirit Attacks or Blocks",
+     "text": "When the battle ends, you may return this spirit to your hand."
+    }
+   ],
+   "flavor": "",
+   "id": "PR-073",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 4000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 6000
+    },
+    {
+     "level": 3,
+     "core_cost": 5,
+     "bp": 9000
+    }
+   ],
+   "name": "Supersonic Leucerium Shadow",
+   "our_version": "",
+   "reduction_symbols": [
+    "green",
+    "green",
+    "green"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Leaf Kindred"
+   ],
+   "symbols": [
+    "green"
+   ],
+   "text": "Swift (You may summon this spirit during flash timing, paying only with cores from your reserve.)\n[LV1][LV2][LV3] When Summoned: Select one of your other spirits and place a core from the void onto it.\n[LV2][LV3] When This Spirit Attacks or Blocks: When the battle ends, you may return this spirit to your hand."
+  },
+  {
+   "based_on": "PR-074",
+   "card_type": "spirit",
+   "colors": [
+    "blue"
+   ],
+   "cost": 6,
+   "effects": [
+    {
+     "kind": "triggered",
+     "timing": "on_attack",
+     "scope": "self",
+     "levels": [
+      1,
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "choice",
+       "prompt": "Exhaust one of your spirits or nexuses to discard cards from the top of your opponent's deck equal to its cost?",
+       "labels": [
+        "Do it",
+        "No"
+       ],
+       "branches": [
+        {
+         "directives": [
+          {
+           "op": "exhaust",
+           "target": {
+            "controller": "self",
+            "zone": "field",
+            "card_type": [
+             "spirit",
+             "nexus"
+            ],
+            "count": 1,
+            "filters": {
+             "exhausted": false
+            }
+           }
+          },
+          {
+           "op": "mill_count",
+           "amount_from": "last_target_cost",
+           "amount": 0,
+           "player": "opponent",
+           "card_type": "magic",
+           "if": {
+            "type": "frame_flag",
+            "flag": "last_target"
+           }
+          },
+          {
+           "op": "refresh",
+           "target": {
+            "zone": "self"
+           },
+           "if": {
+            "type": "frame_flag",
+            "flag": "milled_hits"
+           }
+          }
+         ]
+        },
+        {
+         "directives": []
+        }
+       ]
+      }
+     ],
+     "header": "When Attacks",
+     "text": "You may exhaust one of your spirits or nexuses to discard cards from the top of your opponent's deck equal to the cost of that card. When a magic card is discarded this way, refresh this spirit."
+    },
+    {
+     "kind": "triggered",
+     "timing": "start_of_step",
+     "scope": "opponent_turn",
+     "levels": [
+      2,
+      3
+     ],
+     "directives": [
+      {
+       "op": "summon_from",
+       "free": true,
+       "optional": true,
+       "target": {
+        "controller": "self",
+        "zone": "hand",
+        "card_type": "spirit",
+        "count": 1,
+        "filters": {
+         "spirit_type": "Golem"
+        }
+       }
+      }
+     ],
+     "header": "During Opponent's Attack Step",
+     "text": "At the start of the step, if your opponent has 15 or more cards in their trash, you may summon a Golem spirit card from your hand without paying its cost.",
+     "step": "attack",
+     "condition": {
+      "type": "trash_count",
+      "player": "opponent",
+      "amount": 15
+     }
+    }
+   ],
+   "flavor": "",
+   "id": "PR-074",
+   "levels": [
+    {
+     "level": 1,
+     "core_cost": 1,
+     "bp": 5000
+    },
+    {
+     "level": 2,
+     "core_cost": 3,
+     "bp": 7000
+    },
+    {
+     "level": 3,
+     "core_cost": 6,
+     "bp": 12000
+    }
+   ],
+   "name": "Great Aurumancer Synthetria",
+   "our_version": "",
+   "reduction_symbols": [
+    "blue",
+    "blue",
+    "blue"
+   ],
+   "set_code": "PR",
+   "source": "imported",
+   "spirit_types": [
+    "Beauty"
+   ],
+   "symbols": [
+    "blue"
+   ],
+   "text": "[LV1][LV2][LV3] When Attacks: You may exhaust one of your spirits or nexuses to discard cards from the top of your opponent's deck equal to the cost of that card. When a magic card is discarded this way, refresh this spirit.\n[LV2][LV3] During Opponent's Attack Step: At the start of the step, if your opponent has 15 or more cards in their trash, you may summon a Golem spirit card from your hand without paying its cost."
   }
  ],
- "count": 917,
+ "count": 996,
  "set": "imported",
  "source_sheet": "BSS_Database_1.xlsx"
 }

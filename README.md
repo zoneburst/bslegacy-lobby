@@ -1,4 +1,4 @@
-# BSLegacy online lobby (version 0.24.0)
+# BSLegacy online lobby (version 0.25.0)
 
 The Battle Spirits Saga Sim lobby -- Quick Match, Custom Room, spectating and
 bug reports -- as a WebSocket server. Made by `tools/make_server_repo.py` in

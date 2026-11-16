@@ -3849,7 +3849,7 @@
     {
      "kind": "triggered",
      "timing": "end_of_opponent_turn",
-     "scope": "self",
+     "scope": "you",
      "levels": [
       2
      ],
