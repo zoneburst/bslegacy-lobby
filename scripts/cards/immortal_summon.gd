@@ -11,5 +11,6 @@ static func run(engine, pid: int, args: Dictionary, _frame: Dictionary) -> Strin
 	if sp == null:
 		engine.state.log_event("immortal_unpaid", {"uid": ci.uid})
 		return ""
-	engine.do_summon(pid, ci, {"via": "effect", "payment": sp})
+	# at the level the player chose (0.25.0): extra cores from the reserve
+	engine.do_summon(pid, ci, {"via": "effect", "payment": sp, "extra_cores": int(args.get("extra", 0))})
 	return ""

@@ -43,6 +43,10 @@ var _opp_option: OptionButton
 
 # 0.24.0: best of 1 or best of 3 (CPU, Quick Match, Custom Room)
 static var _best_of := 1
+# 0.25.0 (R-179): playing the CPU has its own format, Best of 1 unless chosen
+# on this screen -- before, choosing Best of 3 for an online game made the
+# CPU games best of 3 as well
+static var _cpu_best_of := 1
 
 # Quick match
 var _searching := false
@@ -384,8 +388,13 @@ func _build_ai(v: VBoxContainer) -> void:
 	v.add_child(_opp_option)
 	_fill_opponents()
 	v.add_child(UITheme.spacer(4))
-	_format_row(v, "Best of 3: first to two wins. Between games you may swap cards with your sideboard, "
-			+ "and the loser of each game chooses who goes first.")
+	v.add_child(UITheme.eyebrow("Match format"))
+	var cpu_fmt := UITheme.segmented(["Best of 1", "Best of 3"], 1 if _cpu_best_of >= 3 else 0, func(idx: int):
+		_cpu_best_of = 3 if idx == 1 else 1, UITheme.CORE, 130.0)
+	cpu_fmt.name = "CpuFormat"
+	v.add_child(cpu_fmt)
+	v.add_child(UITheme.paragraph("Best of 3: first to two wins. Between games you may swap cards with your sideboard, "
+			+ "and the loser of each game chooses who goes first.", true, UITheme.FS_SMALL))
 
 	v.add_child(UITheme.grow())
 	var start := UITheme.hero_button("Start match", _start_ai)
@@ -427,7 +436,7 @@ func _start_ai() -> void:
 			opp = others[randi() % others.size()]
 	elif _opp_choice >= 2 and _opp_choice - 2 < playable.size():
 		opp = playable[_opp_choice - 2]
-	var res := MatchService.start_bot_match(deck, _difficulty, opp, true, _best_of)
+	var res := MatchService.start_bot_match(deck, _difficulty, opp, true, _cpu_best_of)
 	if not bool(res.get("ok", false)):
 		set_status(str(res.get("reason", "Could not start the match")), true)
 		return

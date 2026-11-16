@@ -111,7 +111,9 @@ func _ready() -> void:
 	MatchService.updated.connect(_on_update)
 	MatchService.ended.connect(_on_ended)
 	MatchService.rejected.connect(_on_rejected)
-	if _gate_open_wanted():
+	if MatchService.kind == MatchService.Kind.REPLAY:
+		_add_replay_bar()
+	if MatchService.kind != MatchService.Kind.REPLAY and _gate_open_wanted():
 		# "Gate Open, Kaiho!" (0.18.4): the opening plays over the board before
 		# the first deal. Updates that arrive meanwhile are kept, not shown.
 		# The music waits for it (0.18.7), so the opening's sound stands alone.
@@ -133,6 +135,49 @@ func _ready() -> void:
 		SceneRouter.go.call_deferred("main")
 	else:
 		_prompt.text = "Waiting for the match to start…"
+
+
+## Replays (0.25.0, R-169): the control strip across the top, and the end
+## of the replay instead of the end of a game.
+func _add_replay_bar() -> void:
+	var bar := ReplayBar.new()
+	bar.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	bar.position.y = 6
+	bar.z_index = 50
+	add_child(bar)
+	bar.resized.connect(func(): bar.position.x = (size.x - bar.size.x) * 0.5)
+	MatchService.replay_finished.connect(_on_replay_finished)
+
+
+func _player_name(who: int) -> String:
+	var ps: Array = _snap.get("players", []) if not _snap.is_empty() else MatchService.snapshot.get("players", [])
+	if who >= 0 and who < ps.size():
+		return str((ps[who] as Dictionary).get("name", "Player %d" % (who + 1)))
+	return "Player %d" % (who + 1)
+
+
+func _on_replay_finished() -> void:
+	if MatchService.replay_recording or find_child("ReplayEnd", true, false) != null:
+		return
+	var st: GameState = MatchService.engine.state if MatchService.engine != null else null
+	var line := "The replay is over."
+	if st != null and st.game_over:
+		line = ("%s won in %d turns." % [_player_name(st.winner), st.turn_number]) if st.winner in [0, 1] \
+				else "The game ended in a draw after %d turns." % st.turn_number
+	var m := Modal.open(self, "Replay finished", 520.0)
+	m.name = "ReplayEnd"
+	m.body.add_child(UITheme.paragraph(line, true))
+	m.buttons.add_child(UITheme.button("Back to replays", func():
+		m.close()
+		MatchService.end_match()
+		SceneRouter.go("replays")))
+	m.buttons.add_child(UITheme.grow())
+	m.buttons.add_child(UITheme.button("Export MP4", func():
+		m.close()
+		ReplayExporter.start(MatchService.replay_id, self)))
+	m.buttons.add_child(UITheme.primary_button("Watch again", func():
+		m.close()
+		MatchService.replay_restart()))
 
 
 func _exit_tree() -> void:
@@ -369,7 +414,8 @@ func _build_side() -> void:
 	gear.add_theme_constant_override("icon_max_width", 22)
 	gear.name = "SettingsButton"
 	head.add_child(gear)
-	head.add_child(UITheme.danger_button("Concede", _confirm_concede))
+	if MatchService.kind != MatchService.Kind.REPLAY:          # nothing to concede in a replay (0.25.0)
+		head.add_child(UITheme.danger_button("Concede", _confirm_concede))
 	v.add_child(head)
 
 	var holder := CenterContainer.new()
@@ -378,7 +424,7 @@ func _build_side() -> void:
 	_preview_card = CardWidget.new()
 	_preview_card.setup_back(Vector2(206, 288))
 	holder.add_child(_preview_card)
-	_preview_name = UITheme.truncating("Hover a card to see it here", false, UITheme.FS_HEAD - 2)
+	_preview_name = UITheme.truncating("Hover a card to see it here · right-click to enlarge", false, UITheme.FS_HEAD - 2)
 	if UITheme.font("bold") != null:
 		_preview_name.add_theme_font_override("font", UITheme.font("bold"))
 	v.add_child(_preview_name)
@@ -430,6 +476,9 @@ func _on_update(snap: Dictionary) -> void:
 		return
 	_render_queued = true
 	_present.call_deferred()
+
+
+var _held_prompt := ""          # the question line, held back while the presentation plays
 
 
 func _anims_on() -> bool:
@@ -497,6 +546,8 @@ func _present() -> void:
 		_leaving.clear()
 		_leaving_nodes.clear()
 		_actions.visible = true
+		_prompt_extra.visible = true
+		_held_prompt = ""
 		_pending_orient.clear()
 		_render()
 		_shown_snap = _snap
@@ -508,11 +559,18 @@ func _present() -> void:
 	var prev := _shown_snap
 	_hidden = BattleDirector.incoming_uids(events)
 	_leaving = _find_leaving(prev, _snap)
+	var old_prompt := _prompt.text
 	_render()
 	_shown_snap = _snap
 	# a decision (a burst to activate, a target) is offered once what led to
-	# it has been shown, not while it plays (0.24.0)
+	# it has been shown, not while it plays (0.24.0) -- the question's text and
+	# its cards too (0.25.0: Reanimate's choice came before the card had been
+	# played): the previous line stays until the presentation ends
 	_actions.visible = false
+	_prompt_extra.visible = false
+	_held_prompt = _prompt.text
+	_prompt.text = old_prompt
+	_director.hold_now(events)
 	_fx.begin()
 	await _fx.wait(0.0)           # let containers lay the new board out
 	await _director.play(events, before, prev)
@@ -525,6 +583,10 @@ func _finish_presentation() -> void:
 		release_leaving(uid)
 	_leaving.clear()
 	_actions.visible = true
+	_prompt_extra.visible = true
+	if _held_prompt != "":
+		_prompt.text = _held_prompt
+		_held_prompt = ""
 	for uid: int in _hidden.keys():
 		reveal(uid)
 	_hidden.clear()
@@ -582,7 +644,6 @@ func _render() -> void:
 	_anchors["-1:centre"] = _centre_panel
 
 	_render_opp_bar(opp)
-	_render_opp_hand(opp)
 	_render_zone(_opp_right, opp, true, false)
 	_render_zone(_opp_left, opp, false, false)
 	_render_zone(_my_left, me, true, true)
@@ -592,7 +653,8 @@ func _render() -> void:
 	_render_field(_opp_nexus, _only(_with_leaving(opp, opp_seat), true), false, true)
 	_render_field(_my_field, _only(_with_leaving(me, my_seat), false), true)
 	_render_field(_my_nexus, _only(_with_leaving(me, my_seat), true), true, true)
-	_render_hand(me.get("hand", []))
+	_render_opp_hand(opp)
+	_render_hand(_with_hand_leaving(_drawn_hand(me.get("hand", [])), my_seat))
 	_render_centre()
 	_render_log()
 	_sync_arrow()
@@ -631,11 +693,33 @@ func node_of(uid: int) -> Control:
 
 func rect_of(uid: int) -> Rect2:
 	var ln: Variant = _leaving_nodes.get(uid)
+	var n := node_of(uid)
+	# 0.25.0 (R-187): a card held in the hand on its way out is also drawn
+	# (hidden) where it is going -- the field. Where it IS on screen is the
+	# destination; the holder is only where it flies FROM (leaving_rect).
+	# Before, a summoned spirit flew back into the hand.
+	var held_in_hand := ln is Control and is_instance_valid(ln) and (ln as Control).has_meta("hand_hold")
+	if held_in_hand and n != null and n.is_inside_tree():
+		return BattleFX.visual_rect(n)
+	if ln is Control and is_instance_valid(ln) and (ln as Control).is_inside_tree():
+		return leaving_rect(uid)
+	return BattleFX.visual_rect(n) if n != null and n.is_inside_tree() else Rect2()
+
+
+## Where a card arriving is drawn in its new place (its widget), or an empty
+## rect when it has none (0.25.0, R-187).
+func arrival_rect(uid: int) -> Rect2:
+	var n := node_of(uid)
+	return BattleFX.visual_rect(n) if n != null and n.is_inside_tree() else Rect2()
+
+
+## Where a card held on its way out (field or hand) is drawn now.
+func leaving_rect(uid: int) -> Rect2:
+	var ln: Variant = _leaving_nodes.get(uid)
 	if ln is Control and is_instance_valid(ln) and (ln as Control).is_inside_tree():
 		var lc := (ln as Control).get_child(0) as Control if (ln as Control).get_child_count() > 0 else (ln as Control)
 		return BattleFX.visual_rect(lc)
-	var n := node_of(uid)
-	return BattleFX.visual_rect(n) if n != null and n.is_inside_tree() else Rect2()
+	return Rect2()
 
 
 ## Cards on a field in `prev` that are on no field and in no hand in `now`
@@ -650,6 +734,11 @@ func _find_leaving(prev: Dictionary, now: Dictionary) -> Dictionary:
 		for zone in ["field", "hand"]:
 			for e: Dictionary in p.get(zone, []):
 				still[int(e.get("uid", -1))] = true
+	var in_hand := {}
+	for p0: Dictionary in now.get("players", []):
+		for e0: Dictionary in p0.get("hand", []):
+			if not bool(e0.get("resolving", false)):      # a magic card in use is not drawn there (R-182)
+				in_hand[int(e0.get("uid", -1))] = true
 	var pi := 0
 	for p: Dictionary in prev.get("players", []):
 		var idx := 0
@@ -658,8 +747,57 @@ func _find_leaving(prev: Dictionary, now: Dictionary) -> Dictionary:
 			if uid >= 0 and not still.has(uid):
 				out[uid] = {"entry": e, "owner": int(p.get("id", pi)), "index": idx}
 			idx += 1
+		# 0.25.0 (R-176): a card played or discarded from a hand stays drawn
+		# there until the presentation flies it out -- Siegwurm Nova left the
+		# hand while Ascend's cores flew, then came back for its summon
+		var hidx := 0
+		for e2: Dictionary in p.get("hand", []):
+			var hu := int(e2.get("uid", -1))
+			if bool(e2.get("resolving", false)):
+				continue                                    # was not drawn in the hand either
+			# the CPU's cards are hidden entries (card backs): held the same way
+			if hu >= 0 and not in_hand.has(hu):
+				out[hu] = {"entry": e2, "owner": int(p.get("id", pi)), "index": hidx, "hand": true}
+			hidx += 1
 		pi += 1
 	return out
+
+
+## The hand cards drawn in a hand: not a magic card being used (R-182).
+func _drawn_hand(cards: Array) -> Array:
+	return cards.filter(func(e: Dictionary) -> bool: return not bool(e.get("resolving", false)))
+
+
+## A hand with its leaving cards put back where they were (R-176).
+func _with_hand_leaving(cards: Array, pid: int) -> Array:
+	var out: Array = cards.duplicate()
+	if _leaving.is_empty():
+		return out
+	var mine: Array = []
+	for uid: int in _leaving.keys():
+		var l: Dictionary = _leaving[uid]
+		if int(l["owner"]) == pid and bool(l.get("hand", false)):
+			mine.append(l)
+	mine.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["index"]) < int(b["index"]))
+	for l2: Dictionary in mine:
+		var e: Dictionary = (l2["entry"] as Dictionary).duplicate()
+		e["_leaving"] = true
+		out.insert(mini(int(l2["index"]), out.size()), e)
+	return out
+
+
+## The drawn-but-gone hand card: a holder (so rect_of finds the widget as
+## its first child), not clickable.
+func _hand_leaving_node(w: CardWidget, uid: int, card_size: Vector2) -> Control:
+	var holder := Control.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.size = card_size
+	w.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	w.size = card_size
+	holder.add_child(w)
+	holder.set_meta("hand_hold", true)
+	_leaving_nodes[uid] = holder
+	return holder
 
 
 ## A side's field with its leaving cards put back where they stood.
@@ -670,7 +808,7 @@ func _with_leaving(side: Dictionary, pid: int) -> Array:
 	var mine: Array = []
 	for uid: int in _leaving.keys():
 		var l: Dictionary = _leaving[uid]
-		if int(l["owner"]) == pid:
+		if int(l["owner"]) == pid and not bool(l.get("hand", false)):
 			mine.append(l)
 	mine.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["index"]) < int(b["index"]))
 	for l2: Dictionary in mine:
@@ -690,10 +828,24 @@ func release_leaving(uid: int) -> void:
 		if row != null:
 			row.remove_child(n)
 		(n as Control).queue_free()
-		if row is HBoxContainer and (row as HBoxContainer).get_child_count() == 0:
+		if row == _hand:
+			_layout_hand()
+		elif row == _opp_hand:
+			_layout_opp_hand()
+		elif row is HBoxContainer and (row as HBoxContainer).get_child_count() == 0:
 			var l := UITheme.body("No spirits", true, UITheme.FS_SMALL)
 			l.modulate.a = 0.5
 			row.add_child(l)
+
+
+## The card widget of a card drawn on its way out (0.25.0), or null.
+func leaving_widget(uid: int) -> Control:
+	var ln: Variant = _leaving_nodes.get(uid)
+	if ln is Control and is_instance_valid(ln):
+		var ws := (ln as Control).find_children("*", "CardWidget", true, false)
+		if not ws.is_empty():
+			return ws[0] as Control
+	return null
 
 
 func is_leaving(uid: int) -> bool:
@@ -812,15 +964,19 @@ func _render_opp_bar(opp: Dictionary) -> void:
 	_opp_bar.add_child(opp_name)
 	_opp_bar.add_child(UITheme.body(str(opp.get("deck_name", "")), true, UITheme.FS_SMALL))
 	_opp_bar.add_child(UITheme.grow())
-	_opp_bar.add_child(UITheme.body("Hand %d" % (opp.get("hand", []) as Array).size(),
+	_opp_bar.add_child(UITheme.body("Hand %d" % _drawn_hand(opp.get("hand", [])).size(),
 			true, UITheme.FS_SMALL))
 
 
 func _render_opp_hand(opp: Dictionary) -> void:
 	_clear(_opp_hand)
-	for entry: Dictionary in opp.get("hand", []):
+	var opp_pid := 1 - MatchService.my_seat if MatchService.my_seat >= 0 else 1
+	for entry: Dictionary in _with_hand_leaving(_drawn_hand(opp.get("hand", [])), opp_pid):
 		var back := CardWidget.new()
 		back.setup_back(MINI_CARD)
+		if bool(entry.get("_leaving", false)):
+			_opp_hand.add_child(_hand_leaving_node(back, int(entry.get("uid", -1)), MINI_CARD))
+			continue
 		_opp_hand.add_child(back)
 		_register(int(entry.get("uid", -1)), back, back)
 	_layout_opp_hand()
@@ -892,6 +1048,8 @@ func _render_zone(col: VBoxContainer, side: Dictionary, life_side: bool, mine: b
 			if mine and bc is Dictionary:
 				w.setup(str((bc as Dictionary).get("card_id", "")), SLOT_CARD)
 				w.hovered.connect(_preview)
+				var bcid := str((bc as Dictionary).get("card_id", ""))
+				w.right_clicked.connect(func(_id: String): _open_zoom([bcid], 0, {0: "Set as your burst"}))
 			else:
 				w.setup_back(SLOT_CARD)
 			burst_row.add_child(w)
@@ -907,11 +1065,36 @@ func _render_zone(col: VBoxContainer, side: Dictionary, life_side: bool, mine: b
 	else:
 		var piles := UITheme.hbox(UITheme.SP_S)
 		var deck_col := UITheme.vbox(2)
-		deck_col.add_child(_zone_header("Deck", int(side.get("deck_count", 0)), UITheme.TEXT_DIM))
-		var back := CardWidget.new()
-		back.setup_back(SLOT_CARD)
-		deck_col.add_child(back)
-		_anchor_set(side, "deck", back)
+		var deck_n := int(side.get("deck_count", 0))
+		# 0.25.0 (R-167): an empty deck is shown as such -- a red EMPTY slot,
+		# a red count, and amber when 3 or fewer cards are left. The player
+		# loses at the start of their next turn (6-2-2).
+		var deck_tint := UITheme.BAD if deck_n == 0 else (UITheme.WARN if deck_n <= 3 else UITheme.TEXT_DIM)
+		deck_col.add_child(_zone_header("Deck", deck_n, deck_tint))
+		if deck_n == 0:
+			var ed := _empty_slot("EMPTY\nno cards")
+			var esb: StyleBoxFlat = (ed.get_theme_stylebox("panel") as StyleBoxFlat)
+			if esb != null:
+				esb.border_color = UITheme.BAD
+				esb.set_border_width_all(2)
+				esb.bg_color = Color(UITheme.BAD, 0.14)
+			var el := ed.get_child(0) as Label
+			if el != null:
+				el.add_theme_color_override("font_color", UITheme.BAD)
+			ed.name = "DeckEmpty"
+			ed.tooltip_text = "Your deck is empty. You lose at the start of your next turn." if mine \
+					else "Their deck is empty. They lose at the start of their next turn."
+			ed.mouse_filter = Control.MOUSE_FILTER_PASS
+			deck_col.add_child(ed)
+			_anchor_set(side, "deck", ed)
+			_note_deck_empty(mine)
+		else:
+			_deck_empty_told.erase(mine)            # a new game (best of 3, rematch)
+			var back := CardWidget.new()
+			back.setup_back(SLOT_CARD)
+			back.tooltip_text = "%d card%s left in the deck" % [deck_n, "" if deck_n == 1 else "s"]
+			deck_col.add_child(back)
+			_anchor_set(side, "deck", back)
 		piles.add_child(deck_col)
 
 		var trash: Array = side.get("trash", [])
@@ -995,10 +1178,70 @@ func _open_trash(side: Dictionary, mine: bool) -> void:
 
 ## Full-size card from the trash viewer (0.16.1).
 func _zoom_card(card_id: String) -> void:
+	_open_zoom([card_id], 0, {})
+
+
+func _open_zoom(ids: Array, index: int, notes: Dictionary) -> CardZoom:
 	var z := CardZoom.new()
+	z.name = "BattleZoom"
 	add_child(z)
 	z.z_index = 120
-	z.open([card_id], 0, Callable())
+	z.closed.connect(z.queue_free)
+	z.open(ids, index, Callable(), notes)
+	AudioManager.play_sfx("ui_click")
+	return z
+
+
+## 0.25.0: right-click a card in your hand or on either field to see it
+## large (Prev / Next go through the rest of that hand or field). The CPU's
+## hand stays face down.
+func _zoom_hand(uid: int) -> void:
+	var ids: Array = []
+	var at := 0
+	for e: Dictionary in _drawn_hand(MatchService.my_state().get("hand", [])):
+		if int(e.get("uid", -1)) == uid:
+			at = ids.size()
+		ids.append(str(e.get("card_id", "")))
+	if not ids.is_empty():
+		_open_zoom(ids, at, {})
+
+
+func _zoom_field(uid: int, mine: bool) -> void:
+	var side: Dictionary = MatchService.my_state() if mine else MatchService.opponent_state()
+	var ids: Array = []
+	var notes := {}
+	var at := 0
+	for e: Dictionary in side.get("field", []):
+		if int(e.get("uid", -1)) == uid:
+			at = ids.size()
+		var cd: CardData = CardDB.get_card(str(e.get("card_id", "")))
+		var cores := int(e.get("cores", 0)) + int(e.get("soul", 0))
+		var bits: Array = []
+		if cd != null and cd.is_spirit():
+			bits.append("LV%d" % int(e.get("level", 1)))
+			bits.append("BP %d" % int(e.get("bp", 0)))
+		bits.append("%d core%s%s" % [cores, "" if cores == 1 else "s", " (soul core)" if int(e.get("soul", 0)) > 0 else ""])
+		if int(e.get("orient", 0)) == BSS.Orientation.EXHAUSTED:
+			bits.append("exhausted")
+		notes[ids.size()] = "On %s field now:  %s" % ["your" if mine else "the opponent's", "  ·  ".join(bits)]
+		ids.append(str(e.get("card_id", "")))
+	if not ids.is_empty():
+		_open_zoom(ids, at, notes)
+
+
+## Tell the player once, when a deck first runs out (0.25.0, R-167).
+var _deck_empty_told := {}
+
+
+func _note_deck_empty(mine: bool) -> void:
+	if _deck_empty_told.has(mine):
+		return
+	_deck_empty_told[mine] = true
+	if _toast != null:
+		_toast.text = "Your deck is empty: you lose at the start of your next turn." if mine \
+				else "Your opponent's deck is empty: they lose at the start of their next turn."
+	if is_inside_tree():
+		AudioManager.play_sfx("error")
 
 
 func _zone_header(title: String, count: int, tint: Color) -> Control:
@@ -1010,6 +1253,8 @@ func _zone_header(title: String, count: int, tint: Color) -> Control:
 		var n := UITheme.body(str(count), false, UITheme.FS_SMALL)
 		if UITheme.font("bold") != null:
 			n.add_theme_font_override("font", UITheme.font("bold"))
+		if tint == UITheme.BAD or tint == UITheme.WARN:
+			n.add_theme_color_override("font_color", tint)      # empty / nearly empty deck (0.25.0)
 		row.add_child(n)
 	return row
 
@@ -1091,6 +1336,7 @@ func _render_field(row: HBoxContainer, cards: Array, mine: bool, nexus_row: bool
 		w.setup(str(entry.get("card_id", "")), card_size, entry)
 		w.hovered.connect(func(id: String): _preview(id, entry))
 		w.clicked.connect(func(_id: String): _on_field_clicked(uid, mine))
+		w.right_clicked.connect(func(_id: String): _zoom_field(uid, mine))     # see it large (0.25.0)
 		if uid == attacker:
 			w.set_highlight(UITheme.SOUL)
 		elif uid == blocker:
@@ -1197,6 +1443,9 @@ func _render_hand(cards: Array) -> void:
 		var uid := int(entry.get("uid", -1))
 		var w := CardWidget.new()
 		w.setup(str(entry.get("card_id", "")), HAND_CARD)
+		if bool(entry.get("_leaving", false)):
+			_hand.add_child(_hand_leaving_node(w, uid, HAND_CARD))
+			continue
 		w.set_meta("uid", uid)
 		w.hovered.connect(func(id: String):
 			_preview(id)
@@ -1204,6 +1453,7 @@ func _render_hand(cards: Array) -> void:
 			_raise(w, true))
 		w.mouse_exited.connect(func(): _raise(w, false))
 		w.clicked.connect(func(_id: String): _on_hand_clicked(uid))
+		w.right_clicked.connect(func(_id: String): _zoom_hand(uid))     # see it large (0.25.0)
 		if _selected_options.has(uid):
 			w.set_highlight(UITheme.CORE)
 		elif _is_option(uid) or _hand_actions(uid).size() > 0:
@@ -1263,6 +1513,10 @@ func _render_centre() -> void:
 	_clear(_actions)
 	_clear(_prompt_extra)
 
+	if MatchService.kind == MatchService.Kind.REPLAY:
+		_prompt.text = "Replay: %s vs %s. Shown as %s saw it." % [_player_name(0), _player_name(1),
+				_player_name(MatchService.my_seat)]
+		return
 	if MatchService.is_spectator:
 		_prompt.text = "Spectating. Both hands are hidden."
 		return
@@ -1709,13 +1963,10 @@ func _core_drag(gems: CoreGems, loc: Dictionary, at: Vector2) -> Variant:
 		return null
 	var soul := kind == "soul"
 	if mode == "awaken":
-		# Awaken takes regular cores from your cards, never from the reserve
-		if str(loc.get("kind", "")) != "card":
+		# Awaken takes cores from your other spirits, never from the reserve
+		# or a nexus; the soul core too (0.25.0, R-177)
+		if str(loc.get("kind", "")) != "card" or not _is_spirit_uid(int(loc.get("uid", -1))):
 			return null
-		if soul:
-			if gems.cores <= 0:
-				return null
-			soul = false
 	# the picked gem follows the pointer
 	var holder := Control.new()
 	var t := TextureRect.new()
@@ -1753,7 +2004,9 @@ func _core_can_drop(to_loc: Dictionary, data: Variant) -> bool:
 		return false
 	if core_drag_mode() == "awaken":
 		return str(from_loc.get("kind", "")) == "card" and str(to_loc.get("kind", "")) == "card" \
-			and int(to_loc.get("uid", -1)) in _awaken_targets() and not bool((data as Dictionary).get("soul", false))
+			and int(to_loc.get("uid", -1)) in _awaken_targets() \
+			and int(from_loc.get("uid", -1)) != int(to_loc.get("uid", -1)) \
+			and _is_spirit_uid(int(from_loc.get("uid", -1)))
 	if str(to_loc.get("kind", "")) == "card":
 		var uid := int(to_loc.get("uid", -1))
 		if not _widgets.has(uid):
@@ -1774,8 +2027,9 @@ func _core_drop(to_loc: Dictionary, data: Variant) -> void:
 	var a := {"verb": BSS.Action.MOVE_CORE, "from": from_loc, "to": to_loc, "n": 1, "soul": bool(d.get("soul", false))}
 	if core_drag_mode() == "awaken":
 		# the drop IS the Awaken: one core from that card onto this spirit
+		var sl := bool(d.get("soul", false))
 		a = {"verb": BSS.Action.ACTIVATE, "uid": int(to_loc.get("uid", -1)), "keyword": "awaken",
-			"sources": [{"uid": int(from_loc.get("uid", -1)), "n": 1}]}
+			"sources": [{"uid": int(from_loc.get("uid", -1)), "n": 0 if sl else 1, "soul": sl}]}
 	_end_core_drag()
 	if str(from_loc.get("kind", "")) == "card":
 		var uid := int(from_loc.get("uid", -1))
@@ -2103,7 +2357,129 @@ func _on_menu(id: int) -> void:
 		if str(ma.get("verb", "")) == "choose_effect":
 			_choose_effect(ma.get("group", []))
 			return
+		if str(ma.get("verb", "")) == BSS.Action.ACTIVATE and str(ma.get("keyword", "")) == "awaken":
+			_awaken_dialog(ma)
+			return
 		_do(_with_soul(ma))
+
+
+func _is_spirit_uid(uid: int) -> bool:
+	var cd: CardData = CardDB.get_card(_card_id_of(uid))
+	return cd != null and cd.is_spirit()
+
+
+## 11-1 Awaken (0.25.0, R-177): "move any number of cores from your other
+## spirits onto this spirit" -- you choose how many, and from which of your
+## other spirits (the soul core included; never a nexus). Before, the menu line
+## moved a fixed number: the cores the other spirits did not need for their
+## level, and nothing once they had none spare.
+var _awaken_rows: Array = []
+
+
+func _awaken_dialog(a: Dictionary) -> void:
+	var eng := MatchService.engine
+	if eng == null:
+		_do(a)
+		return
+	var target: CardInstance = eng.state.cards.get(int(a.get("uid", -1)))
+	if target == null or target.data == null:
+		return
+	var suggest := {}
+	for sg: Dictionary in a.get("sources", []):
+		suggest[int(sg.get("uid", -1))] = int(sg.get("n", 0))
+	_awaken_rows = []
+	for av: Dictionary in a.get("available", []):
+		var c: CardInstance = eng.state.cards.get(int(av.get("uid", -1)))
+		if c == null or c.data == null:
+			continue
+		_awaken_rows.append({"ci": c, "max": c.cores, "n": mini(c.cores, int(suggest.get(c.uid, 0))),
+				"soul_max": c.soul_cores, "soul": false})
+	var m := Modal.open(self, "Awaken — %s" % target.data.name, 680.0)
+	m.name = "AwakenDialog"
+	m.body.add_child(UITheme.paragraph("Move any number of cores from your other spirits onto %s. A spirit left without the cores for LV1 is destroyed, but its \"When Destroyed\" effects do not activate." % target.data.name, true))
+	var list := UITheme.vbox(UITheme.SP_XS)
+	list.name = "AwakenRows"
+	m.body.add_child(list)
+	var result := UITheme.body("", false)
+	result.name = "AwakenResult"
+	var confirm := UITheme.primary_button("Awaken")
+	confirm.name = "AwakenConfirm"
+	var refresh := func() -> void:
+		var sum := 0
+		for r: Dictionary in _awaken_rows:
+			var rc: CardInstance = r["ci"]
+			var taken := int(r["n"]) + (1 if bool(r["soul"]) else 0)
+			sum += taken
+			(r["value"] as Label).text = "%d / %d" % [int(r["n"]), int(r["max"])]
+			var w: Label = r["warn"]
+			w.text = ""
+			if taken > 0:
+				var after := rc.total_cores() - taken
+				if after < rc.data.min_level_cost():
+					w.text = "will be destroyed"
+					w.add_theme_color_override("font_color", UITheme.BAD)
+				elif rc.data.level_for_cores(after) < rc.current_level():
+					w.text = "drops to LV%d" % rc.data.level_for_cores(after)
+					w.add_theme_color_override("font_color", UITheme.WARN)
+		var total := target.total_cores() + sum
+		var lv := target.data.level_for_cores(total)
+		result.text = "%s: %d → %d core%s · LV%d · BP %d" % [target.data.name, target.total_cores(), total,
+				"" if total == 1 else "s", lv, target.data.base_bp(lv)]
+		confirm.disabled = sum == 0
+		confirm.text = "Awaken (+%d)" % sum
+	for r0: Dictionary in _awaken_rows:
+		var r: Dictionary = r0
+		var rc0: CardInstance = r["ci"]
+		var row := UITheme.hbox(UITheme.SP_S)
+		row.name = "AwakenRow%d" % rc0.uid
+		var nm := UITheme.truncating("%s (LV%d)" % [rc0.data.name, rc0.current_level()], false)
+		nm.custom_minimum_size = Vector2(220, 0)
+		row.add_child(nm)
+		var minus := UITheme.button("−")
+		minus.name = "Minus"
+		minus.custom_minimum_size = Vector2(40, 34)
+		var val := UITheme.body("", false)
+		val.custom_minimum_size = Vector2(64, 0)
+		val.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		r["value"] = val
+		var plus := UITheme.button("+")
+		plus.name = "Plus"
+		plus.custom_minimum_size = Vector2(40, 34)
+		minus.pressed.connect(func():
+			r["n"] = maxi(0, int(r["n"]) - 1)
+			refresh.call())
+		plus.pressed.connect(func():
+			r["n"] = mini(int(r["max"]), int(r["n"]) + 1)
+			refresh.call())
+		row.add_child(minus)
+		row.add_child(val)
+		row.add_child(plus)
+		if int(r["soul_max"]) > 0:
+			var sb := CheckBox.new()
+			sb.name = "Soul"
+			sb.text = "soul core"
+			sb.add_theme_font_size_override("font_size", UITheme.FS_SMALL)
+			sb.toggled.connect(func(on: bool):
+				r["soul"] = on
+				refresh.call())
+			row.add_child(sb)
+		var warn := UITheme.body("", true, UITheme.FS_SMALL)
+		warn.custom_minimum_size = Vector2(130, 0)
+		r["warn"] = warn
+		row.add_child(warn)
+		list.add_child(row)
+	m.body.add_child(result)
+	confirm.pressed.connect(func():
+		var srcs: Array = []
+		for r2: Dictionary in _awaken_rows:
+			if int(r2["n"]) > 0 or bool(r2["soul"]):
+				srcs.append({"uid": (r2["ci"] as CardInstance).uid, "n": int(r2["n"]), "soul": bool(r2["soul"])})
+		m.close()
+		_act({"verb": BSS.Action.ACTIVATE, "uid": target.uid, "keyword": "awaken", "sources": srcs}))
+	m.buttons.add_child(UITheme.grow())
+	m.buttons.add_child(UITheme.button("Cancel", m.close))
+	m.buttons.add_child(confirm)
+	refresh.call()
 
 
 ## A play that pays a cost carries the soul-core choice (0.24.0).
@@ -2189,12 +2565,26 @@ func _ascend_choice(a: Dictionary) -> bool:
 		_do(b0)
 		return true
 	var picked: Dictionary = {}
-	var m := Modal.open(self, "Ascend — choose %s" % ("a spirit" if need == 1 else "%d spirits" % need), 640.0)
+	var m := Modal.open(self, "Ascend — choose %s" % ("a spirit" if need == 1 else "%d spirits" % need), 660.0)
 	m.name = "AscendChoice"
 	m.body.add_child(UITheme.paragraph("%s needs Ascend: all the cores of %s go to your reserve as an extra cost. Choose which." % [
 			ci.data.name, "one of these spirits" if need == 1 else "%d of these spirits" % need], true))
-	var row := UITheme.hbox(UITheme.SP_S)
-	m.body.add_child(row)
+	# 0.25.0 (R-178): the spirits wrap in rows of five, and scroll past two
+	# rows -- in one row, six or more spirits pushed the window (and its
+	# Confirm and Cancel) off the screen
+	var row := GridContainer.new()
+	row.name = "AscendGrid"
+	row.columns = mini(5, cands.size())
+	row.add_theme_constant_override("h_separation", UITheme.SP_S)
+	row.add_theme_constant_override("v_separation", UITheme.SP_S)
+	if cands.size() > 10:
+		var sc := ScrollContainer.new()
+		sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		sc.custom_minimum_size = Vector2(0, 2 * 196 + UITheme.SP_S)
+		m.body.add_child(sc)
+		sc.add_child(row)
+	else:
+		m.body.add_child(row)
 	var confirm := UITheme.primary_button("Confirm (0/%d)" % need)
 	confirm.name = "AscendConfirm"
 	confirm.disabled = true
@@ -2217,8 +2607,13 @@ func _ascend_choice(a: Dictionary) -> bool:
 			confirm.text = "Confirm (%d/%d)" % [picked.size(), need]
 			confirm.disabled = picked.size() != need)
 		col.add_child(w)
-		col.add_child(UITheme.body("%s · %d core%s" % [c2.data.name, c2.total_cores(), "" if c2.total_cores() == 1 else "s"],
-				true, UITheme.FS_SMALL))
+		var cap := UITheme.truncating("%s · %d core%s" % [c2.data.name, c2.total_cores(), "" if c2.total_cores() == 1 else "s"],
+				true, UITheme.FS_SMALL)
+		cap.custom_minimum_size = Vector2(110, 0)
+		cap.size_flags_horizontal = Control.SIZE_FILL
+		cap.tooltip_text = c2.data.name
+		col.add_child(cap)
+		col.custom_minimum_size = Vector2(110, 0)
 		row.add_child(col)
 	confirm.pressed.connect(func():
 		var b := a.duplicate()
@@ -2470,10 +2865,7 @@ func _label_base(a: Dictionary) -> String:
 						return "Use: %s" % (at if at.length() <= 60 else at.left(58) + "\u2026")
 				return "Use its effect"
 			if str(a.get("keyword", "")) == "awaken":
-				var n := 0
-				for src: Dictionary in a.get("sources", []):
-					n += int(src.get("n", 0))
-				return "Awaken (+%d core%s from your other spirits)" % [n, "" if n == 1 else "s"]
+				return "Awaken: move cores onto this spirit…"
 	return str(a.get("verb", "?")).capitalize()
 
 

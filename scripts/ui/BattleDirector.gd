@@ -46,6 +46,12 @@ var _before: Dictionary = {}
 var _prev: Dictionary = {}
 var _claimed: Dictionary = {}       # event index -> true, already shown by another beat
 var _entered: Dictionary = {}       # uid -> true, arrival already shown
+## uid -> true: its destruction was shown this presentation; its later move
+## to the trash is not shown again (0.25.0: a spirit whose When Destroyed
+## effect resolves on the field moves to the trash afterwards -- Naumanngard
+## seemed to go to the trash twice)
+var destroyed_shown: Dictionary = {}
+var trash_flights: Dictionary = {}    # uid -> how many field-to-pile flights were shown (tests)
 var _atk := -1
 var _blk := -1
 
@@ -74,16 +80,36 @@ static func incoming_uids(events: Array) -> Dictionary:
 	return out
 
 
+## Hold every gem row a core movement touches back to what it showed before
+## the update, right after the board is redrawn -- before the frame is drawn,
+## so a moved soul core never shows in its new place early (0.25.0).
+func hold_now(events: Array) -> void:
+	_claimed = {}
+	_claim_damage_cores(events)
+	_hold_cores(events)
+	_pre_held = true
+
+
+var _pre_held := false
+## uid -> the rectangle each arriving card flew to in the last presentations
+## (tests check it is on a field, never the hand -- R-187)
+var entry_targets: Dictionary = {}
+
+
 func play(events: Array, before: Dictionary, prev: Dictionary) -> void:
 	_before = before
 	_prev = prev
-	_claimed = {}
 	_entered = {}
+	destroyed_shown = {}
+	trash_flights = {}
 	var pb: Dictionary = prev.get("battle", {})
 	_atk = int(pb.get("attacker", -1))
 	_blk = int(pb.get("blocker", -1))
-	_claim_damage_cores(events)
-	_hold_cores(events)
+	if not _pre_held:
+		_claimed = {}
+		_claim_damage_cores(events)
+		_hold_cores(events)
+	_pre_held = false
 	# The engine logs "setup" AFTER dealing the opening hands, which played the
 	# deal first and the BATTLE START banner second. The banner opens the game.
 	for k in events.size():
@@ -308,6 +334,9 @@ func _move(events: Array, i: int) -> void:
 		await _set_burst(uid, who)
 	elif to == BSS.Zone.TRASH and from == BSS.Zone.DECK:
 		await _mill(events, i, who)
+	elif to == BSS.Zone.TRASH and destroyed_shown.has(uid) and from == BSS.Zone.FIELD:
+		if board.is_leaving(uid):
+			board.release_leaving(uid)          # already shown breaking (0.25.0)
 	elif to == BSS.Zone.TRASH:
 		await _to_pile(uid, who, "trash")
 	elif to == BSS.Zone.DECK:
@@ -460,7 +489,15 @@ func _deal_one(uid: int, who: int, deck: Rect2) -> void:
 ## then slammed into its slot. An opponent's card turns face up on the way.
 func _enter(uid: int, kind: String, who: int, from: int) -> void:
 	_entered[uid] = true
-	var dst := board.rect_of(uid)
+	# where it lands: its place on the field -- never where it is held on its
+	# way out of the hand (R-187). A card that does not stay (Cthulou Shark
+	# destroys itself with its When Summoned) flies to the middle of its field.
+	var dst := board.arrival_rect(uid)
+	if dst.size.x <= 0.0:
+		var fa := board.anchor_rect(who, "field")
+		if fa.size.x > 0.0 and from == BSS.Zone.HAND:
+			dst = Rect2(fa.get_center() - Vector2(55, 77), Vector2(110, 154))
+	entry_targets[uid] = dst                 # where the card flies to (tests, R-187)
 	var cid := board.card_id_of(uid)
 	if dst.size.x <= 0.0 or cid == "":
 		board.reveal(uid)
@@ -502,6 +539,12 @@ func _enter(uid: int, kind: String, who: int, from: int) -> void:
 
 
 func _origin_rect(uid: int, who: int, from: int) -> Rect2:
+	# the card held in the hand until now leaves it as its flight starts (R-176)
+	if from == BSS.Zone.HAND and board.is_leaving(uid):
+		var held := board.leaving_rect(uid)
+		board.release_leaving(uid)
+		if held.size.x > 0.0:
+			return held
 	if _before.has(uid):
 		return (_before[uid] as Dictionary).get("rect", Rect2())
 	if from == BSS.Zone.DECK:
@@ -577,8 +620,9 @@ func _cores(dd: Dictionary) -> void:
 			dst.pop_in()
 		return
 	var b := _loc_point(to_loc)
+	var souls := int(dd.get("souls", 0))
 	if a == Vector2.INF or b == Vector2.INF or (dst == null and a.distance_to(b) < 4.0):
-		_settle_rows(src, dst, n, 0)
+		_settle_rows(src, dst, n, 0, 0, souls)
 		return
 	var shown := clampi(n, 1, 8)
 	var targets: Array = dst.landing_points(shown) if dst != null else []
@@ -590,7 +634,7 @@ func _cores(dd: Dictionary) -> void:
 	var did := dst.get_instance_id() if dst != null else 0
 	var stagger := 0.09 if refresh else 0.13
 	var dur := 0.42 if refresh else 0.5
-	await fx.gems_seq(a, b, n, bool(dd.get("soul", false)),
+	await fx.gems_seq(a, b, n, bool(dd.get("soul", false)) or souls > 0,
 		func(_i: int) -> void:
 			var s := BattleFX.alive(sid) as CoreGems
 			if s != null:
@@ -600,17 +644,17 @@ func _cores(dd: Dictionary) -> void:
 			if t != null:
 				t.bump(1),
 		from_void, stagger, dur, targets)
-	_settle_rows(BattleFX.alive(sid) as CoreGems, BattleFX.alive(did) as CoreGems, n, shown, shown)
+	_settle_rows(BattleFX.alive(sid) as CoreGems, BattleFX.alive(did) as CoreGems, n, shown, shown, souls)
 	await fx.wait(0.1)
 
 
 ## Whatever of a move was not stepped one by one settles at once: `left` of
 ## the source's and `arrived` of the target's held cores are already shown.
-func _settle_rows(src: CoreGems, dst: CoreGems, n: int, left: int, arrived: int = 0) -> void:
+func _settle_rows(src: CoreGems, dst: CoreGems, n: int, left: int, arrived: int = 0, souls: int = 0) -> void:
 	if src != null and is_instance_valid(src):
-		src.hold_add(-(n - left))
+		src.hold_add(-(n - left), -souls)
 	if dst != null and is_instance_valid(dst):
-		dst.hold_add(n - arrived)
+		dst.hold_add(n - arrived, souls)
 
 
 ## Before the beats play, every gem row a core movement touches goes back to
@@ -626,16 +670,20 @@ func _hold_cores(events: Array) -> void:
 			continue
 		var dd: Dictionary = e.get("data", {})
 		var n := int(dd.get("n", 1))
+		var souls := int(dd.get("souls", 0))
 		var src := _gems_at(dd.get("from", {}))
 		var dst := _gems_at(dd.get("to", {}))
 		if not dragged_seen and board.has_method("is_dragged_move") and board.is_dragged_move(dd, false):
 			dragged_seen = true
 			continue
-		if src != null:
-			src.hold_add(n)
+		# a leaving card already shows what it had: nothing to hold back
+		var from_leaving: bool = str((dd.get("from", {}) as Dictionary).get("kind", "")) == "card" \
+				and board.is_leaving(int((dd.get("from", {}) as Dictionary).get("uid", -1)))
+		if src != null and not from_leaving:
+			src.hold_add(n, souls)
 			_held_rows.append(src.get_instance_id())
 		if dst != null:
-			dst.hold_add(-n)
+			dst.hold_add(-n, -souls)
 			_held_rows.append(dst.get_instance_id())
 
 
@@ -643,7 +691,7 @@ func _hold_cores(events: Array) -> void:
 func _release_cores() -> void:
 	for id: int in _held_rows:
 		var g := BattleFX.alive(id) as CoreGems
-		if g != null and g.offset != 0:
+		if g != null and (g.offset != 0 or g.soul_offset != 0):
 			g.hold(0)
 	_held_rows = []
 
@@ -657,6 +705,11 @@ func _gems_at(loc: Dictionary) -> CoreGems:
 		var w := board.node_of(int(loc.get("uid", -1)))
 		if w is CardWidget:
 			return (w as CardWidget).core_gems()
+		# a card on its way out is drawn as it was: its cores leave it as they
+		# fly (0.25.0 -- before, a stripped Siegwurm kept showing its soul core)
+		var lw := board.leaving_widget(int(loc.get("uid", -1))) if board.has_method("leaving_widget") else null
+		if lw is CardWidget:
+			return (lw as CardWidget).core_gems()
 		return null
 	var zname := ""
 	match int(loc.get("zone", -1)):
@@ -868,6 +921,7 @@ func _clash(events: Array, i: int) -> void:
 func _destroyed(uid: int) -> void:
 	var r := _rect(uid)
 	var cid := _cid(uid)
+	destroyed_shown[uid] = true
 	if board.is_leaving(uid) and r.size.x > 0.0:
 		# 0.24.0: the card stood on the field until now; it breaks here
 		fx.callout("DESTROYED", UITheme.DANGER, r.get_center() + Vector2(0, -r.size.y * 0.5 - 16.0), 30, 0.3)
@@ -892,8 +946,13 @@ func _claim_damage_cores(events: Array) -> void:
 			continue
 		for j in range(i - 1, maxi(-1, i - 3), -1):
 			var e: Dictionary = events[j]
-			var from: Dictionary = (e.get("data", {}) as Dictionary).get("from", {})
-			if str(e.get("kind", "")) == "cores" and int(from.get("zone", -1)) == BSS.Zone.LIFE:
+			if str(e.get("kind", "")) != "cores":
+				continue
+			# only "cores" events carry a location dictionary; a "move" event's
+			# "from" is a zone number (0.24.0: read the kind first)
+			var fv: Variant = (e.get("data", {}) as Dictionary).get("from", {})
+			var from: Dictionary = fv if fv is Dictionary else {}
+			if int(from.get("zone", -1)) == BSS.Zone.LIFE:
 				_claimed[j] = true
 				break
 
@@ -1016,6 +1075,7 @@ func _mill(events: Array, i: int, who: int) -> void:
 
 
 func _to_pile(uid: int, who: int, pile: String) -> void:
+	trash_flights[uid] = int(trash_flights.get(uid, 0)) + 1
 	var src := _rect(uid)
 	var dst := board.anchor_rect(who, pile)
 	var cid := _cid(uid)

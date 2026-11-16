@@ -79,7 +79,12 @@ func _build(title: String, width: float) -> void:
 	panel.offset_top = -180
 	panel.offset_bottom = 180
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	# 0.25.0 (R-178): content wider than asked grows the panel on both sides,
+	# never only to the right (the Ascend choice with many spirits ran off the
+	# window and hid its buttons); _fit() shrinks it to the window if needed
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	add_child(panel)
+	_panel = panel
 
 	var v := UITheme.vbox(UITheme.SP_M)
 	panel.add_child(v)
@@ -92,17 +97,44 @@ func _build(title: String, width: float) -> void:
 	v.add_child(buttons)
 	# Fades up over 150 ms (0.16.0); the backdrop never blocks the click that
 	# would close it.
+	panel.resized.connect(func(): _fit.call_deferred())
 	ready.connect(func():
+		_fit.call_deferred()
 		if Motion.enabled():
 			dim.modulate.a = 0.0
 			var tw := create_tween().set_parallel()
 			tw.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 			tw.tween_property(dim, "modulate:a", 1.0, 0.15)
-			panel.pivot_offset = Vector2(width * 0.5, 180.0)
-			panel.scale = Vector2(0.97, 0.97)
 			panel.modulate.a = 0.0
-			tw.tween_property(panel, "scale", Vector2.ONE, 0.18)
-			tw.tween_property(panel, "modulate:a", 1.0, 0.15))
+			tw.tween_property(panel, "modulate:a", 1.0, 0.15)
+			tw.chain().tween_callback(_fit))
+
+
+var _panel: Control
+
+
+## Keeps the whole panel -- its buttons above all -- inside the window: a
+## panel bigger than the window is scaled down to fit (R-178).
+func _fit() -> void:
+	if _panel == null or not is_instance_valid(_panel) or not is_inside_tree():
+		return
+	var view := get_viewport_rect().size
+	var need := _panel.get_combined_minimum_size()
+	need.x = maxf(need.x, _panel.size.x)
+	need.y = maxf(need.y, _panel.size.y)
+	var k := minf(1.0, minf((view.x - 32.0) / maxf(1.0, need.x), (view.y - 32.0) / maxf(1.0, need.y)))
+	_panel.pivot_offset = _panel.size * 0.5
+	_panel.scale = Vector2(k, k)
+	fitted_scale = k
+
+
+## The scale _fit() chose (1 = no shrinking needed); read by the tests.
+var fitted_scale := 1.0
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED and _panel != null:
+		_fit.call_deferred()
 
 
 func close() -> void:

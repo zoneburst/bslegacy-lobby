@@ -329,7 +329,7 @@ const SET_NAMES := {"BSS01": "Dawn of History", "BSS02": "False Gods", "BSS03": 
 		"BSS04": "Savior of Chaos", "BSS05": "Strangers in the Sky", "BSS06": "Generational Link",
 		"ST01": "Dragon Onslaught", "ST02": "Call of the Curse", "ST03": "Aegis of the Machine",
 		"ST04": "Forbidden Magic", "ST05": "Verdant Wings", "ST06": "Bodies of Steel", "ST07": "Destined Assault",
-		"PR": "Promo"}
+		"BSS07A": "Darkest Plague", "PR": "Promo"}
 
 
 func _reset_filters() -> void:

@@ -652,6 +652,9 @@ func _finish_match(room: Room, reason: String, except_peer: int = -1) -> void:
 		room.phase = "between"
 		room.deadline = Time.get_unix_time_from_system() + BETWEEN_SECONDS
 	var info := series_of(room)
+	# the whole game, for each side's Replays screen (0.25.0, R-169): the
+	# game is over, so the seed and both decks are no longer secrets
+	var replay := room.engine.replay_record()
 	for p in room.players:
 		if p == except_peer or not clients.has(p):
 			continue
@@ -660,9 +663,11 @@ func _finish_match(room: Room, reason: String, except_peer: int = -1) -> void:
 			"winner": winner, "you": seat, "reason": reason, "series": info,
 			"between_seconds": BETWEEN_SECONDS if room.phase == "between" else 0.0,
 			"result": ("draw" if winner == 2 else ("win" if winner == seat else "loss")),
+			"replay": replay,
 		})
 	for s in room.spectators:
-		Net.push(s, "ended", {"winner": winner, "reason": reason, "result": "spectated", "series": info})
+		Net.push(s, "ended", {"winner": winner, "reason": reason, "result": "spectated", "series": info,
+				"replay": replay})
 	room.engine = null
 	room.last_activity = Time.get_unix_time_from_system()
 

@@ -23,6 +23,8 @@ const ITEMS := [
 		"hint": "What changed, and what is known to be broken."},
 	{"label": "REPORT BUG",  "route": "bug_report",
 		"hint": "Send a report with logs and a replayable action log."},
+	{"label": "REPLAYS",     "route": "replays",
+		"hint": "Watch your last ten matches again, or save them as MP4 videos."},
 ]
 const MENU_W := 360.0
 
@@ -116,7 +118,9 @@ func _build_menu() -> void:
 	col.offset_left = 48
 	col.offset_right = 48 + MENU_W
 	col.offset_top = 150
-	col.offset_bottom = -110
+	# 0.25.0: REPLAYS made the column one item (52 + 10 px) taller; the
+	# column grows down by as much, so PLAY and the items above stay put
+	col.offset_bottom = -110 + 62
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(col)
 
@@ -483,7 +487,8 @@ func _quick_play() -> void:
 		if str(d.get("id", "")) != str(deck.get("id", "")):
 			opp = d
 			break
-	var res := MatchService.start_bot_match(deck, 2, opp, true)
+	# always a single game (0.25.0, R-179): Best of 3 is chosen in Battle
+	var res := MatchService.start_bot_match(deck, 2, opp, true, 1)
 	if bool(res.get("ok", false)):
 		MatchService.record_results = true  # a real game: goes on the profile (0.16.0)
 		SceneRouter.go("game", {"mode": "bot"})

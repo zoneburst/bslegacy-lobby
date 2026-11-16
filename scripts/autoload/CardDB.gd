@@ -148,6 +148,11 @@ func _build_replacements() -> void:
 	# 0.18.2 (R-107): an imported card's "replaces" (written by imports made
 	# before 0.18.2) no longer takes our card out of the game.
 	replaced_by.clear()
+	# 0.25.0 (14 Nov): the six Battle Spirits Legacy Project cards printed
+	# "BSS07A-PR0N" were PR-075 ... PR-080 for a day; decks and replays saved
+	# with the old ids still find them
+	for i in 6:
+		replaced_by["PR-%03d" % (75 + i)] = "BSS07A-PR%02d" % (1 + i)
 
 
 ## The id a card is played as: itself, or the card that replaces it.
@@ -432,14 +437,12 @@ func _texture_for(id: String) -> Texture2D:
 	if _art_cache.has(id):
 		return _art_cache[id]
 	var tex: Texture2D = null
-	for ext in [".png", ".jpg", ".jpeg", ".webp"]:
-		var upath := "%s/%s%s" % [GameConfig.card_art_override_dir, id, ext]
-		if FileAccess.file_exists(upath):
-			var img := Image.new()
-			if img.load(upath) == OK:
-				img.generate_mipmaps()
-				tex = ImageTexture.create_from_image(img)
-				break
+	var upath := user_art_path(id)
+	if upath != "":
+		var img := Image.new()
+		if img.load(upath) == OK:
+			img.generate_mipmaps()
+			tex = ImageTexture.create_from_image(img)
 	if tex == null:
 		# 0.24.0: the sharp bundled pictures ship as they are (importer
 		# "keep", tools/sharpen_card_art.py) and are decoded here, with
@@ -500,6 +503,57 @@ const BUNDLED_CACHE_MAX := 240
 var _bundled_order: Array = []
 
 
+## A picture of this card in the card art folder (user://assets/cards), or
+## "" when there is none or when it is smaller than the bundled one.
+##
+## 0.25.0 (R-180): importing the BSS workbook (Settings -> Imports) saved its
+## 320 x 447 pictures there, and those came before the bundled bssdb.dev
+## pictures (600 x 838) -- so on a computer or browser that had imported the
+## workbook once, every card stayed blurry after the sharper pictures came in
+## 0.24.0. A picture in that folder now replaces a bundled one only if it is
+## at least as sharp (USER_ART_MIN_WIDTH wide); cards with no bundled picture
+## (your own cards) use it whatever its size.
+const USER_ART_MIN_WIDTH := 560
+var _user_art: Dictionary = {}       # id -> path or ""
+
+
+func user_art_path(id: String) -> String:
+	if _user_art.has(id):
+		return _user_art[id]
+	var found := ""
+	for ext in [".png", ".jpg", ".jpeg", ".webp"]:
+		var upath := "%s/%s%s" % [GameConfig.card_art_override_dir, id, ext]
+		if FileAccess.file_exists(upath):
+			found = upath
+			break
+	if found != "" and has_bundled_art(id) and _image_width(found) < USER_ART_MIN_WIDTH:
+		found = ""
+	_user_art[id] = found
+	return found
+
+
+func has_bundled_art(id: String) -> bool:
+	for ext in [".webp", ".png", ".jpg", ".jpeg"]:
+		if FileAccess.file_exists("%s/%s%s" % [BUNDLE_ART_DIR, id, ext]) \
+				or ResourceLoader.exists("%s/%s%s" % [BUNDLE_ART_DIR, id, ext]):
+			return true
+	return false
+
+
+## The width of a picture file, read from its header where possible.
+func _image_width(path: String) -> int:
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return 0
+	var head := f.get_buffer(32)
+	f.close()
+	# PNG: the IHDR width, big-endian, at byte 16
+	if head.size() >= 24 and head[0] == 0x89 and head[1] == 0x50:
+		return (head[16] << 24) | (head[17] << 16) | (head[18] << 8) | head[19]
+	var img := Image.load_from_file(path)
+	return img.get_width() if img != null else 0
+
+
 func _note_bundled(id: String) -> void:
 	_bundled_order.append(id)
 	if _bundled_order.size() > BUNDLED_CACHE_MAX:
@@ -509,6 +563,7 @@ func _note_bundled(id: String) -> void:
 
 func clear_art_cache() -> void:
 	_art_cache.clear()
+	_user_art.clear()
 	_bundled_order.clear()
 	_placeholder_ids.clear()
 	_sharp_cache.clear()
@@ -579,11 +634,9 @@ func _full_image(id: String) -> Image:
 	if _full_cache.has(id):
 		return _full_cache[id]
 	var img: Image = null
-	for ext in [".png", ".jpg", ".jpeg", ".webp"]:
-		var upath := "%s/%s%s" % [GameConfig.card_art_override_dir, id, ext]
-		if FileAccess.file_exists(upath):
-			img = Image.load_from_file(upath)
-			break
+	var upath := user_art_path(id)
+	if upath != "":
+		img = Image.load_from_file(upath)
 	if img == null and _uses_web_packs(id):
 		img = _image_from_pack(id)
 		if img == null:
@@ -646,11 +699,11 @@ func _uses_web_packs(id: String) -> bool:
 
 
 func _image_from_pack(id: String) -> Image:
-	var set_name := _pack_name(id)
-	if not _packs.has(set_name):
-		_fetch_pack(set_name)
+	var pack_set := _pack_name(id)
+	if not _packs.has(pack_set):
+		_fetch_pack(pack_set)
 		return null
-	var pk: Dictionary = _packs[set_name]
+	var pk: Dictionary = _packs[pack_set]
 	var ent: Variant = (pk["index"] as Dictionary).get(id, null)
 	if ent == null:
 		return null
@@ -662,39 +715,39 @@ func _image_from_pack(id: String) -> Image:
 	return img
 
 
-func _fetch_pack(set_name: String) -> void:
-	if _pack_loading.has(set_name):
+func _fetch_pack(pack_set: String) -> void:
+	if _pack_loading.has(pack_set):
 		return
 	var base: Variant = JavaScriptBridge.eval("window.location.href.replace(/[?#].*$/, '').replace(/[^/]*$/, '')", true)
-	var url := "%sart/%s.bsa" % [str(base) if base != null else "", set_name]
+	var url := "%sart/%s.bsa" % [str(base) if base != null else "", pack_set]
 	var req := HTTPRequest.new()
 	req.download_chunk_size = 1 << 20
 	add_child(req)
-	_pack_loading[set_name] = req
+	_pack_loading[pack_set] = req
 	req.request_completed.connect(func(result: int, code: int, _h: PackedStringArray, body: PackedByteArray):
-		_pack_loading.erase(set_name)
+		_pack_loading.erase(pack_set)
 		req.queue_free()
 		if result != HTTPRequest.RESULT_SUCCESS or code != 200 or body.size() < 8:
 			push_warning("CardDB: picture file %s not loaded (%d / %d)" % [url, result, code])
 			return
-		_store_pack(set_name, body))
+		_store_pack(pack_set, body))
 	if req.request(url) != OK:
-		_pack_loading.erase(set_name)
+		_pack_loading.erase(pack_set)
 		req.queue_free()
 
 
 ## art/<SET>.bsa: "BSA1", a 4-byte little-endian length, a JSON index
 ## {code: [offset, length]} and the lossless WebP pictures one after another.
-func _store_pack(set_name: String, body: PackedByteArray) -> void:
+func _store_pack(pack_set: String, body: PackedByteArray) -> void:
 	if body.slice(0, 4).get_string_from_ascii() != "BSA1":
 		return
 	var n := body.decode_u32(4)
 	var idx: Variant = JSON.parse_string(body.slice(8, 8 + n).get_string_from_utf8())
 	if not idx is Dictionary:
 		return
-	_packs[set_name] = {"index": idx, "data": body.slice(8 + n)}
-	_pack_order.erase(set_name)
-	_pack_order.append(set_name)
+	_packs[pack_set] = {"index": idx, "data": body.slice(8 + n)}
+	_pack_order.erase(pack_set)
+	_pack_order.append(pack_set)
 	while _pack_order.size() > PACKS_KEPT:
 		_packs.erase(_pack_order.pop_front())
 	for code: Variant in (idx as Dictionary).keys():

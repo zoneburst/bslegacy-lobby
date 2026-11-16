@@ -62,6 +62,7 @@ static var _soul_tex: Texture2D
 
 ## Shown = real count + offset (an animation in progress); 0 = the real count.
 var offset: int = 0
+var soul_offset: int = 0     # soul cores held back while a move plays (0.25.0)
 ## 1 -> 0 while the newest gem pops in.
 var pop: float = 0.0:
 	set(v):
@@ -98,13 +99,16 @@ func set_counts(regular: int, soul_cores: int) -> void:
 ## Show the row as if it had `delta` more (or fewer) cores than it really has.
 func hold(delta: int) -> void:
 	offset = delta
+	if delta == 0:
+		soul_offset = 0
 	queue_redraw()
 	shown_changed.emit(_shown())
 
 
 ## Add `delta` to what the row is holding back (several moves queued at once).
-func hold_add(delta: int) -> void:
+func hold_add(delta: int, soul_delta: int = 0) -> void:
 	offset += delta
+	soul_offset += soul_delta
 	queue_redraw()
 	shown_changed.emit(_shown())
 
@@ -216,7 +220,7 @@ func _draw() -> void:
 			continue
 		# Soul cores are drawn first so a single red gem is always visible even
 		# when the row is truncated.
-		var is_soul := i < soul
+		var is_soul := i < clampi(soul + soul_offset, 0, shown)
 		var k := 1.0
 		if pop > 0.0 and i == drawn - 1 and offset >= 0:
 			k = 1.0 + 0.45 * pop

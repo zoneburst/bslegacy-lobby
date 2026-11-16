@@ -25,6 +25,7 @@ const ROUTES := {
 	"settings":    "res://scenes/menu/SettingsScreen.tscn",
 	"profile":     "res://scenes/menu/ProfileScreen.tscn",
 	"patch_notes": "res://scenes/menu/PatchNotes.tscn",
+	"replays":     "res://scenes/menu/Replays.tscn",           # 0.25.0
 	"bug_report":  "res://scenes/menu/BugReport.tscn",
 	"game":        "res://scenes/battle/GameBoard.tscn",
 }

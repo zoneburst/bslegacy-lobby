@@ -9,7 +9,7 @@ extends Node
 ## through the same scene.
 ##
 
-enum Kind { NONE, ONLINE, BOT, LOCAL_HOTSEAT }
+enum Kind { NONE, ONLINE, BOT, LOCAL_HOTSEAT, REPLAY }
 
 var kind: int = Kind.NONE
 var my_seat: int = 0
@@ -50,6 +50,21 @@ signal rejected(reason: String)
 ## rematch, or leaves (online), and when a local series moves on.
 signal series_changed(info: Dictionary)
 
+## 0.25.0 (R-169): replays. Every finished game is kept (ReplayStore, the
+## last ten); start_replay() plays one back on the board, read-only.
+signal replay_progress(index: int, total: int)
+signal replay_finished
+var save_replays := true            # tests turn it off (or point ReplayStore.DIR elsewhere)
+var replay_id := ""
+var replay_entry: Dictionary = {}
+var replay_paused := false
+var replay_speed := 1.0
+var replay_recording := false       # an MP4 export is running: no pauses, no end dialog wait
+var _replay_actions: Array = []
+var _replay_index := 0
+var _replay_step_once := false
+var _anim_speed_before := 1.0
+
 var series: Dictionary = {}
 var game_series: Dictionary = {}     # the series as this game began (the opening banner shows it)
 var series_info: Dictionary = {}    # online: the lobby's latest word on readiness / rematch
@@ -62,6 +77,46 @@ func _ready() -> void:
 	Net.match_ended.connect(_on_net_ended)
 	Net.lobby_message.connect(_on_net_message)
 	Net.connection_changed.connect(_on_net_connection)
+	_export_child.call_deferred()
+
+
+## The recording copy of the game (0.25.0, ReplayExporter): started with
+## --write-movie and "-- --replay-export=<id>", it plays that replay on the
+## board, writes its progress for the first copy to show, and quits.
+func _export_child() -> void:
+	var id := ""
+	var sp := 2.0
+	for a: String in OS.get_cmdline_user_args():
+		if a.begins_with("--replay-export="):
+			id = a.substr(16)
+		elif a.begins_with("--replay-speed="):
+			sp = float(a.substr(15))
+		elif a.begins_with("--replay-dir="):
+			ReplayStore.DIR = a.substr(13)
+	if id.is_empty():
+		return
+	GameConfig.persist = false
+	GameConfig.gate_open = "off"
+	GameConfig.battle_animations = true
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var r := start_replay(id)
+	if not bool(r.get("ok", false)):
+		Log.error("Replay export: %s" % str(r.get("reason", "")))
+		get_tree().quit(2)
+		return
+	replay_recording = true
+	replay_speed = sp
+	GameConfig.card_animation_speed = sp
+	var progress := ReplayStore.DIR + "/export/%s.progress" % id
+	replay_progress.connect(func(i: int, total: int):
+		var f := FileAccess.open(progress, FileAccess.WRITE)
+		if f != null:
+			f.store_string("%d/%d" % [i, total]))
+	SceneRouter.go("game")
+	await replay_finished
+	await get_tree().create_timer(2.0).timeout
+	get_tree().quit(0)
 
 
 # ---------------------------------------------------------------------------
@@ -172,6 +227,8 @@ func end_match() -> void:
 	# rooms do not pile up there (0.16.8).
 	if kind == Kind.ONLINE and Net.connected:
 		Net.leave_room()
+	if kind == Kind.REPLAY:
+		GameConfig.card_animation_speed = _anim_speed_before     # the replay bar's speed was for the replay
 	mirror = false
 	_match_token += 1
 	_auto_running = false
@@ -189,6 +246,10 @@ func end_match() -> void:
 	kind = Kind.NONE
 	snapshot = {}
 	is_spectator = false
+	replay_id = ""
+	_replay_actions = []
+	_replay_index = 0
+	replay_recording = false
 
 
 # ---------------------------------------------------------------------------
@@ -360,10 +421,117 @@ func _refresh_local() -> void:
 
 func _on_local_ended(winner: int) -> void:
 	_record_result()
+	_save_replay("draw" if winner == 2 else ("win" if winner == my_seat else "loss"))
 	if kind == Kind.BOT:
 		_series_scored(winner)
 	ended.emit({"winner": winner, "you": my_seat, "series": series.duplicate(true),
 		"result": ("draw" if winner == 2 else ("win" if winner == my_seat else "loss"))})
+
+
+## Keep the game that just ended for the Replays screen (0.25.0, R-169).
+func _save_replay(result: String) -> void:
+	if kind == Kind.REPLAY or engine == null or not save_replays or not GameConfig.persist:
+		return
+	var k := "cpu" if kind == Kind.BOT else ("hotseat" if kind == Kind.LOCAL_HOTSEAT else "local")
+	var res := result
+	if kind == Kind.LOCAL_HOTSEAT:
+		res = "draw" if result == "draw" else "Seat %d won" % (engine.state.winner + 1)
+	var meta := {"opponent": opponent_name if kind == Kind.BOT else "Seat 2", "result": res,
+			"kind": k, "seat": my_seat, "deck": str(my_deck.get("name", ""))}
+	# The game ends inside submit(), before its last action is logged: save
+	# once that call has returned.
+	var eng := engine
+	(func() -> void: ReplayStore.save(eng.replay_record(), meta)).call_deferred()
+
+
+## Watch a kept game (0.25.0, R-169): the recorded game is rebuilt and its
+## actions are applied one at a time, at the board's pace. The board is
+## read-only (is_spectator); the replay bar pauses, steps, changes speed.
+func start_replay(id: String, record: Dictionary = {}) -> Dictionary:
+	var rec := record if not record.is_empty() else ReplayStore.load_record(id)
+	if rec.is_empty():
+		return {"ok": false, "reason": "That replay could not be read."}
+	var eng := ReplayStore.engine_for(rec)
+	if eng == null:
+		return {"ok": false, "reason": "That replay's decks are no longer valid with these cards."}
+	var keep_speed := _anim_speed_before if kind == Kind.REPLAY else GameConfig.card_animation_speed
+	end_match()
+	_anim_speed_before = keep_speed
+	engine = eng
+	kind = Kind.REPLAY
+	_match_token += 1
+	replay_id = id
+	replay_entry = ReplayStore.entry(id)
+	var seat := int(replay_entry.get("seat", 0))
+	my_seat = seat if seat >= 0 else 0
+	is_spectator = true
+	record_results = false
+	_recorded = true
+	opponent_name = str(replay_entry.get("opponent", "Opponent"))
+	_replay_actions = rec.get("actions", [])
+	_replay_index = 0
+	replay_paused = false
+	_refresh_local()
+	_run_replay.call_deferred(_match_token)
+	return {"ok": true, "reason": ""}
+
+
+func replay_total() -> int:
+	return _replay_actions.size()
+
+
+func replay_index() -> int:
+	return _replay_index
+
+
+func replay_step() -> void:
+	_replay_step_once = true
+
+
+## From the start again (keeps speed and pause).
+func replay_restart() -> void:
+	if kind != Kind.REPLAY:
+		return
+	var rec := ReplayStore.load_record(replay_id)
+	var eng := ReplayStore.engine_for(rec) if not rec.is_empty() else null
+	if eng == null:
+		return
+	_match_token += 1
+	engine = eng
+	_replay_index = 0
+	_refresh_local()
+	_run_replay.call_deferred(_match_token)
+
+
+func _run_replay(token: int) -> void:
+	while token == _match_token and kind == Kind.REPLAY and _replay_index < _replay_actions.size():
+		var waited := 0
+		while _presenter_busy() and waited < 3600:
+			waited += 1
+			await get_tree().process_frame
+			if token != _match_token:
+				return
+		while replay_paused and not _replay_step_once and not replay_recording:
+			await get_tree().process_frame
+			if token != _match_token:
+				return
+		_replay_step_once = false
+		await get_tree().create_timer(0.45 / maxf(0.25, replay_speed)).timeout
+		if token != _match_token:
+			return
+		var e: Dictionary = _replay_actions[_replay_index]
+		_replay_index += 1
+		var r := engine.submit(int(e.get("pid", 0)), ReplayStore.action_of(e))
+		if not bool(r.get("ok", false)):
+			Log.warn("Replay: action %d was refused (%s)" % [_replay_index, str(r.get("reason", ""))])
+		_refresh_local()
+		replay_progress.emit(_replay_index, _replay_actions.size())
+	if token == _match_token and kind == Kind.REPLAY:
+		var waited2 := 0
+		while _presenter_busy() and waited2 < 3600:
+			waited2 += 1
+			await get_tree().process_frame
+		replay_finished.emit()
 
 
 ## A game of the series is over (local games; the lobby does this online).
@@ -501,6 +669,10 @@ func _on_net_ended(data: Dictionary) -> void:
 	if data.has("series"):
 		series = (data["series"] as Dictionary).duplicate(true)
 	_record_result(str(data.get("result", "")))
+	# the server sends the whole game once it is over (0.25.0)
+	if data.get("replay") is Dictionary and save_replays and GameConfig.persist:
+		ReplayStore.save(data["replay"], {"opponent": opponent_name, "result": str(data.get("result", "")),
+				"kind": "online", "seat": my_seat, "deck": str(my_deck.get("name", ""))})
 	ended.emit(data)
 
 

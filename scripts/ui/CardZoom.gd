@@ -26,12 +26,25 @@ var _count_label: Label
 var _detail: VBoxContainer
 
 
-func open(ids: Array, start_index: int, count_source: Callable) -> void:
+## `notes`: id -> a line about that copy in play ("On your field: LV2, 4
+## cores, BP 9000"), shown under the title (0.25.0, the battle's right-click).
+func open(ids: Array, start_index: int, count_source: Callable, notes: Dictionary = {}) -> void:
 	_ids = ids
 	_index = clampi(start_index, 0, maxi(0, ids.size() - 1))
 	_count_source = count_source
+	_notes = notes
+	# the deck editor's - Add / Remove + belong to building a deck, not to a battle
+	for n: Variant in [_minus, _plus, _count_label]:
+		if n is Control:
+			(n as Control).visible = count_source.is_valid()
 	visible = true
 	_refresh()
+
+
+var _notes: Dictionary = {}
+var _minus: Button
+var _plus: Button
+var _note: Label
 
 
 func _ready() -> void:
@@ -86,6 +99,11 @@ func _ready() -> void:
 
 	_subtitle = UITheme.body("", true, UITheme.FS_SMALL)
 	right.add_child(_subtitle)
+	_note = UITheme.body("", false, UITheme.FS_SMALL)
+	_note.name = "ZoomNote"
+	_note.add_theme_color_override("font_color", UITheme.ACCENT)
+	_note.visible = false
+	right.add_child(_note)
 	right.add_child(UITheme.rule())
 
 	var controls := UITheme.hbox(UITheme.SP_S)
@@ -93,6 +111,7 @@ func _ready() -> void:
 	var minus := UITheme.button("-  Remove", _on_remove)
 	minus.custom_minimum_size = Vector2(120, 38)
 	controls.add_child(minus)
+	_minus = minus
 	_count_label = UITheme.number("0 / 4", UITheme.FS_HEAD)
 	_count_label.custom_minimum_size = Vector2(90, 0)
 	_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -100,6 +119,7 @@ func _ready() -> void:
 	var plus := UITheme.button("+  Add", _on_add)
 	plus.custom_minimum_size = Vector2(120, 38)
 	controls.add_child(plus)
+	_plus = plus
 	controls.add_child(UITheme.grow())
 	controls.add_child(UITheme.button("< Prev", func(): step(-1)))
 	controls.add_child(UITheme.button("Next >", func(): step(1)))
@@ -158,6 +178,9 @@ func _refresh() -> void:
 	if not cd.spirit_types.is_empty():
 		sub_types = ", ".join(cd.spirit_types)
 	_subtitle.text = "%s   ·   %s   ·   %s" % [id, type_name, sub_types]
+	var nt := str(_notes.get(_index, _notes.get(id, "")))
+	_note.text = nt
+	_note.visible = nt != ""
 	if _count_source.is_valid():
 		_count_label.text = "%d / %d" % [int(_count_source.call(id)), BSS.MAX_COPIES]
 
@@ -201,6 +224,21 @@ func _stat_row(label: String, value: String) -> Control:
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	r.add_child(v)
 	return r
+
+
+## A click on the dimmed backdrop (outside the panel) closes it; so does a
+## right-click anywhere (the battle opens it with a right-click, 0.25.0).
+func _gui_input(event: InputEvent) -> void:
+	if visible and event is InputEventMouseButton and event.pressed \
+			and (event.button_index == MOUSE_BUTTON_LEFT or event.button_index == MOUSE_BUTTON_RIGHT):
+		_close()
+		accept_event()
+
+
+func _input(event: InputEvent) -> void:
+	if visible and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		_close()
+		get_viewport().set_input_as_handled()
 
 
 func _unhandled_input(event: InputEvent) -> void:

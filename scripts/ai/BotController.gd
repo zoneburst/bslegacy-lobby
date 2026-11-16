@@ -72,6 +72,10 @@ func choose_action() -> Dictionary:
 	# of the best pick but not out of the random "blunder" pick, which on
 	# Normal is one decision in ten.
 	options = options.filter(func(a: Dictionary) -> bool: return not _throws_away(a))
+	# 0.25.0 (R-177): Awaken is offered whenever another card has cores; the
+	# CPU only takes spare ones, so an offer with none spare is not a play
+	options = options.filter(func(a: Dictionary) -> bool:
+		return not (str(a.get("keyword", "")) == "awaken" and (a.get("sources", []) as Array).is_empty()))
 	# (0.15.0) an activated effect is used at most twice a turn: a free Flash
 	# effect on a spirit (BSS05-004, BSS06-067) can never be repeated forever
 	options = options.filter(func(a: Dictionary) -> bool:
@@ -473,6 +477,8 @@ func _score_awaken(action: Dictionary) -> float:
 	var extra := 0
 	for src: Dictionary in action.get("sources", []):
 		extra += int(src.get("n", 0))
+	if extra <= 0:
+		return -1000.0                         # no spare core: never strip a spirit (0.25.0)
 	var now_lv := ci.current_level()
 	var new_lv := ci.data.level_for_cores(ci.total_cores() + extra)
 	var gain := ci.data.base_bp(new_lv) - ci.data.base_bp(now_lv)
@@ -673,6 +679,13 @@ func _answer_choice(pc: Dictionary) -> Dictionary:
 					var cb0: CardInstance = engine.state.card(int(b))
 					return (ca0.data.cost if ca0 else 0) > (cb0.data.cost if cb0 else 0))
 				return {"verb": BSS.Action.RESOLVE_CHOICE, "choice": by_cost.slice(0, n)}
+			if op == "pay_one_core":
+				# paying a cost from the field (0.24.0): a spare core first, a
+				# nexus next, a spirit it would destroy last (the cheapest)
+				var pay: Array = opts.duplicate()
+				pay.sort_custom(func(a: Variant, b: Variant) -> bool:
+					return _pay_rank(engine.state.card(int(a))) > _pay_rank(engine.state.card(int(b))))
+				return {"verb": BSS.Action.RESOLVE_CHOICE, "choice": pay.slice(0, 1)}
 			if op == "remove_cores":
 				# Purple: strip the spirit closest to empty, so it dies.
 				var thin: Array = opts.duplicate()
@@ -721,6 +734,11 @@ func _answer_choice(pc: Dictionary) -> Dictionary:
 		"option":
 			# Branch 0 is by convention the "do the thing" branch.
 			var take := difficulty >= Difficulty.NORMAL
+			if bool(pc.get("level_choice", false)):
+				# a level to summon at (0.25.0): LV1 keeps the reserve; an easy
+				# CPU declines an Immortal summon when it can
+				return {"verb": BSS.Action.RESOLVE_CHOICE,
+						"choice": 0 if take else int(pc.get("decline", 0))}
 			return {"verb": BSS.Action.RESOLVE_CHOICE, "choice": (0 if take else 1)}
 		"discard":
 			var hand: Array = pc.get("options", [])
@@ -801,3 +819,15 @@ func _best_blocker_bp(pid: int) -> int:
 func _incoming_damage() -> int:
 	var atk: CardInstance = engine.state.card(int(engine.state.battle.get("attacker", -1)))
 	return atk.symbol_count() if atk != null else 1
+
+
+## How happily a card gives up one core of a cost (0.24.0).
+func _pay_rank(c: CardInstance) -> float:
+	if c == null or c.data == null:
+		return -1e9
+	var spare := c.cores - c.data.min_level_cost()
+	if c.data.is_nexus():
+		return 500.0 + c.total_cores()
+	if spare > 0:
+		return 1000.0 + spare
+	return -float(c.data.cost) * 10.0 - c.current_bp() / 1000.0
