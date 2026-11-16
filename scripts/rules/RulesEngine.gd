@@ -43,7 +43,21 @@ func _init(p_state: GameState = null) -> void:
 ## contain 50-60 cards (has 0)" for a deck the editor had just called legal.
 ## Callers should still pass "cards"; "main" is tolerated so that a deck
 ## dictionary can be handed over directly without a conversion step.
+## What setup() was given (0.25.0): with the seed and the action log it
+## rebuilds the whole game -- the replays (ReplayStore).
+var setup_args: Dictionary = {}
+
+
+## Everything a replay needs (0.25.0, R-169): the engine is deterministic, so
+## the seed, setup() and the accepted actions in order reproduce the game.
+func replay_record() -> Dictionary:
+	return {"version": 1, "seed": state.seed_value, "setup": setup_args.duplicate(true),
+			"actions": state.action_log.duplicate(true), "turns": state.turn_number,
+			"winner": state.winner if state.game_over else -1}
+
+
 func setup(decks: Array, names: Array = ["Player 1", "Player 2"], p_first: int = -1, chooser: int = -1) -> Dictionary:
+	setup_args = {"decks": decks.duplicate(true), "names": names.duplicate(), "first": p_first, "chooser": chooser}
 	for pid in 2:
 		var entry: Dictionary = decks[pid]
 		var ids: Array = entry.get("cards", entry.get("main", []))
@@ -333,6 +347,7 @@ func submit(pid: int, action: Dictionary) -> Dictionary:
 	# Conceding is unconditional and unstoppable (1-2-4, 1-2-5).
 	if verb == BSS.Action.CONCEDE:
 		state.player(pid).conceded = true
+		state.action_log.append({"pid": pid, "action": action})    # replays end the same way (0.25.0)
 		_declare_winner(state.opponent_of(pid), "concession")
 		return _ok()
 
@@ -450,7 +465,14 @@ func _act_resolve_choice(pid: int, action: Dictionary) -> Dictionary:
 ## an answer named one. The board never sent one, but an online answer comes
 ## from the other player's game, so the engine checks it.
 func _bad_selection(pc: Dictionary, choice: Variant) -> String:
-	if str(pc.get("type", "")) != "select_cards" or typeof(choice) != TYPE_ARRAY:
+	if str(pc.get("type", "")) != "select_cards":
+		return ""
+	if typeof(choice) != TYPE_ARRAY:
+		# a bare card id is one pick; anything else is no answer (0.24.0)
+		if (typeof(choice) == TYPE_INT or typeof(choice) == TYPE_FLOAT) and (pc.get("options", []) as Array).has(int(choice)):
+			return ""
+		if bool(pc.get("pay_from_field", false)) or (not bool(pc.get("up_to", false)) and not bool(pc.get("optional", false))):
+			return "choose from the cards offered"
 		return ""
 	# a total-cost budget or a reveal (scry, search) has its own rules
 	if pc.has("cost_budget") or pc.has("revealed") \
@@ -606,6 +628,11 @@ func compute_cost(pid: int, cd: CardData) -> int:
 		if nmd >= 0:
 			base -= int(((state.turn_flags.get("%d:next_magic_discount" % pid, []) as Array)[nmd] as Dictionary)["amount"])
 	var reduction := _match_icons(icons, groups)
+	# "Treat this magic's reduction symbol colors as purple, white, yellow,
+	# green, and blue as well as red" (0.25.0, BSS07A-PR06): any symbol pays an icon
+	for e4: Dictionary in cd.effects:
+		if str(e4.get("timing", "")) == "cost" and bool(e4.get("reduction_any_color", false)):
+			reduction = maxi(reduction, mini(icons.size(), groups.size()))
 	# 継召 / Inherit (0.19.1): EX symbols on cards in your trash may pay the
 	# icons the field leaves unpaid; those cards leave the game when the
 	# summon is paid (do_summon). See _inherit_plan.
@@ -937,6 +964,8 @@ func _act_summon(pid: int, action: Dictionary) -> Dictionary:
 ## any effect that summons a card from anywhere.
 func do_summon(pid: int, ci: CardInstance, action: Dictionary = {}, swift: bool = false) -> Dictionary:
 	var cost := compute_cost(pid, ci.data)             # 10-6-4, 10-6-5
+	if action.has("cost_override"):
+		cost = int(action["cost_override"])            # "summon it by paying one cost" (0.25.0, BSS07A-PR02)
 	# "Your opponent cannot summon more than one spirit that costs 4 or less
 	# each turn" (0.15.0, BSS03-103)
 	if summon_blocked(pid, ci.data):
@@ -1045,6 +1074,14 @@ func _act_place(pid: int, action: Dictionary) -> Dictionary:
 	return _ok()
 
 
+## 0.25.0 (R-175): only a magic card's Main / Flash effects can be used.
+## Its other lines -- "When using this magic card, it costs 4 if..." (a cost
+## rule), "When this card is discarded from your deck..." -- are not effects
+## to choose; before, they were offered as one and the card resolved nothing.
+static func is_magic_effect(spec: Dictionary) -> bool:
+	return not spec.is_empty() and str(spec.get("kind", "magic")) == "magic"
+
+
 func _act_use_magic(pid: int, action: Dictionary) -> Dictionary:
 	var ci: CardInstance = state.card(int(action.get("uid", -1)))
 	if ci == null or ci.data == null or not ci.data.is_magic():
@@ -1052,7 +1089,9 @@ func _act_use_magic(pid: int, action: Dictionary) -> Dictionary:
 	if ci.zone != BSS.Zone.HAND or ci.controller_id != pid:
 		return _err("card is not in your hand")
 	var eff_idx := int(action.get("effect", 0))        # 10-8-3 pick one usable effect
-	var spec: Dictionary = ci.data.effects[eff_idx] if eff_idx < ci.data.effects.size() else {}
+	var spec: Dictionary = ci.data.effects[eff_idx] if eff_idx >= 0 and eff_idx < ci.data.effects.size() else {}
+	if not is_magic_effect(spec):
+		return _err("that part of the card is not an effect you can use")   # R-175
 	var window := str(spec.get("window", "main"))
 	var is_flash := _in_flash_window(pid)
 	if is_flash:
@@ -1519,6 +1558,12 @@ func _battle_resolution() -> void:
 	# removed by a flash effect turned the attack into an unblocked one and
 	# the defender lost life.
 	var blocked := int(state.battle.get("blocker", -1)) >= 0
+	# 11-3-1: Curse "will trigger during battle resolution" -- the attacker
+	# must still have it now. A Curse granted by Miser Glutvault ends when
+	# Glutvault leaves the field after the block (0.25.0, R-184).
+	if bool(state.battle.get("curse", false)) and atk != null and atk.zone == BSS.Zone.FIELD \
+			and not atk.has_keyword(BSS.Keyword.CURSE):
+		state.battle["curse"] = false
 
 	if blocked:
 		# 7-1-5-2-1 compare BP; ties destroy both. "If either the attacking or
@@ -1590,6 +1635,23 @@ func _battle_resolution() -> void:
 			# damage, your life can only be reduced by 1" (0.15.0, BSS05-035)
 			for r4: Dictionary in effects.active_rules(defender, "life_damage_cap"):
 				n = mini(n, int((r4["d"] as Dictionary).get("amount", 1)))
+			# "Neither player's life can be reduced more than once per turn by
+			# attacks of spirits with only one core on them" (BSS07A-PR01, two
+			# symbols BSS07A-PR05); "... by a total of one each turn by attacks of
+			# spirits that cost 2 or fewer" (BSS07A-PR03). 0.25.0, rule life_once_per_turn.
+			for pz2 in 2:
+				for r5: Dictionary in effects.active_rules(pz2, "life_once_per_turn"):
+					var ld: Dictionary = r5["d"]
+					if not effects._passes_filter(atk.controller_id, atk, {"filters": ld.get("attacker", {}), "count": 0}, {}):
+						continue
+					var lkey := "%d:life_once:%d" % [defender, (r5["source"] as CardInstance).uid]
+					var done := int(state.turn_flags.get(lkey, 0))
+					if ld.has("total"):
+						n = mini(n, maxi(0, int(ld["total"]) - done))       # a total of N lives
+					elif done > 0:
+						n = 0                                              # once per turn
+					if n > 0:
+						state.turn_flags[lkey] = done + (n if ld.has("total") else 1)
 			for r2: Dictionary in effects.active_rules(defender, "no_lethal_damage"):
 				if effects._passes_filter(defender, atk, {"filters": (r2["d"] as Dictionary).get("attacker", {}), "count": 0}, {}):
 					n = mini(n, maxi(0, state.player(defender).life_total() - 1))
@@ -1792,6 +1854,14 @@ func _detect_changes() -> void:
 
 
 func run_checkpoints() -> void:
+	# spirits destroyed by one checkpoint are destroyed at the same moment:
+	# one trigger per effect for all of them (8-6-3, 0.25.0)
+	effects.begin_batch()
+	_run_checkpoints()
+	effects.end_batch()
+
+
+func _run_checkpoints() -> void:
 	effects.expire_orphans()             # "... while you control this spirit" (0.15.0)
 	effects.refresh_constants()          # constant effects first: BP can change (R-040)
 	_detect_changes()
@@ -1822,8 +1892,11 @@ func run_checkpoints() -> void:
 					# "when your opponent destroys your spirit" bursts apply.
 					# Losing cores to your own payments or moves stays a quiet
 					# self-destruction (9-3-2).
-					if ci.current_level() <= 0:
-						ci.level_override = int(ci.flags.get("last_level", 1))   # last known level
+					# 0.25.0 (R-165): a spirit destroyed by losing its cores has
+					# NO level -- its level-gated When Destroyed effects (Dark
+					# Iberix, LV1-3) do not activate; a level-free one
+					# (Mechabeast Fortress Naumanngard) does. Until 0.25.0 it
+					# kept its last known level (R-085).
 					_destroy_raw(ci, false, int(ci.flags.get("stripped_src", -1)), false, stripper)
 				else:
 					_destroy_raw(ci, true)
@@ -2050,6 +2123,10 @@ func destroy(ci: CardInstance, source_uid: int = -1, by_battle: bool = false) ->
 	if by_opponent and not by_battle and effects.rule_applies(ci, "no_destroy_by_effect"):
 		state.log_event("destruction_prevented", {"uid": ci.uid})
 		return
+	# "... cannot be destroyed as the result of battle" (0.25.0, PR-006)
+	if by_battle and effects.rule_applies(ci, "battle_indestructible"):
+		state.log_event("destruction_prevented", {"uid": ci.uid})
+		return
 	# "Cannot be destroyed by your opponent's destruction effects" -- a lost
 	# battle still destroys it (0.15.0)
 	if bool(ci.flags.get("effect_indestructible", false)) and by_opponent and not by_battle:
@@ -2074,6 +2151,9 @@ func _destroy_raw(ci: CardInstance, self_destroy: bool, source_uid: int = -1, by
 	# "If one of your spirits has been destroyed this turn" (0.15.0)
 	if ci.data != null and ci.data.is_spirit():
 		state.set_turn_flag(ci.controller_id, "spirit_destroyed")
+		# "If two or more of your opponent's spirits have been destroyed this turn" (0.25.0, PR-020)
+		var dkey := "%d:spirits_destroyed_n" % ci.controller_id
+		state.turn_flags[dkey] = int(state.turn_flags.get(dkey, 0)) + 1
 	if not self_destroy:
 		# 10-1-3-3 -- triggers fire before the card physically moves so that
 		# "when destroyed" effects can still read its last state (8-10-1).
@@ -2155,7 +2235,7 @@ func legal_actions(pid: int) -> Array:
 				# before, only the first was, R-043).
 				for i in ci.data.effects.size():
 					var win := str(ci.data.effects[i].get("window", "main"))
-					if win == "main" or win == "both":
+					if is_magic_effect(ci.data.effects[i]) and (win == "main" or win == "both"):
 						out.append({"verb": BSS.Action.USE_MAGIC, "uid": uid, "effect": i})
 			if ci.data.has_burst and state.player(pid).bursts_set_this_turn == 0:
 				out.append({"verb": BSS.Action.SET_BURST, "uid": uid})
@@ -2186,7 +2266,7 @@ func legal_actions(pid: int) -> Array:
 				if ci.data.is_magic():
 					for i in ci.data.effects.size():
 						var w := str(ci.data.effects[i].get("window", "main"))
-						if (w == "flash" or w == "both") and _affordable(pid, compute_cost(pid, ci.data) + magic_core_tax(pid)) \
+						if is_magic_effect(ci.data.effects[i]) and (w == "flash" or w == "both") and _affordable(pid, compute_cost(pid, ci.data) + magic_core_tax(pid)) \
 							and state.player(pid).hand.size() - 1 >= magic_discard_tax(pid) \
 							and not magic_locked(pid, ci.data):
 							out.append({"verb": BSS.Action.USE_MAGIC, "uid": uid, "effect": i})
@@ -2200,22 +2280,31 @@ func legal_actions(pid: int) -> Array:
 
 
 ## 11-1 Awaken (offered since 0.11.0; before, nothing ever offered it): move
-## cores from your other spirits onto this one. The offer takes only cores
-## those spirits do not need for their current level, so it never empties or
-## levels down another spirit.
+## cores from your other cards onto this one. 0.25.0 (R-177): the player
+## chooses how many and from which spirits ("available": every other spirit
+## of yours with cores, with its regular cores and soul core; nexuses never --
+## the card text says "from your other spirits") -- before, the offer was
+## fixed to the cores those spirits
+## did not need for their level, so it could not be used again once they had
+## none spare. "sources" stays that suggestion (what the CPU takes); it may be
+## empty when every core is needed.
 func _offer_awaken(pid: int, out: Array) -> void:
 	for ci in state.field_spirits(pid):
 		if not ci.has_keyword(BSS.Keyword.AWAKEN):
 			continue
 		var sources: Array = []
+		var available: Array = []
 		for other: CardInstance in state.field_spirits(pid):
-			if other.uid == ci.uid:
+			if other.uid == ci.uid or other.data == null:
 				continue
-			var spare: int = other.cores - _level_floor(other)
+			if other.total_cores() > 0:
+				available.append({"uid": other.uid, "cores": other.cores, "soul": other.soul_cores})
+			var spare: int = mini(other.cores, other.total_cores() - _level_floor(other))
 			if spare > 0:
 				sources.append({"uid": other.uid, "n": spare})
-		if not sources.is_empty():
-			out.append({"verb": BSS.Action.ACTIVATE, "uid": ci.uid, "keyword": "awaken", "sources": sources})
+		if not available.is_empty():
+			out.append({"verb": BSS.Action.ACTIVATE, "uid": ci.uid, "keyword": "awaken", "sources": sources,
+					"available": available})
 
 
 ## Activated effects of cards on the field ("Flash: you may destroy this

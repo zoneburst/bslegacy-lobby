@@ -253,6 +253,7 @@ func move_cores(from_loc: Dictionary, to_loc: Dictionary, count: int,
 		if rc != null and rc.zone == BSS.Zone.FIELD:
 			to_loc = on_card(life_redirect_uid)
 	var moved := 0
+	var souls := 0
 	for i in count:
 		var kind := _take_core(from_loc, soul, allow_soul)
 		if kind == "":
@@ -265,8 +266,12 @@ func move_cores(from_loc: Dictionary, to_loc: Dictionary, count: int,
 				break
 		_give_core(to_loc, kind)
 		moved += 1
+		if kind == "soul":
+			souls += 1
 	if moved > 0:
-		log_event("cores", {"from": from_loc, "to": to_loc, "n": moved, "soul": soul})
+		# "souls": how many of them were the soul core -- the board holds it
+		# back until it lands (0.25.0)
+		log_event("cores", {"from": from_loc, "to": to_loc, "n": moved, "soul": soul, "souls": souls})
 		# "When cores are put into your reserve" / "when cores are placed on
 		# this spirit" (0.15.0): fired by the engine at the next checkpoint.
 		if core_events.size() < 64:
@@ -297,6 +302,10 @@ func _take_core(loc: Dictionary, soul: bool, allow_soul: bool) -> String:
 			if p.reserve_cores > 0: p.reserve_cores -= 1; return "regular"
 			if allow_soul and p.reserve_soul > 0: p.reserve_soul -= 1; return "soul"
 		BSS.Zone.LIFE:
+			if soul:
+				# "the soul core" from the life (0.25.0): only the soul core
+				if p.life_soul > 0: p.life_soul -= 1; return "soul"
+				return ""
 			if p.life_cores > 0: p.life_cores -= 1; return "regular"
 			if p.life_soul > 0: p.life_soul -= 1; return "soul"
 		BSS.Zone.TRASH:

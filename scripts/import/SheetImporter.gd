@@ -128,7 +128,16 @@ static func import_xlsx(path: String) -> Dictionary:
 			report["ours"] = int(report["ours"]) + 1
 		# the image placed over this row
 		var rn := int(row.get("_row", -1))
-		if images.has(rn):
+		if images.has(rn) and CardDB.has_bundled_art(code):
+			# 0.25.0 (R-180): the bundled picture is bssdb.dev's 600 x 838 one;
+			# the workbook's is 320 x 447 -- keep the sharper picture, and remove
+			# a blurry copy an earlier import left behind
+			for old_ext0 in ["png", "jpg", "jpeg", "webp"]:
+				var old0 := art_dir.path_join("%s.%s" % [code, old_ext0])
+				if FileAccess.file_exists(old0) and CardDB._image_width(old0) < CardDB.USER_ART_MIN_WIDTH:
+					DirAccess.remove_absolute(old0)
+			report["images_kept_bundled"] = int(report.get("images_kept_bundled", 0)) + 1
+		elif images.has(rn):
 			var img: Dictionary = images[rn]
 			for old_ext in ["png", "jpg", "jpeg", "webp"]:
 				var old := art_dir.path_join("%s.%s" % [code, old_ext])

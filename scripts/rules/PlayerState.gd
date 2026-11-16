@@ -93,7 +93,14 @@ func to_net(is_self: bool, game) -> Dictionary:
 	var hand_out: Array = []
 	for uid in hand:
 		var ci: CardInstance = game.cards[uid]
-		hand_out.append(ci.to_net(is_self))
+		var he := ci.to_net(is_self)
+		# 10-8-7: a magic card being used is in limbo -- nominally in the hand,
+		# but not counted there. The board does not draw it in the hand
+		# (0.25.0, R-182: Doubly Deadly stayed in the hand while its effect
+		# waited for the opponent's choice).
+		if bool(ci.flags.get("resolving", false)):
+			he["resolving"] = true
+		hand_out.append(he)
 	var field_out: Array = []
 	for uid in field:
 		field_out.append(game.cards[uid].to_net(true))

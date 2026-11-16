@@ -45,6 +45,23 @@ var active_windows: Dictionary = {}
 var _depth := 0
 var suppress_when_destroyed := false   # "their When Destroyed effects are not triggered" (0.14.0)
 var _deferred: Array = []
+# 8-6-3 (0.25.0, R-164): events caused by one directive (one "destroy three
+# spirits") or one checkpoint happen at the same moment. While a batch is
+# open, a When Destroyed trigger that already fired for that moment does not
+# fire again -- Ruby Sanctuary draws 1 for three spirits destroyed at once.
+const BATCHED_TIMINGS := ["when_destroyed", "when_destroyed_by_opponent"]
+var _batch_open := 0
+var _batch_fired: Dictionary = {}
+
+
+func begin_batch() -> void:
+	_batch_open += 1
+
+
+func end_batch() -> void:
+	_batch_open = maxi(0, _batch_open - 1)
+	if _batch_open == 0:
+		_batch_fired.clear()
 
 
 var _rule_by_uid := -1      # the card whose effect is removing cores right now (0.15.0)
@@ -120,6 +137,10 @@ func resolve_top() -> void:
 		_flush_deferred()
 		engine.run_checkpoints()
 		_flush_deferred()
+	# Immortal spirits queued while another question was open (0.25.0, R-166)
+	if state.effect_stack.is_empty() and state.pending_choice.is_empty() \
+			and not (state.turn_flags.get("immortal_queue", []) as Array).is_empty():
+		engine.keywords.offer_next_immortal()
 
 
 func _finish_frame(frame: Dictionary) -> void:
@@ -225,7 +246,9 @@ func _run_frame(frame: Dictionary) -> bool:
 		if d.has("if") and not check_condition(ctrl, d["if"], frame):
 			frame["dir_index"] = int(frame["dir_index"]) + 1
 			continue
+		begin_batch()
 		var res := execute(ctrl, d, frame)
+		end_batch()
 		if res == "await":
 			return false                              # parked on a choice
 		frame["dir_index"] = int(frame["dir_index"]) + 1
@@ -239,7 +262,7 @@ func _run_frame(frame: Dictionary) -> bool:
 ## 8-6-2 / 8-6-3 -- a trigger fires once per event even when its condition is
 ## satisfied several times at the same instant.
 func trigger(timing: String, ctx: Dictionary = {}) -> void:
-	var fired := {}
+	var fired: Dictionary = _batch_fired if _batch_open > 0 and BATCHED_TIMINGS.has(timing) else {}
 	var queued: Array = []
 	var candidates: Array = []
 	for ci in state.all_field_cards():
@@ -425,7 +448,17 @@ func _trigger_matches(ci: CardInstance, spec: Dictionary, ctx: Dictionary) -> bo
 			# battle_end: "while this spirit attacks ... when the battle ends"
 			var b: Dictionary = ctx.get("battle", {})
 			return int(b.get("attacker", -1)) == ci.uid
+		"battle_participant":
+			# "When this spirit attacks or blocks: when the battle ends" (0.25.0, PR-073)
+			var b2: Dictionary = ctx.get("battle", {})
+			return int(b2.get("attacker", -1)) == ci.uid or int(b2.get("blocker", -1)) == ci.uid
 		"self":
+			# an event that names no card ("at the end of your opponent's
+			# turn", "at the start of the step") is this card's when it is its
+			# controller's event (0.25.0, R-188: Frost Tiger Heavy Armor Form's
+			# end-of-turn core never came)
+			if not ctx.has("uid") and ctx.has("player"):
+				return int(ctx.get("player", -1)) == ci.controller_id
 			return int(ctx.get("uid", -1)) == ci.uid
 		"your_spirits":
 			var t: CardInstance = state.card(int(ctx.get("uid", -1)))
@@ -504,6 +537,10 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 			# "Draw the same number of cards as your opponent has in their hand" (0.15.0, BSS06-065)
 			if str(d.get("amount_of", "")) == "opponent_hand":
 				want_n = state.player(state.opponent_of(pid)).hand.size()
+			# "draw cards until you have the same number of cards in your hand as
+			# your opponent has in theirs" (0.25.0, PR-065)
+			if bool(d.get("until_opponent_hand", false)):
+				want_n = state.player(state.opponent_of(pid)).hand.size() - state.player(drawer).hand.size()
 			# "Your opponent draws two cards for each symbol on the destroyed spirit"
 			# (0.15.0, BSS06-077): read from the card's printed symbols, wherever it is
 			if str(d.get("per_symbols_of", "")) == "last_target":
@@ -600,6 +637,8 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 				_exhaust_nexus(pid, t))
 		"pay_cores":
 			var n := int(d.get("amount", 0))
+			if bool(d.get("choose_field", false)):
+				return _pay_cores_choosing(pid, d, frame)
 			var paid := state.move_cores(GameState.pool(pid, BSS.Zone.RESERVE),
 					GameState.pool(pid, BSS.Zone.TRASH), n, false, true)
 			# 0.24.0 (R-157): a cost is paid from the reserve AND the field
@@ -690,7 +729,12 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 			# "Discard the top three cards of your deck. For each spirit card
 			# discarded ..." -- the count is kept as frame flag milled_hits.
 			var mw := _who(pid, d)
-			var mtop: Array = effect_mill(pid, mw, int(d.get("amount", 1)))
+			var mamt := int(d.get("amount", 1))
+			# "cards equal to the cost of that exhausted card" (0.25.0, PR-074)
+			if str(d.get("amount_from", "")) == "last_target_cost":
+				var mlt2: CardInstance = state.card(int((frame.get("flags", {}) as Dictionary).get("last_target", -1)))
+				mamt = mlt2.data.cost if mlt2 != null and mlt2.data != null else 0
+			var mtop: Array = effect_mill(pid, mw, mamt)
 			var hits := 0
 			for muid in mtop:
 				var mc: CardInstance = state.card(int(muid))
@@ -702,6 +746,13 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 					hits += 1
 			_frame_flag(frame, "milled_hits", hits)
 			_frame_flag(frame, "milled_uids", mtop)
+			# "If they all have different card names" (0.25.0, PR-072)
+			var mnames := {}
+			for mu2: Variant in mtop:
+				var mc2: CardInstance = state.card(int(mu2))
+				if mc2 != null and mc2.data != null:
+					mnames[mc2.data.name] = true
+			_frame_flag(frame, "milled_distinct", mtop.size() == mamt and mamt > 0 and mnames.size() == mtop.size())
 		"absorb_cores":
 			# "Put all of the cores on one of your tokens onto this spirit."
 			var me_a: CardInstance = state.card(int(frame.get("source", -1)))
@@ -769,6 +820,17 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 				engine.on_life_lost(v)
 		"summon_from":
 			return _op_summon_from(pid, d, frame)
+		"trash_to_deck_bottom":
+			# "return all the cards in your trash other than this card to the
+			# bottom of your deck" (0.25.0, PR-072)
+			var keep_uid := int(frame.get("source", -1))
+			for tu: Variant in state.player(_who(pid, d)).trash.duplicate():
+				if int(tu) != keep_uid:
+					state.move_card(int(tu), BSS.Zone.DECK, _who(pid, d), false)
+			state.log_event("trash_to_deck", {"player": _who(pid, d)})
+		"summon_card":
+			# internal: the chosen level's branch of summon_from (0.25.0)
+			_summon_one(pid, d, state.card(int(d.get("uid", -1))), int(d.get("extra", 0)))
 		"search_top":
 			return _op_search_top(pid, d, frame)
 		"scry":
@@ -807,10 +869,15 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 				(state.battle["player_flags"] as Array).append([spw, str(d.get("flag", "x"))])
 		"summon_token":
 			# "putting a core from the void on each of them" (0.15.0, BSS05-064)
-			var tk: CardInstance = engine.keywords.summon_token(pid, d.get("token", {}),
-					bool(d.get("cores_from_void", false)))
-			if tk != null and bool(d.get("exhausted", false)):
-				tk.orientation = BSS.Orientation.EXHAUSTED
+			# "one for each nexus you control" (0.25.0, PR-063): per
+			var tn := 1
+			if d.has("per"):
+				tn = collect_targets(pid, d["per"], frame).size()
+			for _ti in tn:
+				var tk: CardInstance = engine.keywords.summon_token(pid, d.get("token", {}),
+						bool(d.get("cores_from_void", false)))
+				if tk != null and bool(d.get("exhausted", false)):
+					tk.orientation = BSS.Orientation.EXHAUSTED
 		"win_game":
 			# 1-2-6 -- effects that simply win the game bypass checkpoints.
 			engine._declare_winner(_who(pid, d), "card effect")
@@ -1053,8 +1120,15 @@ func execute(pid: int, d: Dictionary, frame: Dictionary) -> String:
 				return ""
 			if bool(d.get("free", false)):
 				_summon_free(sst.owner_id, sst, d)
+			elif d.has("cost"):
+				# "you may summon it by paying one cost" (0.25.0, BSS07A-PR02 / BSS07A-PR04)
+				if safe_summon_payment(sst.owner_id, sst.data) != null or \
+						state.player(sst.owner_id).total_reserve() >= int(d["cost"]) + sst.data.min_level_cost():
+					engine.do_summon(sst.owner_id, sst, {"via": "effect", "cost_override": int(d["cost"])})
 			else:
-				engine.do_summon(sst.owner_id, sst, {"via": "effect"})
+				var ssp: Variant = safe_summon_payment(sst.owner_id, sst.data)
+				if ssp != null:
+					engine.do_summon(sst.owner_id, sst, {"via": "effect", "payment": ssp})
 			if sst.zone == BSS.Zone.FIELD:
 				_frame_flag(frame, "summoned")
 		"life_shield":
@@ -1376,9 +1450,28 @@ func effect_mill(by_pid: int, victim: int, n: int) -> Array:
 		return []
 	if by_pid >= 0 and by_pid != victim and state.turn_flag(victim, "mill_cap_one"):
 		n = mini(n, 1)
+	# "your deck cannot be discarded by your opponent's effects this turn"
+	# (0.25.0, BSS07A-PR02)
+	if by_pid >= 0 and by_pid != victim and state.turn_flag(victim, "deck_protect"):
+		state.log_event("mill_prevented", {"player": victim})
+		return []
+	# "At most four cards can be discarded from each player's deck each turn"
+	# (0.25.0, BSS07A-PR04): rule deck_mill_cap on either side
+	var cap := -1
+	for p0 in 2:
+		for r: Dictionary in active_rules(p0, "deck_mill_cap"):
+			var a0 := int((r["d"] as Dictionary).get("amount", 4))
+			cap = a0 if cap < 0 else mini(cap, a0)
+	if cap >= 0:
+		var key := "%d:milled_n" % victim
+		var done := int(state.turn_flags.get(key, 0))
+		n = mini(n, maxi(0, cap - done))
+		if n <= 0:
+			return []
 	var milled: Array = state.mill_cards(victim, n)
 	if milled.is_empty():
 		return milled
+	state.turn_flags["%d:milled_n" % victim] = int(state.turn_flags.get("%d:milled_n" % victim, 0)) + milled.size()
 	trigger("deck_milled", {"player": victim, "by_player": by_pid, "amount": milled.size()})
 	for mu: Variant in milled:
 		trigger("discarded_from_deck", {"uid": int(mu), "player": victim, "by_player": by_pid})
@@ -1543,6 +1636,13 @@ func _pay_soul(pid: int, frame: Dictionary) -> bool:
 
 
 func _remove_cores_from(pid: int, d: Dictionary, t: CardInstance, frame: Dictionary = {}) -> void:
+	if d.has("per"):
+		# "for each spirit card that costs 2 in your trash, remove a core" (0.25.0, PR-059)
+		d = d.duplicate()
+		d["amount"] = int(d.get("amount", 1)) * collect_targets(pid, d["per"], frame).size()
+		d.erase("per")
+		if int(d["amount"]) <= 0:
+			return
 	_rule_by_uid = int(frame.get("source", -1))
 	_remove_cores_inner(pid, d, t)
 	_rule_by_uid = -1
@@ -1622,11 +1722,29 @@ func _move_soul(pid: int, dest: Dictionary, from_self: bool, frame: Dictionary) 
 	if from_self:
 		var me: CardInstance = state.card(int(frame.get("source", -1)))
 		return me != null and state.move_cores(GameState.on_card(me.uid), dest, 1, true, true) > 0
-	if state.player(pid).reserve_soul > 0:
+	# 8-5-5 (0.25.0, R-162): "a soul core" with no place named may be in the
+	# life, the field, the reserve or the trash. Before, only the reserve and
+	# the field were searched -- a soul core spent on a cost (now in the
+	# trash) or in the life was "not there", and Supernova Dragon Siegwurm
+	# Nova's When Summoned did nothing. The least harmful place first: the
+	# trash, the reserve, a card that keeps its level without it, the life,
+	# and only then a card that would drop below LV1 (destroying it).
+	var p := state.player(pid)
+	var to_trash := str(dest.get("kind", "")) == "pool" and int(dest.get("zone", -1)) == BSS.Zone.TRASH
+	if p.trash_soul > 0 and not to_trash:
+		return state.move_cores(GameState.pool(pid, BSS.Zone.TRASH), dest, 1, true, true) > 0
+	if p.reserve_soul > 0:
 		return state.move_cores(GameState.pool(pid, BSS.Zone.RESERVE), dest, 1, true, true) > 0
+	var last: CardInstance = null
 	for c in state.all_field_cards():
 		if c.controller_id == pid and c.soul_cores > 0:
-			return state.move_cores(GameState.on_card(c.uid), dest, 1, true, true) > 0
+			if c.data == null or c.total_cores() - 1 >= c.data.min_level_cost():
+				return state.move_cores(GameState.on_card(c.uid), dest, 1, true, true) > 0
+			last = c
+	if p.life_soul > 0:
+		return state.move_cores(GameState.pool(pid, BSS.Zone.LIFE), dest, 1, true, true) > 0
+	if last != null:
+		return state.move_cores(GameState.on_card(last.uid), dest, 1, true, true) > 0
 	return false
 
 
@@ -1880,6 +1998,15 @@ func _passes_filter(pid: int, ci: CardInstance, tspec: Dictionary, frame: Dictio
 	if f.has("cores_max") and ci.total_cores() > int(f["cores_max"]): return false
 	if f.has("is_source") and (ci.uid == int(frame.get("source", -1))) != bool(f["is_source"]): return false
 	if f.has("vanilla") and ci.data.effects.is_empty() != bool(f["vanilla"]): return false
+	# "When a spirit is summoned from your trash" (0.25.0, PR-022)
+	if f.has("summoned_from") and str(ci.flags.get("summoned_from", "")) != str(f["summoned_from"]): return false
+	# "spirit cards with [Chain]" (0.25.0, BSS07A-PR06)
+	if f.has("has_chain"):
+		var hc := false
+		for ce: Dictionary in ci.data.effects:
+			if ce.has("chain"):
+				hc = true
+		if hc != bool(f["has_chain"]): return false
 	if f.has("not_trigger"):
 		var tm: Dictionary = frame.get("meta", {})
 		if ci.uid == int((tm.get("ctx", {}) as Dictionary).get("uid", -2)): return false
@@ -2149,11 +2276,38 @@ func _op_targeted(pid: int, d: Dictionary, frame: Dictionary, action: Callable) 
 		"up_to": up_to,
 		"cost_budget": budget,
 		"budget_kind": budget_kind,
-		"prompt": str(d.get("prompt", "Select target(s)")) if budget < 0 \
+		"prompt": str(d.get("prompt", _chooser_prompt(pid, chooser, d, want, up_to, frame))) if budget < 0 \
 				else "Select spirits with a combined cost of %d or less" % budget,
 		"resume": {"frame_index": _frame_index(frame), "op": d},
 	}
 	return "await"
+
+
+## "Your opponent selects two of their spirits ... and destroys them" (0.25.0,
+## Doubly Deadly): the player choosing for the OTHER player's effect is told
+## whose effect it is and what happens -- before, "Select target(s)".
+func _chooser_prompt(pid: int, chooser: int, d: Dictionary, want: int, up_to: bool, frame: Dictionary) -> String:
+	var src: CardInstance = state.card(int(frame.get("source", -1)))
+	var sname: String = src.data.name if src != null and src.data != null else "effect"
+	if chooser == pid:
+		# 0.25.0 (R-185): which card asks, how many, whose, and the effect's
+		# own text -- "Select target(s)" alone was easy to miss (Dirm Dyna)
+		var ts: Dictionary = d.get("target", {})
+		var whose: String = {"self": "your ", "opponent": "your opponent's "}.get(str(ts.get("controller", "")), "")
+		var kind0 := str(ts.get("card_type", "spirit")) if typeof(ts.get("card_type", "spirit")) == TYPE_STRING else "card"
+		var txt := str((frame.get("spec", {}) as Dictionary).get("text", ""))
+		if txt.length() > 150:
+			txt = txt.left(148) + "…"
+		var what := ("of %s%ss" % [whose, kind0]) if whose != "" else ("%s%s" % [kind0, "" if want == 1 else "s"])
+		return "%s: select %s%d %s.%s" % [sname, "up to " if up_to else "", want, what,
+				"" if txt == "" else " (%s)" % txt]
+	var verb: String = {"destroy": "destroy", "return_to_hand": "return to your hand", "exhaust": "exhaust",
+			"to_deck_bottom": "put on the bottom of your deck", "to_deck_top": "put on top of your deck",
+			"remove_cores": "lose cores"}.get(str(d.get("op", "")), "be affected")
+	var tspec: Dictionary = d.get("target", {})
+	var kind := str(tspec.get("card_type", "spirit")) if typeof(tspec.get("card_type", "spirit")) == TYPE_STRING else "card"
+	return "Your opponent's %s: choose %s%d of your %s%s to %s." % [sname, "up to " if up_to else "", want, kind,
+			"" if want == 1 else "s", verb]
 
 
 ## "Treat it as LVn" -- or, since 0.11.2, "as its highest level" ("level": "max").
@@ -2202,12 +2356,14 @@ func deliver_choice(pid: int, pc: Dictionary, choice: Variant) -> Dictionary:
 				# a reveal choice (search_top / reveal_summon / scry), 0.16.1
 				_resume_reveal(pid, d, chosen, pframe)
 				chosen = []
+			begin_batch()          # the chosen targets are hit at the same moment (8-6-3)
 			for uid in chosen:
 				var ci: CardInstance = state.card(int(uid))
 				if ci == null or not pc["options"].has(int(uid)):
 					continue
 				_frame_flag(pframe, "last_target", ci.uid)
 				_apply_chosen(int(pframe.get("controller", pid)) if not pframe.is_empty() else pid, d, ci, pframe)
+			end_batch()
 			_depth -= 1
 			# Advance past the directive we parked on -- in the frame that
 			# parked, not whatever is on top now (R-058: a trigger that joined
@@ -2242,7 +2398,8 @@ func deliver_choice(pid: int, pc: Dictionary, choice: Variant) -> Dictionary:
 					# spirit", "if you do"), e.g. BSS05-130's top-or-bottom choice
 					state.effect_stack.append({
 						"source": int(parent.get("source", pc.get("source_uid", -1))),
-						"spec": {"directives": sub},
+						# the parent's text, for the question a branch may ask (R-185)
+						"spec": {"directives": sub, "text": str((parent.get("spec", {}) as Dictionary).get("text", ""))},
 						"controller": pid,
 						"meta": {"ctx": pmeta.get("ctx", {}), "branch": true},
 						"dir_index": 0,
@@ -2291,13 +2448,67 @@ func deliver_choice(pid: int, pc: Dictionary, choice: Variant) -> Dictionary:
 			resolve_top()
 			return {"ok": true, "reason": ""}
 		"mulligan":
+			# a malformed answer is refused, not a script error (0.25.0)
+			if not typeof(choice) in [TYPE_BOOL, TYPE_INT, TYPE_FLOAT]:
+				return {"ok": false, "reason": "answer keep (false) or mulligan (true)"}
 			engine._finish_mulligans(pid, bool(choice))
 			return {"ok": true, "reason": ""}
 	return {"ok": false, "reason": "unhandled choice type"}
 
 
+## A cost paid from the reserve first, then from field cards the player
+## chooses, one core at a time (0.24.0, R-160): "Then you may pay this card's
+## cost to use its other effect" (Absolute Ice Shield...). A spirit left
+## below its LV1 is destroyed at the next checkpoint, as with any payment.
+func _pay_cores_choosing(pid: int, d: Dictionary, frame: Dictionary) -> String:
+	var n := int(d.get("amount", 0))
+	var fl: Dictionary = frame.get("flags", {})
+	if not bool(fl.get("pay_started", false)):
+		_frame_flag(frame, "pay_started", true)
+		_frame_flag(frame, "pay_paid", state.move_cores(GameState.pool(pid, BSS.Zone.RESERVE),
+				GameState.pool(pid, BSS.Zone.TRASH), n, false, true))
+	var left := n - int((frame.get("flags", {}) as Dictionary).get("pay_paid", 0))
+	if left <= 0:
+		_frame_flag(frame, "pay_started", false)
+		_frame_flag(frame, "pay_paid", 0)
+		return ""
+	var opts: Array = []
+	for fu in state.player(pid).field:
+		if (state.cards[fu] as CardInstance).total_cores() > 0:
+			opts.append(int(fu))
+	if opts.is_empty():
+		_frame_flag(frame, "pay_started", false)
+		return ""
+	var src: CardInstance = state.card(int(frame.get("source", -1)))
+	state.pending_choice = {
+		"type": "select_cards", "player": pid, "options": opts, "count": 1, "up_to": false,
+		"prompt": "%s's cost: choose a card on your field to pay 1 core from (%d still to pay; a spirit left below its LV1 is destroyed)" % [
+			src.data.name if src != null and src.data != null else "This card", left],
+		"pay_from_field": true,
+		"resume": {"frame_index": _frame_index(frame), "op": {"op": "pay_one_core", "amount": n}},
+	}
+	return "await"
+
+
 func _apply_chosen(_pid: int, d: Dictionary, ci: CardInstance, frame: Dictionary = {}) -> void:
 	match str(d.get("op", "")):
+		"summon_pick":
+			# summon_from's card choice (0.25.0): note it and run summon_from
+			# again, which summons it (and asks its level)
+			var sp: Array = ((frame.get("flags", {}) as Dictionary).get("summon_picks", []) as Array).duplicate()
+			if sp.is_empty() and not frame.is_empty():
+				frame["dir_index"] = int(frame["dir_index"]) - 1
+			sp.append(ci.uid)
+			_frame_flag(frame, "summon_picks", sp)
+		"pay_one_core":
+			# one core of the cost from this card; asks again until paid
+			var moved := state.move_cores(GameState.on_card(ci.uid), GameState.pool(_pid, BSS.Zone.TRASH), 1, false, true) \
+					if ci.cores > 0 else state.move_cores(GameState.on_card(ci.uid), GameState.pool(_pid, BSS.Zone.TRASH), 1, true, true)
+			var paid := int((frame.get("flags", {}) as Dictionary).get("pay_paid", 0)) + moved
+			_frame_flag(frame, "pay_paid", paid)
+			state.log_event("core_paid_from", {"uid": ci.uid, "player": _pid})
+			if paid < int(d.get("amount", 0)) and not frame.is_empty():
+				frame["dir_index"] = int(frame["dir_index"]) - 1      # back to pay_cores: ask again
 		"add_core_from_void":
 			_void_cores_onto(_pid, d, ci, int(d.get("amount", 1)))
 		# R-066: a chosen target is destroyed BY the effect's card, as an
@@ -2327,7 +2538,10 @@ func _apply_chosen(_pid: int, d: Dictionary, ci: CardInstance, frame: Dictionary
 				_return_to_hand(ci)
 		# by_player: whose effect it is -- Gale's choice is made by the
 		# defender but is the attacker's effect (0.15.0)
-		"exhaust": _exhaust_or_instead(_pid, d, ci)        # instead_if (0.15.0, BSS05-132)
+		"exhaust":
+			_exhaust_or_instead(_pid, d, ci)        # instead_if (0.15.0, BSS05-132)
+			if bool(d.get("gale", false)) and ci.is_exhausted():
+				trigger("gale_exhausted", {"uid": ci.uid, "player": ci.controller_id, "by_player": int(d.get("by_player", -1))})
 		"refresh":
 			ci.orientation = BSS.Orientation.REFRESHED
 			_flag_also(d, ci)
@@ -2402,65 +2616,175 @@ func _op_discard(pid: int, d: Dictionary, frame: Dictionary) -> String:
 
 
 func _op_choice(pid: int, d: Dictionary, _frame: Dictionary) -> String:
+	var prompt := str(d.get("prompt", "Choose one"))
+	# 0.25.0 (R-162): an option that spends "a soul core" says so when the
+	# only soul core is a spirit's last core -- that spirit would be destroyed
+	if str(d.get("branches", [])).contains("soul_to_"):
+		var victim := _soul_victim(_who(pid, d))
+		if victim != null:
+			prompt += " (your soul core is %s's only core: it would be destroyed)" % victim.data.name
 	state.pending_choice = {
 		"type": "option", "player": _who(pid, d),
-		"prompt": str(d.get("prompt", "Choose one")),
+		"prompt": prompt,
 		"labels": d.get("labels", []),
 		"branches": d.get("branches", []),
 	}
 	return "await"
 
 
+## The spirit that would lose its last core if "a soul core" were taken now,
+## or null (the soul core is somewhere harmless, or nowhere).
+func _soul_victim(pid: int) -> CardInstance:
+	var p := state.player(pid)
+	if p.trash_soul > 0 or p.reserve_soul > 0 or p.life_soul > 0:
+		return null
+	var last: CardInstance = null
+	for c in state.all_field_cards():
+		if c.controller_id == pid and c.soul_cores > 0:
+			if c.data == null or c.total_cores() - 1 >= c.data.min_level_cost():
+				return null
+			last = c
+	return last
+
+
 func _op_summon_from(pid: int, d: Dictionary, frame: Dictionary) -> String:
 	var tspec: Dictionary = d.get("target", {"controller": "self", "zone": "trash", "card_type": "spirit"})
-	var pool := collect_targets(pid, tspec, frame)
-	if pool.is_empty():
-		return ""
-	# Revive the strongest qualifying spirit (purple, 0.10.0). Before 0.10.0
-	# this took whichever card happened to be first in the trash.
-	pool.sort_custom(func(a: CardInstance, b: CardInstance) -> bool:
-		return a.data.cost > b.data.cost)
-	if str(tspec.get("zone", "")) == "hand" and not bool(d.get("free", false)):
-		# "You may summon a green card from your hand by using cores from your
-		# reserve" (0.11.0): the best one the reserve can pay for AND keep
-		# alive -- never one that would die on arrival.
-		# "pay": "normal" -- "you may summon a spirit card from your hand",
-		# paying as usual: spare cores on your cards may pay too (0.15.0,
-		# BSS04-077 / -112).
-		var normal := str(d.get("pay", "")) == "normal"
-		var res := state.player(pid).total_reserve() + (_spare_field_cores(pid) if normal else 0)
-		pool = pool.filter(func(c: CardInstance) -> bool:
-			return engine.compute_cost(pid, c.data) + c.data.min_level_cost() <= res)
+	var fl: Dictionary = frame.get("flags", {})
+	var picks: Array = (fl.get("summon_picks", []) as Array).duplicate()
+	if picks.is_empty():
+		var pool := _summonable(pid, d, collect_targets(pid, tspec, frame))
 		if pool.is_empty():
 			return ""
-		var pc0: CardInstance = pool[0]
-		var act := {"via": "effect"}
-		if normal:
-			act["payment"] = _spare_first_payment(pid, engine.compute_cost(pid, pc0.data))
-		engine.do_summon(pid, pc0, act, not normal)
-		return ""
-	# "Select up to two spirit cards ... and summon them" (0.15.0, BSS05-123,
-	# BSS06-036): the target's up_to / count, best first
-	var sn := int(tspec.get("up_to", tspec.get("count", 1)))
-	for si in mini(maxi(1, sn), pool.size()):
-		var ci: CardInstance = pool[si]
-		if bool(d.get("free", false)):
-			_summon_free(pid, ci, d)
-		else:
-			var sp: Variant = safe_summon_payment(pid, ci.data)
-			if sp == null:
-				continue                      # cannot be paid without a loss (0.16.6)
-			engine.do_summon(pid, ci, {"via": "effect", "payment": sp})
-		if ci.zone == BSS.Zone.FIELD:
+		# Best first: a CPU's pick, and the order the choice lists them in.
+		pool.sort_custom(func(a: CardInstance, b: CardInstance) -> bool:
+			return a.data.cost > b.data.cost)
+		var want := maxi(1, int(tspec.get("up_to", tspec.get("count", 1))))
+		var up_to := tspec.has("up_to") or bool(d.get("optional", false))
+		if str(tspec.get("zone", "")) == "hand" and not bool(d.get("free", false)):
+			want = 1                       # one paid summon from the hand
+		# 0.25.0 (R-163): the player chooses which spirit comes back -- before,
+		# the most expensive one was taken without asking (Reanimate). Only an
+		# effect that must take every candidate skips the question.
+		if pool.size() > want or up_to:
+			var uids: Array = []
+			for c: CardInstance in pool:
+				uids.append(c.uid)
+			var from := str(tspec.get("zone", "trash"))
+			state.pending_choice = {
+				"type": "select_cards", "player": pid, "options": uids, "count": want, "up_to": up_to,
+				"prompt": "Choose %s to summon from your %s" % ["a spirit" if want == 1 else "up to %d spirits" % want, from],
+				"revealed": _reveal_list(uids, uids),
+				"resume": {"frame_index": _frame_index(frame), "op": {"op": "summon_pick"}},
+			}
+			return "await"
+		for c: CardInstance in pool.slice(0, want):
+			picks.append(c.uid)
+	_frame_flag(frame, "summon_picks", [])
+	# 0.25.0 (R-163): one spirit -> its level too, when the reserve can put
+	# more than its LV1 cores on it ("Summon at LV2 -- 3 cores")
+	if picks.size() == 1:
+		var one: CardInstance = state.card(int(picks[0]))
+		var lv := _summon_levels(pid, d, one)
+		if lv.size() > 1:
+			var labels: Array = []
+			var branches: Array = []
+			for e: Dictionary in lv:
+				labels.append("LV%d (%d core%s)" % [int(e["level"]), int(e["cores"]), "" if int(e["cores"]) == 1 else "s"])
+				var sd: Dictionary = d.duplicate(true)
+				sd["op"] = "summon_card"
+				sd["uid"] = one.uid
+				sd["extra"] = int(e["extra"])
+				branches.append({"directives": [sd]})
+			_frame_flag(frame, "summoned")       # the branch summons it (PR-068's "if you do")
+			state.pending_choice = {
+				"type": "option", "player": pid,
+				"prompt": "Summon %s at which level? (the cores beyond LV1 come from your reserve)" % one.data.name,
+				"labels": labels, "branches": branches, "source_uid": int(frame.get("source", -1)),
+				"level_choice": true,
+			}
+			return "await"
+	for u: Variant in picks:
+		var ci: CardInstance = state.card(int(u))
+		if ci != null and _summon_one(pid, d, ci, 0):
 			_frame_flag(frame, "summoned")       # "if you summon a spirit with this effect" (PR-068)
 	return ""
+
+
+## The candidates an effect summon can actually bring in: a paid one only if
+## the reserve (and, with "pay": "normal", spare field cores) can pay for it
+## AND keep it alive -- never one that would die on arrival (0.11.0, 0.16.6).
+func _summonable(pid: int, d: Dictionary, pool: Array) -> Array:
+	var out: Array = []
+	var from_hand := str((d.get("target", {}) as Dictionary).get("zone", "")) == "hand"
+	for c: CardInstance in pool:
+		if c == null or c.data == null:
+			continue
+		if not bool(d.get("free", false)):
+			if from_hand:
+				var normal := str(d.get("pay", "")) == "normal"
+				var res := state.player(pid).total_reserve() + (_spare_field_cores(pid) if normal else 0)
+				if engine.compute_cost(pid, c.data) + c.data.min_level_cost() > res:
+					continue
+			elif safe_summon_payment(pid, c.data) == null:
+				continue                      # cannot be paid without a loss (0.16.6)
+		out.append(c)
+	return out
+
+
+## The levels `ci` could be summoned at by this effect: [{level, cores,
+## extra}], LV1 first. Extra cores beyond LV1 come from the reserve.
+func _summon_levels(pid: int, d: Dictionary, ci: CardInstance) -> Array:
+	var out: Array = []
+	if ci == null or ci.data == null or not ci.data.is_spirit():
+		return out
+	var base := ci.data.min_level_cost()
+	var spare := state.player(pid).total_reserve()
+	if bool(d.get("free", false)):
+		if not bool(d.get("cores_from_void", false)):
+			spare -= base
+	else:
+		var normal := str(d.get("pay", "")) == "normal" or str((d.get("target", {}) as Dictionary).get("zone", "")) != "hand"
+		var cost := engine.compute_cost(pid, ci.data)
+		spare -= maxi(0, cost - (_spare_field_cores(pid) if normal else 0)) + base
+	for lv: Dictionary in ci.data.levels:
+		var on_it := int(lv.get("core_cost", 1))
+		if on_it < base:
+			continue
+		if on_it - base > spare:
+			break
+		out.append({"level": int(lv.get("level", 1)), "cores": on_it, "extra": on_it - base})
+	return out
+
+
+## Summon one chosen card the way the effect says, with `extra` cores beyond
+## its LV1. True when it arrived.
+func _summon_one(pid: int, d: Dictionary, ci: CardInstance, extra: int) -> bool:
+	if ci == null or ci.data == null or ci.zone == BSS.Zone.FIELD:
+		return false
+	if bool(d.get("free", false)):
+		_summon_free(pid, ci, d, extra)
+	elif ci.zone == BSS.Zone.HAND:
+		# "You may summon a green card from your hand by using cores from your
+		# reserve" (0.11.0); "pay": "normal" -- spare field cores may pay too
+		# (0.15.0, BSS04-077 / -112).
+		var normal := str(d.get("pay", "")) == "normal"
+		var act := {"via": "effect", "extra_cores": extra}
+		if normal:
+			act["payment"] = _spare_first_payment(pid, engine.compute_cost(pid, ci.data))
+		engine.do_summon(pid, ci, act, not normal)
+	else:
+		var sp: Variant = safe_summon_payment(pid, ci.data)
+		if sp == null:
+			return false
+		engine.do_summon(pid, ci, {"via": "effect", "payment": sp, "extra_cores": extra})
+	return ci.zone == BSS.Zone.FIELD
 
 
 ## "Summon it without paying its cost" (0.10.0-0.15.0): from the trash, the
 ## hand or a revealed deck card. LV1 cores from the reserve, or from the void
 ## with cores_from_void; "exhausted"; "no_on_summon". Remembers where it came
 ## from ("if this spirit was summoned from the trash", BSS04-020).
-func _summon_free(pid: int, ci: CardInstance, d: Dictionary) -> void:
+func _summon_free(pid: int, ci: CardInstance, d: Dictionary, extra: int = 0) -> void:
 	if ci == null or ci.data == null or not ci.data.is_spirit() or ci.zone == BSS.Zone.FIELD:
 		return
 	if engine.summon_blocked(pid, ci.data):
@@ -2476,6 +2800,9 @@ func _summon_free(pid: int, ci: CardInstance, d: Dictionary) -> void:
 	var src := GameState.pool(pid, BSS.Zone.VOID) if bool(d.get("cores_from_void", false)) \
 			else GameState.pool(pid, BSS.Zone.RESERVE)
 	state.move_cores(src, GameState.on_card(ci.uid), ci.data.min_level_cost(), false, true)
+	if extra > 0:
+		# summoned at a higher level (0.25.0, R-163): the extra from the reserve
+		state.move_cores(GameState.pool(pid, BSS.Zone.RESERVE), GameState.on_card(ci.uid), extra, false, true)
 	ci.summoned_this_turn = true
 	state.log_event("summon", {"player": pid, "uid": ci.uid, "cost": 0, "from": str(ci.flags["summoned_from"])})
 	# "Its When Summoned effects do not activate" (0.15.0)
@@ -2904,6 +3231,15 @@ func check_condition(pid: int, cond: Dictionary, frame: Dictionary) -> bool:
 			var pool := collect_targets(pid, cond.get("target", {}), frame)
 			return pool.size() >= int(cond.get("amount", 1))
 		"trash_count":
+			# "three or more magic cards in their trash" (0.25.0, PR-067): card_type
+			if str(cond.get("card_type", "")) != "":
+				var tct := BSS.card_type_from_string(str(cond["card_type"]))
+				var tcn := 0
+				for tcu: Variant in state.player(_who(pid, cond)).trash:
+					var tcc: CardInstance = state.card(int(tcu))
+					if tcc != null and tcc.data != null and tcc.data.card_type == tct:
+						tcn += 1
+				return tcn >= int(cond.get("amount", 1))
 			return state.player(_who(pid, cond)).trash.size() >= int(cond.get("amount", 1))
 		"hand_count":
 			return state.player(_who(pid, cond)).hand.size() >= int(cond.get("amount", 1))
@@ -2925,6 +3261,14 @@ func check_condition(pid: int, cond: Dictionary, frame: Dictionary) -> bool:
 			return false
 		"turn_flag":
 			return state.turn_flag(_who(pid, cond), str(cond.get("flag", "")))
+		"self_bp_at_least":
+			# "If this spirit has 10,000 or more BP" (0.25.0, PR-011)
+			var sbp: CardInstance = state.card(int(frame.get("source", -1)))
+			return sbp != null and sbp.current_bp() >= int(cond.get("amount", 0))
+		"destroyed_this_turn":
+			# "If two or more of your opponent's spirits have been destroyed
+			# this turn" (0.25.0, PR-020): counted per controller
+			return int(state.turn_flags.get("%d:spirits_destroyed_n" % _who(pid, cond), 0)) >= int(cond.get("amount", 1))
 		"frame_flag":
 			# set earlier in the same effect, e.g. "zeroed" by remove_cores
 			return bool((frame.get("flags", {}) as Dictionary).get(str(cond.get("flag", "")), false))

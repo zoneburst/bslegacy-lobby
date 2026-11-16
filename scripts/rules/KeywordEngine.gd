@@ -32,15 +32,28 @@ func awaken(pid: int, ci: CardInstance, action: Dictionary) -> Dictionary:
 	if sources.is_empty():
 		return {"ok": false, "reason": "choose which cards to take cores from"}
 	var moved := 0
+	# 0.25.0 (R-177): any number of cores from your other SPIRITS -- the card
+	# text: "Move any number of cores from your other spirits onto this
+	# spirit" (not nexuses, 14 Nov) -- down to none, the soul core included
+	# ("soul": true), not only the cores above their level
 	for s in sources:
 		var src: CardInstance = state.card(int(s.get("uid", -1)))
-		if src == null or src.controller_id != pid or src.uid == ci.uid:
+		if src == null or src.controller_id != pid or src.uid == ci.uid or src.zone != BSS.Zone.FIELD \
+				or src.data == null or not src.data.is_spirit():
 			continue
-		moved += state.move_cores(GameState.on_card(src.uid), GameState.on_card(ci.uid),
-				int(s.get("n", 1)), false, false)
+		var n := clampi(int(s.get("n", 1)), 0, src.cores)
+		if n > 0:
+			moved += state.move_cores(GameState.on_card(src.uid), GameState.on_card(ci.uid), n, false, false)
+		if bool(s.get("soul", false)) and src.soul_cores > 0:
+			moved += state.move_cores(GameState.on_card(src.uid), GameState.on_card(ci.uid), 1, true, true)
 		# 11-1-1: emptying a card this way suppresses its destruction triggers.
 		if src.total_cores() < src.data.min_level_cost():
+			var zeroed := src.total_cores() == 0
 			engine._destroy_raw(src, true)
+			# "when you reduce one of your spirit's cores to zero with an
+			# [Awaken] effect" (0.25.0, PR-002)
+			if zeroed:
+				engine.effects.trigger("awaken_zeroed", {"player": pid, "uid": ci.uid, "zeroed": src.uid})
 	if moved == 0:
 		return {"ok": false, "reason": "no cores were moved"}
 	state.log_event("awaken", {"uid": ci.uid, "n": moved})
@@ -69,6 +82,10 @@ func on_block(attacker: CardInstance, _blocker: CardInstance) -> void:
 		if refreshed.size() <= count:
 			for uid in refreshed:
 				engine.effects.effect_exhaust(gp, state.cards[uid])
+				# "When one of your opponent's spirits is exhausted by a [Gale]
+				# effect" (0.25.0, PR-029)
+				if (state.cards[uid] as CardInstance).is_exhausted():
+					engine.effects.trigger("gale_exhausted", {"uid": uid, "player": defender, "by_player": gp})
 		else:
 			# "This turn, you choose which spirits are exhausted by your Gale
 			# effects" (0.15.0, BSS03-133)
@@ -76,7 +93,7 @@ func on_block(attacker: CardInstance, _blocker: CardInstance) -> void:
 			state.pending_choice = {
 				"type": "select_cards", "player": chooser, "options": refreshed,
 				"count": count, "up_to": false, "prompt": "Gale: exhaust %d spirit(s)" % count,
-				"resume": {"frame_index": -1, "op": {"op": "exhaust", "by_player": gp}},
+				"resume": {"frame_index": -1, "op": {"op": "exhaust", "by_player": gp, "gale": true}},
 			}
 		state.log_event("gale", {"n": count})
 
@@ -136,6 +153,14 @@ func do_crush(ci: CardInstance) -> void:
 			spirits += 1
 	if spirits > 0:
 		engine.effects.trigger("crush_milled_spirit", {"player": ci.controller_id, "uid": ci.uid, "spirits": spirits})
+	# "When a magic card is discarded by your [Crush] effect" (0.25.0, PR-031)
+	var magics := 0
+	for m2 in milled_cards:
+		var mc2: CardInstance = state.card(int(m2))
+		if mc2 != null and mc2.data != null and mc2.data.is_magic():
+			magics += 1
+	if magics > 0:
+		engine.effects.trigger("crush_milled_magic", {"player": ci.controller_id, "uid": ci.uid, "magics": magics})
 
 
 ## 11-18 Link. The linking spirit exhausts; the attacker gains its BP and
@@ -311,6 +336,8 @@ func on_damage_dealt(attacker: CardInstance) -> void:
 # --- 11-3 Curse + 11-6 Luster resolution ----------------------------------
 func on_battle_end(attacker: CardInstance, blocker: CardInstance) -> void:
 	# 11-3-1: the blocker is destroyed at the end of the battle.
+	# (whether the attacker still has Curse is checked when the battle is
+	# resolved, RulesEngine._battle_resolution, 0.25.0 R-184)
 	if bool(state.battle.get("curse", false)) and engine.battling(blocker):
 		engine.destroy(blocker, attacker.uid if attacker else -1)
 
@@ -326,8 +353,15 @@ func on_battle_end(attacker: CardInstance, blocker: CardInstance) -> void:
 
 # --- 11-4 Immortal ---------------------------------------------------------
 ## Triggered from the trash when another spirit you control is destroyed.
+## 0.25.0 (R-166): EVERY Immortal spirit in the trash whose condition the
+## destroyed spirit meets activates -- each is offered in turn (before, only
+## the first one was asked, and a second destruction at the same moment
+## replaced the question). A spirit already offered for this moment is not
+## offered twice (8-6-3: three spirits destroyed at once are one event).
 func check_immortal(owner: int, destroyed_uid: int) -> void:
 	var destroyed: CardInstance = state.card(destroyed_uid)
+	var queue: Array = state.turn_flags.get("immortal_queue", [])
+	var seen: Array = state.turn_flags.get("immortal_seen", [])
 	for uid in state.player(owner).trash.duplicate():
 		var ci: CardInstance = state.cards[uid]
 		if ci.data == null or not ci.data.is_spirit():
@@ -337,10 +371,32 @@ func check_immortal(owner: int, destroyed_uid: int) -> void:
 		var cond: Variant = ci.keyword_value(BSS.Keyword.IMMORTAL)
 		if not _immortal_condition_met(destroyed, cond):
 			continue
+		if seen.has(ci.uid):
+			continue
+		seen.append(ci.uid)
+		queue.append([owner, ci.uid])
+	state.turn_flags["immortal_queue"] = queue
+	state.turn_flags["immortal_seen"] = seen
+	if state.pending_choice.is_empty():
+		offer_next_immortal()
+
+
+## Ask about the next queued Immortal spirit that can still come back: its
+## levels (LV1, LV2... as the reserve allows) or Decline. Each answer asks the
+## next one. Nothing left -> the "seen" list is cleared for the next moment.
+func offer_next_immortal() -> void:
+	var queue: Array = state.turn_flags.get("immortal_queue", [])
+	while not queue.is_empty():
+		var entry: Array = queue.pop_front()
+		var owner := int(entry[0])
+		var ci: CardInstance = state.card(int(entry[1]))
+		if ci == null or ci.zone != BSS.Zone.TRASH or ci.data == null:
+			continue
 		# Only offer it when it can be paid without losing a card (0.16.6)
 		if engine.effects.safe_summon_payment(owner, ci.data) == null:
 			continue
 		# "During either attack step, ..." printed on the keyword (0.15.0, BSS03-030 / BSS04-032)
+		var cond: Variant = ci.keyword_value(BSS.Keyword.IMMORTAL)
 		var ks := keyword_spec(ci, BSS.Keyword.IMMORTAL)
 		if ks.has("during") and not engine.effects.during_ok(str(ks["during"]), owner):
 			continue
@@ -348,17 +404,36 @@ func check_immortal(owner: int, destroyed_uid: int) -> void:
 		if typeof(cond) == TYPE_DICTIONARY and (cond as Dictionary).has("during") \
 				and not engine.effects.during_ok(str((cond as Dictionary)["during"]), owner):
 			continue
+		var next := {"op": "script", "name": "immortal_next", "args": {}}
+		var labels: Array = []
+		var branches: Array = []
+		# the level to summon it at (0.25.0, R-166): LV1 first
+		var lvls: Array = engine.effects._summon_levels(owner, {"target": {"zone": "trash"}}, ci)
+		for e: Dictionary in lvls:
+			labels.append("LV%d (%d core%s)" % [int(e["level"]), int(e["cores"]), "" if int(e["cores"]) == 1 else "s"] \
+					if lvls.size() > 1 else "Summon")
+			branches.append({"directives": [
+				{"op": "script", "name": "immortal_summon", "args": {"uid": ci.uid, "extra": int(e["extra"])}}, next]})
+		if labels.is_empty():
+			labels.append("Summon")
+			branches.append({"directives": [{"op": "script", "name": "immortal_summon", "args": {"uid": ci.uid}}, next]})
+		labels.append("Decline")
+		branches.append({"directives": [next]})
+		state.turn_flags["immortal_queue"] = queue
+		var waiting := queue.size()
 		state.pending_choice = {
 			"type": "option", "player": owner,
-			"prompt": "Immortal: summon %s from your trash?" % ci.data.name,
+			"prompt": "Immortal: summon %s from your trash?%s%s" % [ci.data.name, " Choose its level." if lvls.size() > 1 else "",
+					" (%d more Immortal spirit%s after this)" % [waiting, "" if waiting == 1 else "s"] if waiting > 0 else ""],
 			"keyword_prompt": true,
-			"labels": ["Summon", "Decline"],
-			"branches": [
-				{"directives": [{"op": "script", "name": "immortal_summon", "args": {"uid": ci.uid}}]},
-				{"directives": []},
-			],
+			"labels": labels,
+			"branches": branches,
+			"level_choice": true,
+			"decline": labels.size() - 1,
 		}
 		return
+	state.turn_flags["immortal_queue"] = []
+	state.turn_flags["immortal_seen"] = []
 
 
 ## The printed effect that gives `ci` keyword `kw` ({} if none) -- for what a
@@ -781,21 +856,27 @@ func offer_burst_followup(pid: int, ci: CardInstance) -> void:
 	if follow.is_empty():
 		return
 	var cost := engine.compute_cost(pid, ci.data)
-	# the reserve and the spare cores on the field can pay (0.24.0, R-157);
-	# before, only the reserve counted and the offer was silently skipped
+	# the reserve and ALL the cores on your field can pay (rule 10-6-6), even
+	# if that destroys spirits (0.24.0, R-160; R-157 counted only the spare
+	# cores, and before that only the reserve)
 	var can := state.player(pid).total_reserve()
+	var spare := 0
 	for fu in state.player(pid).field:
 		var fc: CardInstance = state.cards[fu]
-		can += maxi(0, fc.cores - (fc.data.min_level_cost() if fc.data != null else 0))
+		can += fc.total_cores()
+		spare += maxi(0, fc.cores - (fc.data.min_level_cost() if fc.data != null else 0))
 	if can < cost:
 		state.log_event("burst_followup_unaffordable", {"uid": ci.uid, "cost": cost})
 		return
-	var dirs: Array = [{"op": "pay_cores", "amount": cost}]
+	var from_field := maxi(0, cost - state.player(pid).total_reserve())
+	var dirs: Array = [{"op": "pay_cores", "amount": cost, "choose_field": true}]
 	for d: Dictionary in follow.get("directives", []):
 		dirs.append(d)
 	state.pending_choice = {
 		"type": "option", "player": pid,
-		"prompt": "Pay %d to also use: %s" % [cost, str(follow.get("text", "its effect"))],
+		"prompt": ("Pay %d to also use: %s" % [cost, str(follow.get("text", "its effect"))]) + \
+				("" if from_field == 0 else "  (%d from your field%s)" % [from_field,
+				"" if from_field <= spare else " — a spirit may be destroyed"]),
 		"labels": ["Pay %d" % cost, "No"],
 		"keyword_prompt": true,
 		"source_uid": ci.uid,

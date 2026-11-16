@@ -245,8 +245,8 @@ func has_family(name: String) -> bool:
 			if st.to_lower() == want:
 				return true
 	for st2: Variant in constant_types:
-		if str(st2).to_lower() == want:
-			return true
+		if str(st2).to_lower() == want or str(st2) == "*":
+			return true                                # "*": all spirit types (0.25.0, PR-071)
 	return false
 
 
